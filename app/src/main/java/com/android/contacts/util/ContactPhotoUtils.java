@@ -24,9 +24,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.support.v4.content.FileProvider;
+import androidx.core.content.FileProvider;
 import android.util.Log;
 
+import com.android.contacts.BuildConfig;
 import com.android.contacts.R;
 
 import com.google.common.io.Closeables;
@@ -57,15 +58,13 @@ public class ContactPhotoUtils {
      *  cropper/etc.), and read by us once they are finished writing it.
      */
     public static Uri generateTempImageUri(Context context) {
-        final String  fileProviderAuthority = context.getResources().getString(
-                R.string.photo_file_provider_authority);
+        final String  fileProviderAuthority = BuildConfig.APPLICATION_ID + ".files";
         return FileProvider.getUriForFile(context, fileProviderAuthority,
                 new File(pathForTempPhoto(context, generateTempPhotoFileName())));
     }
 
     public static Uri generateTempCroppedImageUri(Context context) {
-        final String  fileProviderAuthority = context.getResources().getString(
-                R.string.photo_file_provider_authority);
+        final String  fileProviderAuthority = BuildConfig.APPLICATION_ID + ".files";
         return FileProvider.getUriForFile(context, fileProviderAuthority,
                 new File(pathForTempPhoto(context, generateTempCroppedPhotoFileName())));
     }

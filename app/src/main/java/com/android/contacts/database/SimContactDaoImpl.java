@@ -32,8 +32,10 @@ import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.CommonDataKinds.StructuredName;
 import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.RawContacts;
-import android.support.annotation.VisibleForTesting;
-import android.support.v4.util.ArrayMap;
+import androidx.annotation.VisibleForTesting;
+import androidx.collection.ArrayMap;
+
+import androidx.collection.ArrayMap;
 import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;

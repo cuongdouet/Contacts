@@ -30,6 +30,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.android.contacts.BuildConfig;
 import com.android.contacts.R;
 import com.android.contactsbind.FeedbackHelper;
 import com.android.vcard.VCardComposer;
@@ -243,7 +244,8 @@ public class ExportProcessor extends ProcessorBase {
 
     private boolean isLocalFile(Uri uri) {
         final String authority = uri.getAuthority();
-        return mService.getString(R.string.contacts_file_provider_authority).equals(authority);
+        final String appAuthority = BuildConfig.APPLICATION_ID + ".files";
+        return appAuthority.equals(authority);
     }
 
     private String translateComposerError(String errorMessage) {

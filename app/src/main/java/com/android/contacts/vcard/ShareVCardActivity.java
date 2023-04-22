@@ -18,9 +18,10 @@ package com.android.contacts.vcard;
 import android.content.ComponentName;
 import android.net.Uri;
 import android.os.IBinder;
-import android.support.v4.content.FileProvider;
+import androidx.core.content.FileProvider;
 import android.util.Log;
 
+import com.android.contacts.BuildConfig;
 import com.android.contacts.R;
 import com.android.contactsbind.FeedbackHelper;
 
@@ -56,8 +57,7 @@ public class ShareVCardActivity extends ExportVCardActivity {
             return;
         }
 
-        final Uri contentUri = FileProvider.getUriForFile(this,
-                getString(R.string.contacts_file_provider_authority), file);
+        final Uri contentUri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".files", file);
         if (DEBUG) Log.d(LOG_TAG, "exporting to " + contentUri);
 
         final ExportRequest request = new ExportRequest(contentUri);

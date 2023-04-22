@@ -23,11 +23,6 @@
          the overlay will fill this in during build time. -->
     <string name="help_url_people_main"></string>
 
-    <!-- File Authority for the photo picker -->
-    <string name="photo_file_provider_authority">com.kince.contacts.files</string>
-
-    <!-- File Authority for AOSP Contacts files -->
-    <string name="contacts_file_provider_authority">com.kince.contacts.files</string>
     <!-- Flag indicating whether Contacts app is allowed to import contacts -->
     <bool name="config_allow_import_from_vcf_file">true</bool>
 

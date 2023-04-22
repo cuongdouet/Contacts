@@ -15,6 +15,7 @@
  */
 package com.android.contacts;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -40,10 +41,10 @@ import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.CommonDataKinds.Photo;
 import android.provider.ContactsContract.Contacts;
 import android.provider.ContactsContract.Data;
-import android.support.v4.graphics.drawable.IconCompat;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
-import android.support.v4.os.BuildCompat;
+import androidx.core.graphics.drawable.IconCompat;
+import androidx.core.graphics.drawable.RoundedBitmapDrawable;
+import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
+import androidx.core.os.BuildCompat;
 import android.telecom.PhoneAccount;
 import android.text.TextPaint;
 import android.text.TextUtils;
@@ -273,8 +274,9 @@ public class ShortcutIntentBuilder {
         }
     }
 
+    @SuppressLint("RestrictedApi")
     private void createContactShortcutIntent(Uri contactUri, String contentType, String displayName,
-            String lookupKey, byte[] bitmapData) {
+                                             String lookupKey, byte[] bitmapData) {
         Intent intent = null;
         if (TextUtils.isEmpty(displayName)) {
             displayName = mContext.getResources().getString(R.string.missing_name);
@@ -300,7 +302,7 @@ public class ShortcutIntentBuilder {
         final Bitmap icon = generateQuickContactIcon(drawable);
         if (BuildCompat.isAtLeastO()) {
             final IconCompat compatIcon = IconCompat.createWithAdaptiveBitmap(icon);
-            compatIcon.addToShortcutIntent(intent);
+            compatIcon.addToShortcutIntent(intent, null, mContext);
         } else {
             intent.putExtra(Intent.EXTRA_SHORTCUT_ICON, icon);
         }
@@ -310,9 +312,10 @@ public class ShortcutIntentBuilder {
         mListener.onShortcutIntentCreated(contactUri, intent);
     }
 
+    @SuppressLint("RestrictedApi")
     private void createPhoneNumberShortcutIntent(Uri uri, String displayName, String lookupKey,
-            byte[] bitmapData, String phoneNumber, int phoneType, String phoneLabel,
-            String shortcutAction) {
+                                                 byte[] bitmapData, String phoneNumber, int phoneType, String phoneLabel,
+                                                 String shortcutAction) {
         final Drawable drawable = getPhotoDrawable(bitmapData, displayName, lookupKey);
         final Bitmap icon;
         final Uri phoneUri;
@@ -356,7 +359,7 @@ public class ShortcutIntentBuilder {
         intent = intent == null ? new Intent() : intent;
         // This will be non-null in O and above.
         if (compatAdaptiveIcon != null) {
-            compatAdaptiveIcon.addToShortcutIntent(intent);
+            compatAdaptiveIcon.addToShortcutIntent(intent, null, mContext);
         } else {
             intent.putExtra(Intent.EXTRA_SHORTCUT_ICON, icon);
         }

@@ -21,7 +21,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
+import androidx.core.content.ContextCompat;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,7 +50,7 @@ public class ContactsUnavailableFragment extends Fragment implements OnClickList
     private Button mAddAccountButton;
     private Button mImportContactsButton;
     private ProgressBar mProgress;
-    private View mButtonsContainer;
+    // private View mButtonsContainer;
 
     private Integer mProviderStatus;
 
@@ -84,7 +84,7 @@ public class ContactsUnavailableFragment extends Fragment implements OnClickList
         mProgress = (ProgressBar) mView.findViewById(R.id.progress);
 
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            mButtonsContainer = mView.findViewById(R.id.buttons_container);
+            // mButtonsContainer = mView.findViewById(R.id.buttons_container);
         }
 
         if (mProviderStatus != null) {
@@ -144,7 +144,7 @@ public class ContactsUnavailableFragment extends Fragment implements OnClickList
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             mAddAccountButton.setVisibility(visibility);
             mImportContactsButton.setVisibility(visibility);
-            mButtonsContainer.setVisibility(visibility);
+            // mButtonsContainer.setVisibility(visibility);
         } else {
             mAddAccountButton.setVisibility(visibility);
             mImportContactsButton.setVisibility(visibility);

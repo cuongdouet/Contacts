@@ -22,9 +22,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -440,8 +440,8 @@ public class ActionBarAdapter implements OnCloseListener {
      * Find overflow menu ImageView by its content description and update its color.
      */
     public void updateOverflowButtonColor() {
-        final String overflowDescription = mActivity.getResources().getString(
-                R.string.abc_action_menu_overflow_description);
+//        final String overflowDescription = mActivity.getResources().getString(
+//                R.string.abc_action_menu_overflow_description);
         final ViewGroup decorView = (ViewGroup) mActivity.getWindow().getDecorView();
         final ViewTreeObserver viewTreeObserver = decorView.getViewTreeObserver();
         viewTreeObserver.addOnGlobalLayoutListener(
@@ -450,8 +450,8 @@ public class ActionBarAdapter implements OnCloseListener {
                     public void onGlobalLayout() {
                         // Find the overflow ImageView.
                         final ArrayList<View> outViews = new ArrayList<>();
-                        decorView.findViewsWithText(outViews, overflowDescription,
-                                View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION);
+//                        decorView.findViewsWithText(outViews, overflowDescription,
+//                                View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION);
 
                         for (View view : outViews) {
                             if (!(view instanceof ImageView)) {

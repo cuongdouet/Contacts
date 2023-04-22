@@ -23,7 +23,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.ContactsContract.CommonDataKinds.Im;
 import android.provider.ContactsContract.DisplayPhoto;
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -94,8 +94,8 @@ public class ContactsUtils {
     }
 
 
-    public static final long USER_TYPE_CURRENT = 0;
-    public static final long USER_TYPE_WORK = 1;
+    public static final int USER_TYPE_CURRENT = 0;
+    public static final int USER_TYPE_WORK = 1;
 
     /**
      * UserType indicates the user type of the contact. If the contact is from Work User (Work
