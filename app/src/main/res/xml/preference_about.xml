@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2016 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2016 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -15,26 +14,24 @@
 -->
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <Preference
-            android:icon="@null"
-            android:key="@string/pref_build_version_key"
-            android:title="@string/about_build_version"/>
+  <Preference
+    android:icon="@null"
+    android:key="@string/pref_build_version_key"
+    android:title="@string/about_build_version" />
 
-    <Preference
-            android:icon="@null"
-            android:key="@string/pref_open_source_licenses_key"
-            android:title="@string/about_open_source_licenses"
-            android:summary="@string/about_open_source_licenses_summary"/>
+  <Preference
+    android:icon="@null"
+    android:key="@string/pref_open_source_licenses_key"
+    android:summary="@string/about_open_source_licenses_summary"
+    android:title="@string/about_open_source_licenses" />
 
-    <Preference
-            android:icon="@null"
-            android:key="@string/pref_privacy_policy_key"
-            android:title="@string/about_privacy_policy">
-    </Preference>
+  <Preference
+    android:icon="@null"
+    android:key="@string/pref_privacy_policy_key"
+    android:title="@string/about_privacy_policy"></Preference>
 
-    <Preference
-            android:icon="@null"
-            android:key="@string/pref_terms_of_service_key"
-            android:title="@string/about_terms_of_service">
-    </Preference>
+  <Preference
+    android:icon="@null"
+    android:key="@string/pref_terms_of_service_key"
+    android:title="@string/about_terms_of_service"></Preference>
 </PreferenceScreen>

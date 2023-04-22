@@ -24,17 +24,19 @@ import android.app.Activity;
  */
 public class HelpUtils {
 
-    /**
-     * Returns {@code TRUE} if {@link @launchHelpAndFeedbackForMainScreen} and
-     * {@link @launchHelpAndFeedbackForContactScreen} are implemented to start help and feedback
-     * activities.
-     */
-    public static boolean isHelpAndFeedbackAvailable() {
-        return false;
-    }
+  /**
+   * Returns {@code TRUE} if {@link @launchHelpAndFeedbackForMainScreen} and
+   * {@link @launchHelpAndFeedbackForContactScreen} are implemented to start help and feedback
+   * activities.
+   */
+  public static boolean isHelpAndFeedbackAvailable() {
+    return false;
+  }
 
-    public static void launchHelpAndFeedbackForMainScreen(Activity activity) { }
+  public static void launchHelpAndFeedbackForMainScreen(Activity activity) {
+  }
 
-    public static void launchHelpAndFeedbackForContactScreen(Activity activity) { }
+  public static void launchHelpAndFeedbackForContactScreen(Activity activity) {
+  }
 
 }

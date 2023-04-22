@@ -25,21 +25,22 @@ import android.os.Build.VERSION;
  */
 public class SdkVersionOverride {
 
-    /**
-     * Flag used to determine if override sdk versions are returned.
-     */
-    private static final boolean ALLOW_OVERRIDE_VERSION = false;
+  /**
+   * Flag used to determine if override sdk versions are returned.
+   */
+  private static final boolean ALLOW_OVERRIDE_VERSION = false;
 
-    private SdkVersionOverride() {}
+  private SdkVersionOverride() {
+  }
 
-    /**
-     * Gets the sdk version
-     *
-     * @param overrideVersion the version to attempt using
-     * @return overrideVersion if the {@link #ALLOW_OVERRIDE_VERSION} flag is set to {@code true},
-     * otherwise the current version
-     */
-    public static int getSdkVersion(int overrideVersion) {
-        return ALLOW_OVERRIDE_VERSION ? overrideVersion : VERSION.SDK_INT;
-    }
+  /**
+   * Gets the sdk version
+   *
+   * @param overrideVersion the version to attempt using
+   * @return overrideVersion if the {@link #ALLOW_OVERRIDE_VERSION} flag is set to {@code true},
+   * otherwise the current version
+   */
+  public static int getSdkVersion(int overrideVersion) {
+    return ALLOW_OVERRIDE_VERSION ? overrideVersion : VERSION.SDK_INT;
+  }
 }

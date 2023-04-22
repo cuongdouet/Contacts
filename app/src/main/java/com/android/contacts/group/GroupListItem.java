@@ -20,67 +20,67 @@ package com.android.contacts.group;
  * constituent accounts.
  */
 public final class GroupListItem {
-    private final String mAccountName;
-    private final String mAccountType;
-    private final String mDataSet;
-    private final long mGroupId;
-    private final String mTitle;
-    private final boolean mIsFirstGroupInAccount;
-    private final int mMemberCount;
-    private final boolean mIsReadOnly;
-    private final String mSystemId;
+  private final String mAccountName;
+  private final String mAccountType;
+  private final String mDataSet;
+  private final long mGroupId;
+  private final String mTitle;
+  private final boolean mIsFirstGroupInAccount;
+  private final int mMemberCount;
+  private final boolean mIsReadOnly;
+  private final String mSystemId;
 
-    public GroupListItem(String accountName, String accountType, String dataSet, long groupId,
-            String title, boolean isFirstGroupInAccount, int memberCount, boolean isReadOnly,
-            String systemId) {
-        mAccountName = accountName;
-        mAccountType = accountType;
-        mDataSet = dataSet;
-        mGroupId = groupId;
-        mTitle = title;
-        mIsFirstGroupInAccount = isFirstGroupInAccount;
-        mMemberCount = memberCount;
-        mIsReadOnly = isReadOnly;
-        mSystemId = systemId;
-    }
+  public GroupListItem(String accountName, String accountType, String dataSet, long groupId,
+                       String title, boolean isFirstGroupInAccount, int memberCount, boolean isReadOnly,
+                       String systemId) {
+    mAccountName = accountName;
+    mAccountType = accountType;
+    mDataSet = dataSet;
+    mGroupId = groupId;
+    mTitle = title;
+    mIsFirstGroupInAccount = isFirstGroupInAccount;
+    mMemberCount = memberCount;
+    mIsReadOnly = isReadOnly;
+    mSystemId = systemId;
+  }
 
-    public String getAccountName() {
-        return mAccountName;
-    }
+  public String getAccountName() {
+    return mAccountName;
+  }
 
-    public String getAccountType() {
-        return mAccountType;
-    }
+  public String getAccountType() {
+    return mAccountType;
+  }
 
-    public String getDataSet() {
-        return mDataSet;
-    }
+  public String getDataSet() {
+    return mDataSet;
+  }
 
-    public long getGroupId() {
-        return mGroupId;
-    }
+  public long getGroupId() {
+    return mGroupId;
+  }
 
-    public String getTitle() {
-        return mTitle;
-    }
+  public String getTitle() {
+    return mTitle;
+  }
 
-    public int getMemberCount() {
-        return mMemberCount;
-    }
+  public int getMemberCount() {
+    return mMemberCount;
+  }
 
-    public boolean hasMemberCount() {
-        return mMemberCount != -1;
-    }
+  public boolean hasMemberCount() {
+    return mMemberCount != -1;
+  }
 
-    public boolean isFirstGroupInAccount() {
-        return mIsFirstGroupInAccount;
-    }
+  public boolean isFirstGroupInAccount() {
+    return mIsFirstGroupInAccount;
+  }
 
-    public boolean isReadOnly() {
-        return mIsReadOnly;
-    }
+  public boolean isReadOnly() {
+    return mIsReadOnly;
+  }
 
-    public String getSystemId() {
-        return mSystemId;
-    }
+  public String getSystemId() {
+    return mSystemId;
+  }
 }

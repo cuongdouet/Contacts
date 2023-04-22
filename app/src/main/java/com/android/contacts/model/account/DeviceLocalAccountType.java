@@ -19,28 +19,28 @@ import android.content.Context;
 
 public class DeviceLocalAccountType extends FallbackAccountType {
 
-    private final boolean mGroupsEditable;
+  private final boolean mGroupsEditable;
 
-    public DeviceLocalAccountType(Context context, boolean groupsEditable) {
-        super(context);
-        mGroupsEditable = groupsEditable;
-    }
+  public DeviceLocalAccountType(Context context, boolean groupsEditable) {
+    super(context);
+    mGroupsEditable = groupsEditable;
+  }
 
-    public DeviceLocalAccountType(Context context) {
-        this(context, false);
-    }
+  public DeviceLocalAccountType(Context context) {
+    this(context, false);
+  }
 
-    @Override
-    public boolean isGroupMembershipEditable() {
-        return mGroupsEditable;
-    }
+  @Override
+  public boolean isGroupMembershipEditable() {
+    return mGroupsEditable;
+  }
 
-    @Override
-    public AccountInfo wrapAccount(Context context, AccountWithDataSet account) {
-        // Use the "Device" type label for the name as well because on OEM phones the "name" is
-        // not always user-friendly
-        return new AccountInfo(
-                new AccountDisplayInfo(account, getDisplayLabel(context), getDisplayLabel(context),
-                        getDisplayIcon(context), true), this);
-    }
+  @Override
+  public AccountInfo wrapAccount(Context context, AccountWithDataSet account) {
+    // Use the "Device" type label for the name as well because on OEM phones the "name" is
+    // not always user-friendly
+    return new AccountInfo(
+      new AccountDisplayInfo(account, getDisplayLabel(context), getDisplayLabel(context),
+        getDisplayIcon(context), true), this);
+  }
 }

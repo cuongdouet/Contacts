@@ -16,8 +16,8 @@
 -->
 
 <View xmlns:android="http://schemas.android.com/apk/res/android"
-      android:id="@+id/nav_drawer_spacer"
-      android:layout_width="match_parent"
-      android:layout_height="@dimen/nav_drawer_spacer_height"
-      android:background="@color/navigation_drawer_background_color"
-      android:importantForAccessibility="no"/>
+  android:id="@+id/nav_drawer_spacer"
+  android:layout_width="match_parent"
+  android:layout_height="@dimen/nav_drawer_spacer_height"
+  android:background="@color/navigation_drawer_background_color"
+  android:importantForAccessibility="no" />

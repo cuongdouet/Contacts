@@ -30,69 +30,67 @@ import android.view.ViewGroup;
 @SuppressWarnings("deprecation")
 public class LegacyContactListAdapter extends ContactEntryListAdapter {
 
-    static final String[] PEOPLE_PROJECTION = new String[] {
-        People._ID,                         // 0
-        People.DISPLAY_NAME,                // 1
-        People.PHONETIC_NAME,               // 2
-        People.STARRED,                     // 3
-        People.PRESENCE_STATUS,             // 4
-    };
+  protected static final int PERSON_ID_COLUMN_INDEX = 0;
+  protected static final int PERSON_DISPLAY_NAME_COLUMN_INDEX = 1;
+  protected static final int PERSON_PHONETIC_NAME_COLUMN_INDEX = 2;
+  protected static final int PERSON_STARRED_COLUMN_INDEX = 3;
+  protected static final int PERSON_PRESENCE_STATUS_COLUMN_INDEX = 4;
+  static final String[] PEOPLE_PROJECTION = new String[]{
+    People._ID,                         // 0
+    People.DISPLAY_NAME,                // 1
+    People.PHONETIC_NAME,               // 2
+    People.STARRED,                     // 3
+    People.PRESENCE_STATUS,             // 4
+  };
+  private CharSequence mUnknownNameText;
 
-    protected static final int PERSON_ID_COLUMN_INDEX = 0;
-    protected static final int PERSON_DISPLAY_NAME_COLUMN_INDEX = 1;
-    protected static final int PERSON_PHONETIC_NAME_COLUMN_INDEX = 2;
-    protected static final int PERSON_STARRED_COLUMN_INDEX = 3;
-    protected static final int PERSON_PRESENCE_STATUS_COLUMN_INDEX = 4;
+  public LegacyContactListAdapter(Context context) {
+    super(context);
+    mUnknownNameText = context.getText(android.R.string.unknownName);
+  }
 
-    private CharSequence mUnknownNameText;
+  @Override
+  public void configureLoader(CursorLoader loader, long directoryId) {
+    loader.setUri(People.CONTENT_URI);
+    loader.setProjection(PEOPLE_PROJECTION);
+    loader.setSortOrder(People.DISPLAY_NAME);
+  }
 
-    public LegacyContactListAdapter(Context context) {
-        super(context);
-        mUnknownNameText = context.getText(android.R.string.unknownName);
-    }
+  @Override
+  public String getContactDisplayName(int position) {
+    return ((Cursor) getItem(position)).getString(PERSON_DISPLAY_NAME_COLUMN_INDEX);
+  }
 
-    @Override
-    public void configureLoader(CursorLoader loader, long directoryId) {
-        loader.setUri(People.CONTENT_URI);
-        loader.setProjection(PEOPLE_PROJECTION);
-        loader.setSortOrder(People.DISPLAY_NAME);
-    }
+  public Uri getPersonUri(int position) {
+    Cursor cursor = ((Cursor) getItem(position));
+    long personId = cursor.getLong(PERSON_ID_COLUMN_INDEX);
+    return ContentUris.withAppendedId(People.CONTENT_URI, personId);
+  }
 
-    @Override
-    public String getContactDisplayName(int position) {
-        return ((Cursor)getItem(position)).getString(PERSON_DISPLAY_NAME_COLUMN_INDEX);
-    }
+  @Override
+  protected ContactListItemView newView(
+    Context context, int partition, Cursor cursor, int position, ViewGroup parent) {
+    final ContactListItemView view = new ContactListItemView(context, null);
+    view.setUnknownNameText(mUnknownNameText);
+    return view;
+  }
 
-    public Uri getPersonUri(int position) {
-        Cursor cursor = ((Cursor)getItem(position));
-        long personId = cursor.getLong(PERSON_ID_COLUMN_INDEX);
-        return ContentUris.withAppendedId(People.CONTENT_URI, personId);
-    }
+  @Override
+  protected void bindView(View itemView, int partition, Cursor cursor, int position) {
+    super.bindView(itemView, partition, cursor, position);
+    ContactListItemView view = (ContactListItemView) itemView;
+    bindName(view, cursor);
+    bindViewId(view, cursor, PERSON_ID_COLUMN_INDEX);
+    bindPresence(view, cursor);
+  }
 
-    @Override
-    protected ContactListItemView newView(
-            Context context, int partition, Cursor cursor, int position, ViewGroup parent) {
-        final ContactListItemView view = new ContactListItemView(context, null);
-        view.setUnknownNameText(mUnknownNameText);
-        return view;
-    }
+  protected void bindName(final ContactListItemView view, Cursor cursor) {
+    view.showDisplayName(cursor, PERSON_DISPLAY_NAME_COLUMN_INDEX,
+      getContactNameDisplayOrder());
+    view.showPhoneticName(cursor, PERSON_PHONETIC_NAME_COLUMN_INDEX);
+  }
 
-    @Override
-    protected void bindView(View itemView, int partition, Cursor cursor, int position) {
-        super.bindView(itemView, partition, cursor, position);
-        ContactListItemView view = (ContactListItemView)itemView;
-        bindName(view, cursor);
-        bindViewId(view, cursor, PERSON_ID_COLUMN_INDEX);
-        bindPresence(view, cursor);
-    }
-
-    protected void bindName(final ContactListItemView view, Cursor cursor) {
-        view.showDisplayName(cursor, PERSON_DISPLAY_NAME_COLUMN_INDEX,
-                getContactNameDisplayOrder());
-        view.showPhoneticName(cursor, PERSON_PHONETIC_NAME_COLUMN_INDEX);
-    }
-
-    protected void bindPresence(final ContactListItemView view, Cursor cursor) {
-        view.showPresenceAndStatusMessage(cursor, PERSON_PRESENCE_STATUS_COLUMN_INDEX, 0);
-    }
+  protected void bindPresence(final ContactListItemView view, Cursor cursor) {
+    view.showPresenceAndStatusMessage(cursor, PERSON_PRESENCE_STATUS_COLUMN_INDEX, 0);
+  }
 }

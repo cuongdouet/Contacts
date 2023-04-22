@@ -24,24 +24,24 @@ import android.widget.BaseAdapter;
  */
 public abstract class SingleItemAdapter extends BaseAdapter {
 
-    public int getCount() {
-        return 1;
-    }
+  public int getCount() {
+    return 1;
+  }
 
-    public Object getItem(int position) {
-        return null;
-    }
+  public Object getItem(int position) {
+    return null;
+  }
 
-    public long getItemId(int position) {
-        return 0;
-    }
+  public long getItemId(int position) {
+    return 0;
+  }
 
-    public View getView(int position, View convertView, ViewGroup parent) {
-        return getView(convertView, parent);
-    }
+  public View getView(int position, View convertView, ViewGroup parent) {
+    return getView(convertView, parent);
+  }
 
-    /**
-     * Creates the view.
-     */
-    protected abstract View getView(View convertView, ViewGroup parent);
+  /**
+   * Creates the view.
+   */
+  protected abstract View getView(View convertView, ViewGroup parent);
 }

@@ -27,37 +27,36 @@ import android.widget.ImageView;
  * when disambig list is shown. Otherwise, it works identically to a ImageView.
  */
 public class CheckableImageView extends ImageView implements Checkable {
-    private boolean mChecked;
+  private static final int[] CHECKED_STATE_SET = {
+    android.R.attr.state_checked
+  };
+  private boolean mChecked;
 
-    private static final int[] CHECKED_STATE_SET = {
-        android.R.attr.state_checked
-    };
+  public CheckableImageView(Context context, AttributeSet attrs) {
+    super(context, attrs);
+  }
 
-    public CheckableImageView(Context context, AttributeSet attrs) {
-        super(context, attrs);
+  @Override
+  public int[] onCreateDrawableState(int extraSpace) {
+    final int[] drawableState = super.onCreateDrawableState(extraSpace + 1);
+    if (isChecked()) {
+      mergeDrawableStates(drawableState, CHECKED_STATE_SET);
     }
+    return drawableState;
+  }
 
-    @Override
-    public int[] onCreateDrawableState(int extraSpace) {
-        final int[] drawableState = super.onCreateDrawableState(extraSpace + 1);
-        if (isChecked()) {
-            mergeDrawableStates(drawableState, CHECKED_STATE_SET);
-        }
-        return drawableState;
-    }
+  public void toggle() {
+    setChecked(!mChecked);
+  }
 
-    public void toggle() {
-        setChecked(!mChecked);
-    }
+  public boolean isChecked() {
+    return mChecked;
+  }
 
-    public boolean isChecked() {
-        return mChecked;
+  public void setChecked(boolean checked) {
+    if (mChecked != checked) {
+      mChecked = checked;
+      refreshDrawableState();
     }
-
-    public void setChecked(boolean checked) {
-        if (mChecked != checked) {
-            mChecked = checked;
-            refreshDrawableState();
-        }
-    }
+  }
 }

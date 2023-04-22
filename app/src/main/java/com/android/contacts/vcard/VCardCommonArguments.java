@@ -21,7 +21,7 @@ package com.android.contacts.vcard;
  */
 public class VCardCommonArguments {
 
-    // Argument used to pass calling activities to the target activity or service.
-    // The value should be a string class name (e.g. com.android.contacts.vcard.VCardCommonArgs)
-    public static final String ARG_CALLING_ACTIVITY = "CALLING_ACTIVITY";
+  // Argument used to pass calling activities to the target activity or service.
+  // The value should be a string class name (e.g. com.android.contacts.vcard.VCardCommonArgs)
+  public static final String ARG_CALLING_ACTIVITY = "CALLING_ACTIVITY";
 }

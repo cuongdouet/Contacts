@@ -20,14 +20,14 @@ import androidx.fragment.app.FragmentActivity;
 
 public final class FeatureHighlightHelper {
 
-    private FeatureHighlightHelper () {
-    }
+  private FeatureHighlightHelper() {
+  }
 
-    public static boolean showHamburgerFeatureHighlight(final FragmentActivity activity) {
-        return false;
-    }
+  public static boolean showHamburgerFeatureHighlight(final FragmentActivity activity) {
+    return false;
+  }
 
-    public static boolean tryRemoveHighlight(final FragmentActivity activity) {
-        return false;
-    }
+  public static boolean tryRemoveHighlight(final FragmentActivity activity) {
+    return false;
+  }
 }

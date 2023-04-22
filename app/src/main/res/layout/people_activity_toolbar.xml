@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2014 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2014 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -15,25 +14,25 @@
 -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/toolbar_parent"
-    android:orientation="vertical"
+  android:id="@+id/toolbar_parent"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:elevation="@dimen/tab_elevation"
+  android:orientation="vertical">
+
+  <FrameLayout
+    android:id="@+id/toolbar_frame"
     android:layout_width="match_parent"
-    android:elevation="@dimen/tab_elevation"
-    android:layout_height="wrap_content" >
+    android:layout_height="?attr/actionBarSize"
+    android:background="?attr/colorPrimary">
 
-    <FrameLayout
-        android:id="@+id/toolbar_frame"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary">
+    <!-- the attribute padding removes the gap between this Toolbar and its parent FrameLayout on tablet -->
+    <androidx.appcompat.widget.Toolbar
+      android:id="@+id/toolbar"
+      style="@style/ContactsToolbarStyle"
+      android:layout_width="match_parent"
+      android:layout_height="?attr/actionBarSize"
+      android:padding="0dp" />
 
-        <!-- the attribute padding removes the gap between this Toolbar and its parent FrameLayout on tablet -->
-        <androidx.appcompat.widget.Toolbar
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:id="@+id/toolbar"
-            android:padding="0dp"
-            style="@style/ContactsToolbarStyle" />
-
-    </FrameLayout>
+  </FrameLayout>
 </LinearLayout>

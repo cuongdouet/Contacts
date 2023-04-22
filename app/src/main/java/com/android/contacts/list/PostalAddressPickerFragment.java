@@ -26,64 +26,64 @@ import com.android.contacts.R;
  * Fragment containing a postal address list for picking.
  */
 public class PostalAddressPickerFragment
-        extends ContactEntryListFragment<ContactEntryListAdapter> {
-    private OnPostalAddressPickerActionListener mListener;
+  extends ContactEntryListFragment<ContactEntryListAdapter> {
+  private OnPostalAddressPickerActionListener mListener;
 
-    public PostalAddressPickerFragment() {
-        setQuickContactEnabled(false);
-        setPhotoLoaderEnabled(true);
-        setSectionHeaderDisplayEnabled(true);
-        setDirectorySearchMode(DirectoryListLoader.SEARCH_MODE_DATA_SHORTCUT);
+  public PostalAddressPickerFragment() {
+    setQuickContactEnabled(false);
+    setPhotoLoaderEnabled(true);
+    setSectionHeaderDisplayEnabled(true);
+    setDirectorySearchMode(DirectoryListLoader.SEARCH_MODE_DATA_SHORTCUT);
+  }
+
+  public void setOnPostalAddressPickerActionListener(
+    OnPostalAddressPickerActionListener listener) {
+    this.mListener = listener;
+  }
+
+  @Override
+  protected void onItemClick(int position, long id) {
+    if (getAdapter().getItem(position) == null) {
+      return;
     }
-
-    public void setOnPostalAddressPickerActionListener(
-            OnPostalAddressPickerActionListener listener) {
-        this.mListener = listener;
+    if (!isLegacyCompatibilityMode()) {
+      PostalAddressListAdapter adapter = (PostalAddressListAdapter) getAdapter();
+      pickPostalAddress(adapter.getDataUri(position));
+    } else {
+      LegacyPostalAddressListAdapter adapter = (LegacyPostalAddressListAdapter) getAdapter();
+      pickPostalAddress(adapter.getContactMethodUri(position));
     }
+  }
 
-    @Override
-    protected void onItemClick(int position, long id) {
-        if (getAdapter().getItem(position) == null) {
-            return;
-        }
-        if (!isLegacyCompatibilityMode()) {
-            PostalAddressListAdapter adapter = (PostalAddressListAdapter)getAdapter();
-            pickPostalAddress(adapter.getDataUri(position));
-        } else {
-            LegacyPostalAddressListAdapter adapter = (LegacyPostalAddressListAdapter)getAdapter();
-            pickPostalAddress(adapter.getContactMethodUri(position));
-        }
+  @Override
+  protected ContactEntryListAdapter createListAdapter() {
+    if (!isLegacyCompatibilityMode()) {
+      PostalAddressListAdapter adapter = new PostalAddressListAdapter(getActivity());
+      adapter.setSectionHeaderDisplayEnabled(true);
+      adapter.setDisplayPhotos(true);
+      return adapter;
+    } else {
+      LegacyPostalAddressListAdapter adapter =
+        new LegacyPostalAddressListAdapter(getActivity());
+      adapter.setSectionHeaderDisplayEnabled(false);
+      adapter.setDisplayPhotos(false);
+      return adapter;
     }
+  }
 
-    @Override
-    protected ContactEntryListAdapter createListAdapter() {
-        if (!isLegacyCompatibilityMode()) {
-            PostalAddressListAdapter adapter = new PostalAddressListAdapter(getActivity());
-            adapter.setSectionHeaderDisplayEnabled(true);
-            adapter.setDisplayPhotos(true);
-            return adapter;
-        } else {
-            LegacyPostalAddressListAdapter adapter =
-                    new LegacyPostalAddressListAdapter(getActivity());
-            adapter.setSectionHeaderDisplayEnabled(false);
-            adapter.setDisplayPhotos(false);
-            return adapter;
-        }
-    }
+  @Override
+  protected View inflateView(LayoutInflater inflater, ViewGroup container) {
+    return inflater.inflate(R.layout.contact_list_content, null);
+  }
 
-    @Override
-    protected View inflateView(LayoutInflater inflater, ViewGroup container) {
-        return inflater.inflate(R.layout.contact_list_content, null);
-    }
+  @Override
+  protected void onCreateView(LayoutInflater inflater, ViewGroup container) {
+    super.onCreateView(inflater, container);
 
-    @Override
-    protected void onCreateView(LayoutInflater inflater, ViewGroup container) {
-        super.onCreateView(inflater, container);
+    setVisibleScrollbarEnabled(!isLegacyCompatibilityMode());
+  }
 
-        setVisibleScrollbarEnabled(!isLegacyCompatibilityMode());
-    }
-
-    private void pickPostalAddress(Uri uri) {
-        mListener.onPickPostalAddressAction(uri);
-    }
+  private void pickPostalAddress(Uri uri) {
+    mListener.onPickPostalAddressAction(uri);
+  }
 }

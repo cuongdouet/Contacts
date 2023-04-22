@@ -32,111 +32,109 @@ import android.util.Log;
 import com.android.contacts.testing.InjectedServices;
 import com.android.contacts.util.Constants;
 import com.android.contactsbind.analytics.AnalyticsUtil;
-
 import com.google.common.annotations.VisibleForTesting;
 
 public class ContactsApplication extends Application {
-    private static final boolean ENABLE_LOADER_LOG = false; // Don't submit with true
-    private static final boolean ENABLE_FRAGMENT_LOG = false; // Don't submit with true
+  /**
+   * Log tag for enabling/disabling StrictMode violation log.
+   * To enable: adb shell setprop log.tag.ContactsStrictMode DEBUG
+   */
+  public static final String STRICT_MODE_TAG = "ContactsStrictMode";
+  private static final boolean ENABLE_LOADER_LOG = false; // Don't submit with true
+  private static final boolean ENABLE_FRAGMENT_LOG = false; // Don't submit with true
+  private static InjectedServices sInjectedServices;
 
-    private static InjectedServices sInjectedServices;
-    /**
-     * Log tag for enabling/disabling StrictMode violation log.
-     * To enable: adb shell setprop log.tag.ContactsStrictMode DEBUG
-     */
-    public static final String STRICT_MODE_TAG = "ContactsStrictMode";
+  /**
+   * Overrides the system services with mocks for testing.
+   */
+  @VisibleForTesting
+  public static void injectServices(InjectedServices services) {
+    sInjectedServices = services;
+  }
 
-    /**
-     * Overrides the system services with mocks for testing.
-     */
-    @VisibleForTesting
-    public static void injectServices(InjectedServices services) {
-        sInjectedServices = services;
+  public static InjectedServices getInjectedServices() {
+    return sInjectedServices;
+  }
+
+  @Override
+  public ContentResolver getContentResolver() {
+    if (sInjectedServices != null) {
+      ContentResolver resolver = sInjectedServices.getContentResolver();
+      if (resolver != null) {
+        return resolver;
+      }
+    }
+    return super.getContentResolver();
+  }
+
+  @Override
+  public SharedPreferences getSharedPreferences(String name, int mode) {
+    if (sInjectedServices != null) {
+      SharedPreferences prefs = sInjectedServices.getSharedPreferences();
+      if (prefs != null) {
+        return prefs;
+      }
     }
 
-    public static InjectedServices getInjectedServices() {
-        return sInjectedServices;
+    return super.getSharedPreferences(name, mode);
+  }
+
+  @Override
+  public Object getSystemService(String name) {
+    if (sInjectedServices != null) {
+      Object service = sInjectedServices.getSystemService(name);
+      if (service != null) {
+        return service;
+      }
     }
 
+    return super.getSystemService(name);
+  }
+
+  @Override
+  public void onCreate() {
+    super.onCreate();
+
+    if (Log.isLoggable(Constants.PERFORMANCE_TAG, Log.DEBUG)) {
+      Log.d(Constants.PERFORMANCE_TAG, "ContactsApplication.onCreate start");
+    }
+
+    if (ENABLE_FRAGMENT_LOG) FragmentManager.enableDebugLogging(true);
+    if (ENABLE_LOADER_LOG) LoaderManager.enableDebugLogging(true);
+
+    if (Log.isLoggable(STRICT_MODE_TAG, Log.DEBUG)) {
+      StrictMode.setThreadPolicy(
+        new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
+    }
+
+    // Perform the initialization that doesn't have to finish immediately.
+    // We use an async task here just to avoid creating a new thread.
+    (new DelayedInitializer()).execute();
+
+    if (Log.isLoggable(Constants.PERFORMANCE_TAG, Log.DEBUG)) {
+      Log.d(Constants.PERFORMANCE_TAG, "ContactsApplication.onCreate finish");
+    }
+
+    AnalyticsUtil.initialize(this);
+  }
+
+  private class DelayedInitializer extends AsyncTask<Void, Void, Void> {
     @Override
-    public ContentResolver getContentResolver() {
-        if (sInjectedServices != null) {
-            ContentResolver resolver = sInjectedServices.getContentResolver();
-            if (resolver != null) {
-                return resolver;
-            }
-        }
-        return super.getContentResolver();
+    protected Void doInBackground(Void... params) {
+      final Context context = ContactsApplication.this;
+
+      // Warm up the preferences and the contacts provider.  We delay initialization
+      // of the account type manager because we may not have the contacts group permission
+      // (and thus not have the get accounts permission).
+      PreferenceManager.getDefaultSharedPreferences(context);
+      getContentResolver().getType(ContentUris.withAppendedId(Contacts.CONTENT_URI, 1));
+
+      return null;
     }
 
-    @Override
-    public SharedPreferences getSharedPreferences(String name, int mode) {
-        if (sInjectedServices != null) {
-            SharedPreferences prefs = sInjectedServices.getSharedPreferences();
-            if (prefs != null) {
-                return prefs;
-            }
-        }
-
-        return super.getSharedPreferences(name, mode);
+    public void execute() {
+      executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
+        (Void[]) null);
     }
-
-    @Override
-    public Object getSystemService(String name) {
-        if (sInjectedServices != null) {
-            Object service = sInjectedServices.getSystemService(name);
-            if (service != null) {
-                return service;
-            }
-        }
-
-        return super.getSystemService(name);
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
-        if (Log.isLoggable(Constants.PERFORMANCE_TAG, Log.DEBUG)) {
-            Log.d(Constants.PERFORMANCE_TAG, "ContactsApplication.onCreate start");
-        }
-
-        if (ENABLE_FRAGMENT_LOG) FragmentManager.enableDebugLogging(true);
-        if (ENABLE_LOADER_LOG) LoaderManager.enableDebugLogging(true);
-
-        if (Log.isLoggable(STRICT_MODE_TAG, Log.DEBUG)) {
-            StrictMode.setThreadPolicy(
-                    new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
-        }
-
-        // Perform the initialization that doesn't have to finish immediately.
-        // We use an async task here just to avoid creating a new thread.
-        (new DelayedInitializer()).execute();
-
-        if (Log.isLoggable(Constants.PERFORMANCE_TAG, Log.DEBUG)) {
-            Log.d(Constants.PERFORMANCE_TAG, "ContactsApplication.onCreate finish");
-        }
-
-        AnalyticsUtil.initialize(this);
-    }
-
-    private class DelayedInitializer extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... params) {
-            final Context context = ContactsApplication.this;
-
-            // Warm up the preferences and the contacts provider.  We delay initialization
-            // of the account type manager because we may not have the contacts group permission
-            // (and thus not have the get accounts permission).
-            PreferenceManager.getDefaultSharedPreferences(context);
-            getContentResolver().getType(ContentUris.withAppendedId(Contacts.CONTENT_URI, 1));
-
-            return null;
-        }
-
-        public void execute() {
-            executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
-                    (Void[]) null);
-        }
-    }
+  }
 }

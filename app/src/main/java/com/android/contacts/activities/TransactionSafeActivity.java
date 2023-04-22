@@ -25,41 +25,41 @@ import android.os.Bundle;
  */
 public abstract class TransactionSafeActivity extends Activity {
 
-    private boolean mIsSafeToCommitTransactions;
+  private boolean mIsSafeToCommitTransactions;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mIsSafeToCommitTransactions = true;
-    }
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    mIsSafeToCommitTransactions = true;
+  }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        mIsSafeToCommitTransactions = true;
-    }
+  @Override
+  protected void onStart() {
+    super.onStart();
+    mIsSafeToCommitTransactions = true;
+  }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mIsSafeToCommitTransactions = true;
-    }
+  @Override
+  protected void onResume() {
+    super.onResume();
+    mIsSafeToCommitTransactions = true;
+  }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        mIsSafeToCommitTransactions = false;
-    }
+  @Override
+  protected void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+    mIsSafeToCommitTransactions = false;
+  }
 
-    /**
-     * Returns true if it is safe to commit {@link FragmentTransaction}s at this time, based on
-     * whether {@link Activity#onSaveInstanceState} has been called or not.
-     *
-     * Make sure that the current activity calls into
-     * {@link super.onSaveInstanceState(Bundle outState)} (if that method is overridden),
-     * so the flag is properly set.
-     */
-    public boolean isSafeToCommitTransactions() {
-        return mIsSafeToCommitTransactions;
-    }
+  /**
+   * Returns true if it is safe to commit {@link FragmentTransaction}s at this time, based on
+   * whether {@link Activity#onSaveInstanceState} has been called or not.
+   * <p>
+   * Make sure that the current activity calls into
+   * {@link super.onSaveInstanceState(Bundle outState)} (if that method is overridden),
+   * so the flag is properly set.
+   */
+  public boolean isSafeToCommitTransactions() {
+    return mIsSafeToCommitTransactions;
+  }
 }

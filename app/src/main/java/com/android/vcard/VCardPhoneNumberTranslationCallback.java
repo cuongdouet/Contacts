@@ -27,9 +27,10 @@ package com.android.vcard;
  * @hide This will change
  */
 public interface VCardPhoneNumberTranslationCallback {
-    /**
-     * Called when a phone number is being handled.
-     * @return formatted phone number.
-     */
-    public String onValueReceived(String rawValue, int type, String label, boolean isPrimary);
+  /**
+   * Called when a phone number is being handled.
+   *
+   * @return formatted phone number.
+   */
+  public String onValueReceived(String rawValue, int type, String label, boolean isPrimary);
 }

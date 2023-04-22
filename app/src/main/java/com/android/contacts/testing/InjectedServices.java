@@ -30,38 +30,38 @@ import java.util.HashMap;
  */
 public class InjectedServices {
 
-    private ContentResolver mContentResolver;
-    private SharedPreferences mSharedPreferences;
-    private HashMap<String, Object> mSystemServices;
+  private ContentResolver mContentResolver;
+  private SharedPreferences mSharedPreferences;
+  private HashMap<String, Object> mSystemServices;
 
-    public void setContentResolver(ContentResolver contentResolver) {
-        this.mContentResolver = contentResolver;
+  public ContentResolver getContentResolver() {
+    return mContentResolver;
+  }
+
+  public void setContentResolver(ContentResolver contentResolver) {
+    this.mContentResolver = contentResolver;
+  }
+
+  public SharedPreferences getSharedPreferences() {
+    return mSharedPreferences;
+  }
+
+  public void setSharedPreferences(SharedPreferences sharedPreferences) {
+    this.mSharedPreferences = sharedPreferences;
+  }
+
+  public void setSystemService(String name, Object service) {
+    if (mSystemServices == null) {
+      mSystemServices = Maps.newHashMap();
     }
 
-    public ContentResolver getContentResolver() {
-        return mContentResolver;
-    }
+    mSystemServices.put(name, service);
+  }
 
-    public void setSharedPreferences(SharedPreferences sharedPreferences) {
-        this.mSharedPreferences = sharedPreferences;
+  public Object getSystemService(String name) {
+    if (mSystemServices != null) {
+      return mSystemServices.get(name);
     }
-
-    public SharedPreferences getSharedPreferences() {
-        return mSharedPreferences;
-    }
-
-    public void setSystemService(String name, Object service) {
-        if (mSystemServices == null) {
-            mSystemServices = Maps.newHashMap();
-        }
-
-        mSystemServices.put(name, service);
-    }
-
-    public Object getSystemService(String name) {
-        if (mSystemServices != null) {
-            return mSystemServices.get(name);
-        }
-        return null;
-    }
+    return null;
+  }
 }

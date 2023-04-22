@@ -24,30 +24,30 @@ import android.app.Activity;
  */
 public class RequestImportVCardPermissionsActivity extends RequestPermissionsActivity {
 
-    private static final String[] REQUIRED_PERMISSIONS = new String[] {
-            // Contacts group
-            permission.GET_ACCOUNTS,
-            permission.READ_CONTACTS,
-            permission.WRITE_CONTACTS,
-            // Storage group
-            permission.READ_EXTERNAL_STORAGE,
-    };
+  private static final String[] REQUIRED_PERMISSIONS = new String[]{
+    // Contacts group
+    permission.GET_ACCOUNTS,
+    permission.READ_CONTACTS,
+    permission.WRITE_CONTACTS,
+    // Storage group
+    permission.READ_EXTERNAL_STORAGE,
+  };
 
-    @Override
-    protected String[] getPermissions() {
-        return REQUIRED_PERMISSIONS;
-    }
+  /**
+   * If any permissions the Contacts app needs are missing, open an Activity
+   * to prompt the user for these permissions. Moreover, finish the current activity.
+   * <p>
+   * This is designed to be called inside {@link android.app.Activity#onCreate}
+   *
+   * @param isCallerSelf whether the vcard import was started from the contacts app itself.
+   */
+  public static boolean startPermissionActivity(Activity activity, boolean isCallerSelf) {
+    return startPermissionActivity(activity, REQUIRED_PERMISSIONS, isCallerSelf,
+      RequestImportVCardPermissionsActivity.class);
+  }
 
-    /**
-     * If any permissions the Contacts app needs are missing, open an Activity
-     * to prompt the user for these permissions. Moreover, finish the current activity.
-     *
-     * This is designed to be called inside {@link android.app.Activity#onCreate}
-     *
-     * @param isCallerSelf whether the vcard import was started from the contacts app itself.
-     */
-    public static boolean startPermissionActivity(Activity activity, boolean isCallerSelf) {
-        return startPermissionActivity(activity, REQUIRED_PERMISSIONS, isCallerSelf,
-                RequestImportVCardPermissionsActivity.class);
-    }
+  @Override
+  protected String[] getPermissions() {
+    return REQUIRED_PERMISSIONS;
+  }
 }

@@ -18,9 +18,9 @@ import java.util.List;
  */
 public interface ExtendedPhoneDirectoriesManager {
 
-    /**
-     * Return a list of extended directories to add. May return null if no directories are to be
-     * added.
-     */
-    List<DirectoryPartition> getExtendedDirectories(Context context);
+  /**
+   * Return a list of extended directories to add. May return null if no directories are to be
+   * added.
+   */
+  List<DirectoryPartition> getExtendedDirectories(Context context);
 }

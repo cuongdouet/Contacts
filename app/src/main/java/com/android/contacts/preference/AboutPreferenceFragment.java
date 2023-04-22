@@ -35,70 +35,70 @@ import com.android.contacts.activities.LicenseActivity;
  */
 public class AboutPreferenceFragment extends PreferenceFragment {
 
-    public static final String PRIVACY_POLICY_URL = "http://www.google.com/policies/privacy";
-    public static final String TERMS_OF_SERVICE_URL = "http://www.google.com/policies/terms";
+  public static final String PRIVACY_POLICY_URL = "http://www.google.com/policies/privacy";
+  public static final String TERMS_OF_SERVICE_URL = "http://www.google.com/policies/terms";
 
-    public static AboutPreferenceFragment newInstance() {
-        return new AboutPreferenceFragment();
+  public static AboutPreferenceFragment newInstance() {
+    return new AboutPreferenceFragment();
+  }
+
+  @Override
+  public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+
+    // Load the preferences from an XML resource
+    addPreferencesFromResource(R.xml.preference_about);
+
+    // Set build version of Contacts App.
+    final PackageManager manager = getActivity().getPackageManager();
+    try {
+      final PackageInfo info = manager.getPackageInfo(getActivity().getPackageName(), 0);
+      final Preference versionPreference = findPreference(
+        getString(R.string.pref_build_version_key));
+      versionPreference.setSummary(info.versionName);
+    } catch (PackageManager.NameNotFoundException e) {
+      // Nothing
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    final Preference licensePreference = findPreference(
+      getString(R.string.pref_open_source_licenses_key));
+    licensePreference.setIntent(new Intent(getActivity(), LicenseActivity.class));
 
-        // Load the preferences from an XML resource
-        addPreferencesFromResource(R.xml.preference_about);
+    final Preference privacyPolicyPreference = findPreference("pref_privacy_policy");
+    final Preference termsOfServicePreference = findPreference("pref_terms_of_service");
 
-        // Set build version of Contacts App.
-        final PackageManager manager = getActivity().getPackageManager();
-        try {
-            final PackageInfo info = manager.getPackageInfo(getActivity().getPackageName(), 0);
-            final Preference versionPreference = findPreference(
-                    getString(R.string.pref_build_version_key));
-            versionPreference.setSummary(info.versionName);
-        } catch (PackageManager.NameNotFoundException e) {
-            // Nothing
-        }
-
-        final Preference licensePreference = findPreference(
-                getString(R.string.pref_open_source_licenses_key));
-        licensePreference.setIntent(new Intent(getActivity(), LicenseActivity.class));
-
-        final Preference privacyPolicyPreference = findPreference("pref_privacy_policy");
-        final Preference termsOfServicePreference = findPreference("pref_terms_of_service");
-
-        final Preference.OnPreferenceClickListener listener =
-                new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                try {
-                    if (preference == privacyPolicyPreference) {
-                        startActivityForUrl(PRIVACY_POLICY_URL);
-                    } else if (preference == termsOfServicePreference) {
-                        startActivityForUrl(TERMS_OF_SERVICE_URL);
-                    }
-                } catch (ActivityNotFoundException ex) {
-                    Toast.makeText(getContext(), getString(R.string.url_open_error_toast),
-                            Toast.LENGTH_SHORT).show();
-                }
-                return true;
+    final Preference.OnPreferenceClickListener listener =
+      new Preference.OnPreferenceClickListener() {
+        @Override
+        public boolean onPreferenceClick(Preference preference) {
+          try {
+            if (preference == privacyPolicyPreference) {
+              startActivityForUrl(PRIVACY_POLICY_URL);
+            } else if (preference == termsOfServicePreference) {
+              startActivityForUrl(TERMS_OF_SERVICE_URL);
             }
-        };
+          } catch (ActivityNotFoundException ex) {
+            Toast.makeText(getContext(), getString(R.string.url_open_error_toast),
+              Toast.LENGTH_SHORT).show();
+          }
+          return true;
+        }
+      };
 
-        privacyPolicyPreference.setOnPreferenceClickListener(listener);
-        termsOfServicePreference.setOnPreferenceClickListener(listener);
-    }
+    privacyPolicyPreference.setOnPreferenceClickListener(listener);
+    termsOfServicePreference.setOnPreferenceClickListener(listener);
+  }
 
-    @Override
-    public Context getContext() {
-        return getActivity();
-    }
+  @Override
+  public Context getContext() {
+    return getActivity();
+  }
 
-    private void startActivityForUrl(String urlString) {
-        final Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse(urlString));
-        startActivity(intent);
-    }
+  private void startActivityForUrl(String urlString) {
+    final Intent intent = new Intent();
+    intent.setAction(Intent.ACTION_VIEW);
+    intent.setData(Uri.parse(urlString));
+    startActivity(intent);
+  }
 }
 

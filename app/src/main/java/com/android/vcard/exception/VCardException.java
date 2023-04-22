@@ -16,20 +16,20 @@
 package com.android.vcard.exception;
 
 public class VCardException extends Exception {
-    /**
-     * Constructs a VCardException object
-     */
-    public VCardException() {
-        super();
-    }
+  /**
+   * Constructs a VCardException object
+   */
+  public VCardException() {
+    super();
+  }
 
-    /**
-     * Constructs a VCardException object
-     *
-     * @param message the error message
-     */
-    public VCardException(String message) {
-        super(message);
-    }
+  /**
+   * Constructs a VCardException object
+   *
+   * @param message the error message
+   */
+  public VCardException(String message) {
+    super(message);
+  }
 
 }

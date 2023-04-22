@@ -18,18 +18,18 @@ package com.android.contacts.vcard;
 import android.net.Uri;
 
 public class ExportRequest {
-    public final Uri destUri;
-    /**
-     * Can be null.
-     */
-    public final String exportType;
+  public final Uri destUri;
+  /**
+   * Can be null.
+   */
+  public final String exportType;
 
-    public ExportRequest(Uri destUri) {
-        this(destUri, null);
-    }
+  public ExportRequest(Uri destUri) {
+    this(destUri, null);
+  }
 
-    public ExportRequest(Uri destUri, String exportType) {
-        this.destUri = destUri;
-        this.exportType = exportType;
-    }
+  public ExportRequest(Uri destUri, String exportType) {
+    this.destUri = destUri;
+    this.exportType = exportType;
+  }
 }

@@ -41,159 +41,157 @@ import java.util.List;
  */
 public class AccountFilterActivity extends Activity implements AdapterView.OnItemClickListener {
 
-    private static final int SUBACTIVITY_CUSTOMIZE_FILTER = 0;
+  public static final String EXTRA_CONTACT_LIST_FILTER = "contactListFilter";
+  private static final int SUBACTIVITY_CUSTOMIZE_FILTER = 0;
+  private ListView mListView;
 
-    public static final String EXTRA_CONTACT_LIST_FILTER = "contactListFilter";
+  // The default contact list type, it should be either FILTER_TYPE_ALL_ACCOUNTS or
+  // FILTER_TYPE_CUSTOM, since those are the only two options we give the user.
+  private int mCurrentFilterType;
 
-    private ListView mListView;
+  private ContactListFilterView mCustomFilterView; // the "Customize" filter
 
-    // The default contact list type, it should be either FILTER_TYPE_ALL_ACCOUNTS or
-    // FILTER_TYPE_CUSTOM, since those are the only two options we give the user.
-    private int mCurrentFilterType;
+  private boolean mIsCustomFilterViewSelected;
 
-    private ContactListFilterView mCustomFilterView; // the "Customize" filter
+  @Override
+  protected void onCreate(Bundle icicle) {
+    super.onCreate(icicle);
+    setContentView(R.layout.contact_list_filter);
 
-    private boolean mIsCustomFilterViewSelected;
+    mListView = (ListView) findViewById(android.R.id.list);
+    mListView.setOnItemClickListener(this);
 
-    @Override
-    protected void onCreate(Bundle icicle) {
-        super.onCreate(icicle);
-        setContentView(R.layout.contact_list_filter);
+    ActionBar actionBar = getActionBar();
+    if (actionBar != null) {
+      actionBar.setDisplayHomeAsUpEnabled(true);
+    }
 
-        mListView = (ListView) findViewById(android.R.id.list);
-        mListView.setOnItemClickListener(this);
+    mCurrentFilterType = ContactListFilterController.getInstance(this).isCustomFilterPersisted()
+      ? ContactListFilter.FILTER_TYPE_CUSTOM
+      : ContactListFilter.FILTER_TYPE_ALL_ACCOUNTS;
 
-        ActionBar actionBar = getActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
+    // We don't need to use AccountFilterUtil.FilterLoader since we only want to show
+    // the "All contacts" and "Customize" options.
+    final List<ContactListFilter> filters = new ArrayList<>();
+    filters.add(ContactListFilter.createFilterWithType(
+      ContactListFilter.FILTER_TYPE_ALL_ACCOUNTS));
+    filters.add(ContactListFilter.createFilterWithType(
+      ContactListFilter.FILTER_TYPE_CUSTOM));
+    mListView.setAdapter(new FilterListAdapter(this, filters, mCurrentFilterType));
+  }
 
-        mCurrentFilterType = ContactListFilterController.getInstance(this).isCustomFilterPersisted()
-                ? ContactListFilter.FILTER_TYPE_CUSTOM
-                : ContactListFilter.FILTER_TYPE_ALL_ACCOUNTS;
+  @Override
+  public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+    final ContactListFilterView listFilterView = (ContactListFilterView) view;
+    final ContactListFilter filter = (ContactListFilter) view.getTag();
+    if (filter == null) return; // Just in case
+    if (filter.filterType == ContactListFilter.FILTER_TYPE_CUSTOM) {
+      mCustomFilterView = listFilterView;
+      mIsCustomFilterViewSelected = listFilterView.isChecked();
+      final Intent intent = new Intent(this, CustomContactListFilterActivity.class)
+        .putExtra(CustomContactListFilterActivity.EXTRA_CURRENT_LIST_FILTER_TYPE,
+          mCurrentFilterType);
+      listFilterView.setActivated(true);
+      // Switching activity has the highest priority. So when we open another activity, the
+      // announcement that indicates an account is checked will be interrupted. This is the
+      // way to overcome -- View.announceForAccessibility(CharSequence text);
+      listFilterView.announceForAccessibility(listFilterView.generateContentDescription());
+      startActivityForResult(intent, SUBACTIVITY_CUSTOMIZE_FILTER);
+    } else {
+      listFilterView.setActivated(true);
+      listFilterView.announceForAccessibility(listFilterView.generateContentDescription());
+      final Intent intent = new Intent();
+      intent.putExtra(EXTRA_CONTACT_LIST_FILTER, filter);
+      setResult(Activity.RESULT_OK, intent);
+      finish();
+    }
+  }
 
-        // We don't need to use AccountFilterUtil.FilterLoader since we only want to show
-        // the "All contacts" and "Customize" options.
-        final List<ContactListFilter> filters = new ArrayList<>();
-        filters.add(ContactListFilter.createFilterWithType(
-                ContactListFilter.FILTER_TYPE_ALL_ACCOUNTS));
-        filters.add(ContactListFilter.createFilterWithType(
-                ContactListFilter.FILTER_TYPE_CUSTOM));
-        mListView.setAdapter(new FilterListAdapter(this, filters, mCurrentFilterType));
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    if (resultCode == Activity.RESULT_CANCELED && mCustomFilterView != null &&
+      !mIsCustomFilterViewSelected) {
+      mCustomFilterView.setActivated(false);
+      return;
+    }
+
+    if (resultCode != Activity.RESULT_OK) {
+      return;
+    }
+
+    switch (requestCode) {
+      case SUBACTIVITY_CUSTOMIZE_FILTER: {
+        final Intent intent = new Intent();
+        ContactListFilter filter = ContactListFilter.createFilterWithType(
+          ContactListFilter.FILTER_TYPE_CUSTOM);
+        intent.putExtra(EXTRA_CONTACT_LIST_FILTER, filter);
+        setResult(Activity.RESULT_OK, intent);
+        finish();
+        break;
+      }
+    }
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    switch (item.getItemId()) {
+      case android.R.id.home:
+        // We have two logical "up" Activities: People and Phone.
+        // Instead of having one static "up" direction, behave like back as an
+        // exceptional case.
+        onBackPressed();
+        return true;
+      default:
+        break;
+    }
+    return super.onOptionsItemSelected(item);
+  }
+
+  private static class FilterListAdapter extends BaseAdapter {
+    private final List<ContactListFilter> mFilters;
+    private final LayoutInflater mLayoutInflater;
+    private final AccountTypeManager mAccountTypes;
+    private final int mCurrentFilter;
+
+    public FilterListAdapter(
+      Context context, List<ContactListFilter> filters, int current) {
+      mLayoutInflater = (LayoutInflater) context.getSystemService
+        (Context.LAYOUT_INFLATER_SERVICE);
+      mFilters = filters;
+      mCurrentFilter = current;
+      mAccountTypes = AccountTypeManager.getInstance(context);
     }
 
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        final ContactListFilterView listFilterView = (ContactListFilterView) view;
-        final ContactListFilter filter = (ContactListFilter) view.getTag();
-        if (filter == null) return; // Just in case
-        if (filter.filterType == ContactListFilter.FILTER_TYPE_CUSTOM) {
-            mCustomFilterView = listFilterView;
-            mIsCustomFilterViewSelected = listFilterView.isChecked();
-            final Intent intent = new Intent(this, CustomContactListFilterActivity.class)
-                    .putExtra(CustomContactListFilterActivity.EXTRA_CURRENT_LIST_FILTER_TYPE,
-                            mCurrentFilterType);
-            listFilterView.setActivated(true);
-            // Switching activity has the highest priority. So when we open another activity, the
-            // announcement that indicates an account is checked will be interrupted. This is the
-            // way to overcome -- View.announceForAccessibility(CharSequence text);
-            listFilterView.announceForAccessibility(listFilterView.generateContentDescription());
-            startActivityForResult(intent, SUBACTIVITY_CUSTOMIZE_FILTER);
-        } else {
-            listFilterView.setActivated(true);
-            listFilterView.announceForAccessibility(listFilterView.generateContentDescription());
-            final Intent intent = new Intent();
-            intent.putExtra(EXTRA_CONTACT_LIST_FILTER, filter);
-            setResult(Activity.RESULT_OK, intent);
-            finish();
-        }
+    public int getCount() {
+      return mFilters.size();
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == Activity.RESULT_CANCELED && mCustomFilterView != null &&
-                !mIsCustomFilterViewSelected) {
-            mCustomFilterView.setActivated(false);
-            return;
-        }
-
-        if (resultCode != Activity.RESULT_OK) {
-            return;
-        }
-
-        switch (requestCode) {
-            case SUBACTIVITY_CUSTOMIZE_FILTER: {
-                final Intent intent = new Intent();
-                ContactListFilter filter = ContactListFilter.createFilterWithType(
-                        ContactListFilter.FILTER_TYPE_CUSTOM);
-                intent.putExtra(EXTRA_CONTACT_LIST_FILTER, filter);
-                setResult(Activity.RESULT_OK, intent);
-                finish();
-                break;
-            }
-        }
-    }
-
-    private static class FilterListAdapter extends BaseAdapter {
-        private final List<ContactListFilter> mFilters;
-        private final LayoutInflater mLayoutInflater;
-        private final AccountTypeManager mAccountTypes;
-        private final int mCurrentFilter;
-
-        public FilterListAdapter(
-                Context context, List<ContactListFilter> filters, int current) {
-            mLayoutInflater = (LayoutInflater) context.getSystemService
-                    (Context.LAYOUT_INFLATER_SERVICE);
-            mFilters = filters;
-            mCurrentFilter = current;
-            mAccountTypes = AccountTypeManager.getInstance(context);
-        }
-
-        @Override
-        public int getCount() {
-            return mFilters.size();
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public ContactListFilter getItem(int position) {
-            return mFilters.get(position);
-        }
-
-        public View getView(int position, View convertView, ViewGroup parent) {
-            final ContactListFilterView view;
-            if (convertView != null) {
-                view = (ContactListFilterView) convertView;
-            } else {
-                view = (ContactListFilterView) mLayoutInflater.inflate(
-                        R.layout.contact_list_filter_item, parent, false);
-            }
-            view.setSingleAccount(mFilters.size() == 1);
-            final ContactListFilter filter = mFilters.get(position);
-            view.setContactListFilter(filter);
-            view.bindView(mAccountTypes);
-            view.setTag(filter);
-            view.setActivated(filter.filterType == mCurrentFilter);
-            return view;
-        }
+    public long getItemId(int position) {
+      return position;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                // We have two logical "up" Activities: People and Phone.
-                // Instead of having one static "up" direction, behave like back as an
-                // exceptional case.
-                onBackPressed();
-                return true;
-            default:
-                break;
-        }
-        return super.onOptionsItemSelected(item);
+    public ContactListFilter getItem(int position) {
+      return mFilters.get(position);
     }
+
+    public View getView(int position, View convertView, ViewGroup parent) {
+      final ContactListFilterView view;
+      if (convertView != null) {
+        view = (ContactListFilterView) convertView;
+      } else {
+        view = (ContactListFilterView) mLayoutInflater.inflate(
+          R.layout.contact_list_filter_item, parent, false);
+      }
+      view.setSingleAccount(mFilters.size() == 1);
+      final ContactListFilter filter = mFilters.get(position);
+      view.setContactListFilter(filter);
+      view.bindView(mAccountTypes);
+      view.setTag(filter);
+      view.setActivated(filter.filterType == mCurrentFilter);
+      return view;
+    }
+  }
 }

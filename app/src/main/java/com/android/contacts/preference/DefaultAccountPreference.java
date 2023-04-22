@@ -30,83 +30,83 @@ import com.android.contacts.util.AccountsListAdapter;
 import java.util.List;
 
 public class DefaultAccountPreference extends DialogPreference {
-    private ContactsPreferences mPreferences;
-    private AccountsListAdapter mListAdapter;
-    private List<AccountInfo> mAccounts;
-    private int mChosenIndex = -1;
+  private ContactsPreferences mPreferences;
+  private AccountsListAdapter mListAdapter;
+  private List<AccountInfo> mAccounts;
+  private int mChosenIndex = -1;
 
-    public DefaultAccountPreference(Context context) {
-        super(context);
-        prepare();
+  public DefaultAccountPreference(Context context) {
+    super(context);
+    prepare();
+  }
+
+  public DefaultAccountPreference(Context context, AttributeSet attrs) {
+    super(context, attrs);
+    prepare();
+  }
+
+  public void setAccounts(List<AccountInfo> accounts) {
+    mAccounts = accounts;
+    if (mListAdapter != null) {
+      mListAdapter.setAccounts(accounts, null);
+      notifyChanged();
     }
+  }
 
-    public DefaultAccountPreference(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        prepare();
+  @Override
+  protected View onCreateDialogView() {
+    prepare();
+    return super.onCreateDialogView();
+  }
+
+  private void prepare() {
+    mPreferences = new ContactsPreferences(getContext());
+    mListAdapter = new AccountsListAdapter(getContext());
+    if (mAccounts != null) {
+      mListAdapter.setAccounts(mAccounts, null);
     }
+  }
 
-    public void setAccounts(List<AccountInfo> accounts) {
-        mAccounts = accounts;
-        if (mListAdapter != null) {
-            mListAdapter.setAccounts(accounts, null);
-            notifyChanged();
-        }
+  @Override
+  protected boolean shouldPersist() {
+    return false;   // This preference takes care of its own storage
+  }
+
+  @Override
+  public CharSequence getSummary() {
+    final AccountWithDataSet defaultAccount = mPreferences.getDefaultAccount();
+    if (defaultAccount == null || mAccounts == null ||
+      !AccountInfo.contains(mAccounts, defaultAccount)) {
+      return null;
+    } else {
+      return AccountInfo.getAccount(mAccounts, defaultAccount).getNameLabel();
     }
+  }
 
-    @Override
-    protected View onCreateDialogView() {
-        prepare();
-        return super.onCreateDialogView();
-    }
+  @Override
+  protected void onPrepareDialogBuilder(AlertDialog.Builder builder) {
+    super.onPrepareDialogBuilder(builder);
+    // UX recommendation is not to show buttons on such lists.
+    builder.setNegativeButton(null, null);
+    builder.setPositiveButton(null, null);
+    builder.setAdapter(mListAdapter, new DialogInterface.OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        mChosenIndex = which;
+      }
+    });
+  }
 
-    private void prepare() {
-        mPreferences = new ContactsPreferences(getContext());
-        mListAdapter = new AccountsListAdapter(getContext());
-        if (mAccounts != null) {
-            mListAdapter.setAccounts(mAccounts, null);
-        }
-    }
+  @Override
+  protected void onDialogClosed(boolean positiveResult) {
+    final AccountWithDataSet currentDefault = mPreferences.getDefaultAccount();
 
-    @Override
-    protected boolean shouldPersist() {
-        return false;   // This preference takes care of its own storage
-    }
-
-    @Override
-    public CharSequence getSummary() {
-        final AccountWithDataSet defaultAccount = mPreferences.getDefaultAccount();
-        if (defaultAccount == null || mAccounts == null ||
-                !AccountInfo.contains(mAccounts, defaultAccount)) {
-            return null;
-        } else {
-            return AccountInfo.getAccount(mAccounts, defaultAccount).getNameLabel();
-        }
-    }
-
-    @Override
-    protected void onPrepareDialogBuilder(AlertDialog.Builder builder) {
-        super.onPrepareDialogBuilder(builder);
-        // UX recommendation is not to show buttons on such lists.
-        builder.setNegativeButton(null, null);
-        builder.setPositiveButton(null, null);
-        builder.setAdapter(mListAdapter, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                mChosenIndex = which;
-            }
-        });
-    }
-
-    @Override
-    protected void onDialogClosed(boolean positiveResult) {
-        final AccountWithDataSet currentDefault = mPreferences.getDefaultAccount();
-
-        if (mChosenIndex != -1) {
-            final AccountWithDataSet chosenAccount = mListAdapter.getItem(mChosenIndex);
-            if (!chosenAccount.equals(currentDefault)) {
-                mPreferences.setDefaultAccount(chosenAccount);
-                notifyChanged();
-            }
-        } // else the user dismissed this dialog so leave the preference unchanged.
-    }
+    if (mChosenIndex != -1) {
+      final AccountWithDataSet chosenAccount = mListAdapter.getItem(mChosenIndex);
+      if (!chosenAccount.equals(currentDefault)) {
+        mPreferences.setDefaultAccount(chosenAccount);
+        notifyChanged();
+      }
+    } // else the user dismissed this dialog so leave the preference unchanged.
+  }
 }

@@ -26,11 +26,11 @@ import android.provider.ContactsContract.CommonDataKinds.Note;
  */
 public class NoteDataItem extends DataItem {
 
-    /* package */ NoteDataItem(ContentValues values) {
-        super(values);
-    }
+  /* package */ NoteDataItem(ContentValues values) {
+    super(values);
+  }
 
-    public String getNote() {
-        return getContentValues().getAsString(Note.NOTE);
-    }
+  public String getNote() {
+    return getContentValues().getAsString(Note.NOTE);
+  }
 }

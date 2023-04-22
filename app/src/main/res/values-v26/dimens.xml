@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2017 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2017 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,7 +13,7 @@
      limitations under the License.
 -->
 <resources>
-    <!-- On Android O, shortcut icons will be 108dp unmasked.
-         See go/o-icons-eng for more details. -->
-    <dimen name="shortcut_icon_size">108dp</dimen>
+  <!-- On Android O, shortcut icons will be 108dp unmasked.
+       See go/o-icons-eng for more details. -->
+  <dimen name="shortcut_icon_size">108dp</dimen>
 </resources>

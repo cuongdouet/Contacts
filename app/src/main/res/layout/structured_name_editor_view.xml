@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (C) 2011 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,39 +14,37 @@
   limitations under the License.
   -->
 
-<com.android.contacts.editor.StructuredNameEditorView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:minHeight="@dimen/editor_min_line_item_height"
-    android:orientation="horizontal">
+<com.android.contacts.editor.StructuredNameEditorView xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:minHeight="@dimen/editor_min_line_item_height"
+  android:orientation="horizontal">
 
-    <!-- This isn't used in StructuredNameEditorView. It is only included so that
-        StructuredNameEditorView's base classes don't need extra null checks. -->
-    <include
-        android:id="@+id/spinner"
-        layout="@layout/edit_spinner"
-        android:visibility="gone"/>
+  <!-- This isn't used in StructuredNameEditorView. It is only included so that
+      StructuredNameEditorView's base classes don't need extra null checks. -->
+  <include
+    android:id="@+id/spinner"
+    layout="@layout/edit_spinner"
+    android:visibility="gone" />
 
-    <ImageView
-        android:id="@+id/kind_icon"
-        android:src="@drawable/quantum_ic_person_vd_theme_24"
-        android:contentDescription="@string/header_name_entry"
-        style="@style/EditKindIconStyle"/>
+  <ImageView
+    android:id="@+id/kind_icon"
+    style="@style/EditKindIconStyle"
+    android:contentDescription="@string/header_name_entry"
+    android:src="@drawable/quantum_ic_person_vd_theme_24" />
 
-    <include
-        layout="@layout/edit_field_list_with_anchor_view"/>
+  <include layout="@layout/edit_field_list_with_anchor_view" />
 
-    <include
-        android:id="@+id/expansion_view_container"
-        layout="@layout/name_edit_expansion_view"
-        android:visibility="gone"/>
+  <include
+    android:id="@+id/expansion_view_container"
+    layout="@layout/name_edit_expansion_view"
+    android:visibility="gone" />
 
-    <!-- This isn't used in StructuredNameEditorView. It is only included so that
-        StructuredNameEditorView's base classes don't need extra null checks. -->
-    <include
-        android:id="@+id/delete_button_container"
-        layout="@layout/edit_delete_button"
-        android:visibility="gone"/>
+  <!-- This isn't used in StructuredNameEditorView. It is only included so that
+      StructuredNameEditorView's base classes don't need extra null checks. -->
+  <include
+    android:id="@+id/delete_button_container"
+    layout="@layout/edit_delete_button"
+    android:visibility="gone" />
 
 </com.android.contacts.editor.StructuredNameEditorView>

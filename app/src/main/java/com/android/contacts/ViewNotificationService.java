@@ -32,44 +32,46 @@ import com.android.contacts.model.ContactLoader;
  * supposed to be used by the Phone app
  */
 public class ViewNotificationService extends Service {
-    private static final String TAG = ViewNotificationService.class.getSimpleName();
+  private static final String TAG = ViewNotificationService.class.getSimpleName();
 
-    private static final boolean DEBUG = false;
+  private static final boolean DEBUG = false;
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, final int startId) {
-        if (DEBUG) { Log.d(TAG, "onHandleIntent(). Intent: " + intent); }
-
-        // We simply need to start a Loader here. When its done, it will send out the
-        // View-Notification automatically.
-        final ContactLoader contactLoader = new ContactLoader(this, intent.getData(), true);
-        contactLoader.registerListener(0, new OnLoadCompleteListener<Contact>() {
-            @Override
-            public void onLoadComplete(Loader<Contact> loader, Contact data) {
-                try {
-                    loader.reset();
-                } catch (RuntimeException e) {
-                    Log.e(TAG, "Error reseting loader", e);
-                }
-                try {
-                    // This is not 100% accurate actually. If we get several calls quickly,
-                    // we might be stopping out-of-order, in which case the call with the last
-                    // startId will stop this service. In practice, this shouldn't be a problem,
-                    // as this service is supposed to be called by the Phone app which only sends
-                    // out the notification once per phonecall. And even if there is a problem,
-                    // the worst that should happen is a missing view notification
-                    stopSelfResult(startId);
-                } catch (RuntimeException e) {
-                    Log.e(TAG, "Error stopping service", e);
-                }
-            }
-        });
-        contactLoader.startLoading();
-        return START_REDELIVER_INTENT;
+  @Override
+  public int onStartCommand(Intent intent, int flags, final int startId) {
+    if (DEBUG) {
+      Log.d(TAG, "onHandleIntent(). Intent: " + intent);
     }
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
+    // We simply need to start a Loader here. When its done, it will send out the
+    // View-Notification automatically.
+    final ContactLoader contactLoader = new ContactLoader(this, intent.getData(), true);
+    contactLoader.registerListener(0, new OnLoadCompleteListener<Contact>() {
+      @Override
+      public void onLoadComplete(Loader<Contact> loader, Contact data) {
+        try {
+          loader.reset();
+        } catch (RuntimeException e) {
+          Log.e(TAG, "Error reseting loader", e);
+        }
+        try {
+          // This is not 100% accurate actually. If we get several calls quickly,
+          // we might be stopping out-of-order, in which case the call with the last
+          // startId will stop this service. In practice, this shouldn't be a problem,
+          // as this service is supposed to be called by the Phone app which only sends
+          // out the notification once per phonecall. And even if there is a problem,
+          // the worst that should happen is a missing view notification
+          stopSelfResult(startId);
+        } catch (RuntimeException e) {
+          Log.e(TAG, "Error stopping service", e);
+        }
+      }
+    });
+    contactLoader.startLoading();
+    return START_REDELIVER_INTENT;
+  }
+
+  @Override
+  public IBinder onBind(Intent intent) {
+    return null;
+  }
 }

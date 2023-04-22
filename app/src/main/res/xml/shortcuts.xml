@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2016 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2016 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -15,15 +14,15 @@
 -->
 
 <shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
-    <shortcut
-        android:enabled="true"
-        android:icon="@drawable/ic_add_contact_shortcut"
-        android:shortcutId="shortcut-add-contact"
-        android:shortcutShortLabel="@string/shortcut_add_contact">
-        <intent
-            android:action="android.intent.action.INSERT"
-            android:data="content://com.android.contacts/contacts"
-            android:targetPackage="com.android.contacts"
-            android:targetClass="com.android.contacts.activities.ContactEditorActivity"/>
-    </shortcut>
+  <shortcut
+    android:enabled="true"
+    android:icon="@drawable/ic_add_contact_shortcut"
+    android:shortcutId="shortcut-add-contact"
+    android:shortcutShortLabel="@string/shortcut_add_contact">
+    <intent
+      android:action="android.intent.action.INSERT"
+      android:data="content://com.android.contacts/contacts"
+      android:targetClass="com.android.contacts.activities.ContactEditorActivity"
+      android:targetPackage="com.android.contacts" />
+  </shortcut>
 </shortcuts>

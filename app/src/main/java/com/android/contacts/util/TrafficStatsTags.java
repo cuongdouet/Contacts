@@ -16,6 +16,6 @@
 package com.android.contacts.util;
 
 public class TrafficStatsTags {
-    public static final int CONTACT_PHOTO_DOWNLOAD_TAG = 0x0001;
-    public static final int TAG_MAX = 0x9999;
+  public static final int CONTACT_PHOTO_DOWNLOAD_TAG = 0x0001;
+  public static final int TAG_MAX = 0x9999;
 }

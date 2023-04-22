@@ -15,17 +15,16 @@
      limitations under the License.
 -->
 
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="16dp"
-    android:background="@color/navigation_drawer_background_color"
-    android:importantForAccessibility="no">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="16dp"
+  android:background="@color/navigation_drawer_background_color"
+  android:importantForAccessibility="no">
 
-    <View
-        android:id="@+id/divider_top"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_gravity="center_vertical"
-        android:background="@color/drawer_divider_color"/>
+  <View
+    android:id="@+id/divider_top"
+    android:layout_width="match_parent"
+    android:layout_height="1dp"
+    android:layout_gravity="center_vertical"
+    android:background="@color/drawer_divider_color" />
 </FrameLayout>

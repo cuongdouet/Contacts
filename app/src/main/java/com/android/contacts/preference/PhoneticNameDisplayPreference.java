@@ -28,66 +28,66 @@ import com.android.contacts.R;
  */
 public final class PhoneticNameDisplayPreference extends ListPreference {
 
-    public static final int SHOW_ALWAYS = 0;
-    public static final int HIDE_IF_EMPTY = 1;
+  public static final int SHOW_ALWAYS = 0;
+  public static final int HIDE_IF_EMPTY = 1;
 
-    private Context mContext;
-    private ContactsPreferences mPreferences;
+  private Context mContext;
+  private ContactsPreferences mPreferences;
 
-    public PhoneticNameDisplayPreference(Context context) {
-        super(context);
-        prepare();
+  public PhoneticNameDisplayPreference(Context context) {
+    super(context);
+    prepare();
+  }
+
+  public PhoneticNameDisplayPreference(Context context, AttributeSet attrs) {
+    super(context, attrs);
+    prepare();
+  }
+
+  private void prepare() {
+    mContext = getContext();
+    mPreferences = new ContactsPreferences(mContext);
+    setEntries(new String[]{
+      mContext.getString(R.string.editor_options_always_show_phonetic_names),
+      mContext.getString(R.string.editor_options_hide_phonetic_names_if_empty)
+    });
+    setEntryValues(new String[]{
+      String.valueOf(SHOW_ALWAYS),
+      String.valueOf(HIDE_IF_EMPTY),
+    });
+    setValue(String.valueOf(mPreferences.getPhoneticNameDisplayPreference()));
+  }
+
+  @Override
+  protected boolean shouldPersist() {
+    return false;   // This preference takes care of its own storage
+  }
+
+  @Override
+  public CharSequence getSummary() {
+    switch (mPreferences.getPhoneticNameDisplayPreference()) {
+      case SHOW_ALWAYS:
+        return mContext.getString(R.string.editor_options_always_show_phonetic_names);
+      case HIDE_IF_EMPTY:
+        return mContext.getString(R.string.editor_options_hide_phonetic_names_if_empty);
     }
+    return null;
+  }
 
-    public PhoneticNameDisplayPreference(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        prepare();
+  @Override
+  protected boolean persistString(String value) {
+    final int newValue = Integer.parseInt(value);
+    if (newValue != mPreferences.getPhoneticNameDisplayPreference()) {
+      mPreferences.setPhoneticNameDisplayPreference(newValue);
+      notifyChanged();
     }
+    return true;
+  }
 
-    private void prepare() {
-        mContext = getContext();
-        mPreferences = new ContactsPreferences(mContext);
-        setEntries(new String[]{
-                mContext.getString(R.string.editor_options_always_show_phonetic_names),
-                mContext.getString(R.string.editor_options_hide_phonetic_names_if_empty)
-        });
-        setEntryValues(new String[]{
-                String.valueOf(SHOW_ALWAYS),
-                String.valueOf(HIDE_IF_EMPTY),
-        });
-        setValue(String.valueOf(mPreferences.getPhoneticNameDisplayPreference()));
-    }
-
-    @Override
-    protected boolean shouldPersist() {
-        return false;   // This preference takes care of its own storage
-    }
-
-    @Override
-    public CharSequence getSummary() {
-        switch (mPreferences.getPhoneticNameDisplayPreference()) {
-            case SHOW_ALWAYS:
-                return mContext.getString(R.string.editor_options_always_show_phonetic_names);
-            case HIDE_IF_EMPTY:
-                return mContext.getString(R.string.editor_options_hide_phonetic_names_if_empty);
-        }
-        return null;
-    }
-
-    @Override
-    protected boolean persistString(String value) {
-        final int newValue = Integer.parseInt(value);
-        if (newValue != mPreferences.getPhoneticNameDisplayPreference()) {
-            mPreferences.setPhoneticNameDisplayPreference(newValue);
-            notifyChanged();
-        }
-        return true;
-    }
-
-    // UX recommendation is not to show cancel button on such lists.
-    @Override
-    protected void onPrepareDialogBuilder(Builder builder) {
-        super.onPrepareDialogBuilder(builder);
-        builder.setNegativeButton(null, null);
-    }
+  // UX recommendation is not to show cancel button on such lists.
+  @Override
+  protected void onPrepareDialogBuilder(Builder builder) {
+    super.onPrepareDialogBuilder(builder);
+    builder.setNegativeButton(null, null);
+  }
 }

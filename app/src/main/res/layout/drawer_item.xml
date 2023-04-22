@@ -15,16 +15,15 @@
      limitations under the License.
 -->
 
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/DrawerItemStyle">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  style="@style/DrawerItemStyle">
 
-    <ImageView
-        android:id="@+id/icon"
-        style="@style/DrawerItemIconStyle"/>
+  <ImageView
+    android:id="@+id/icon"
+    style="@style/DrawerItemIconStyle" />
 
-    <TextView
-        android:id="@+id/title"
-        style="@style/DrawerItemTextStyle" />
+  <TextView
+    android:id="@+id/title"
+    style="@style/DrawerItemTextStyle" />
 
 </LinearLayout>

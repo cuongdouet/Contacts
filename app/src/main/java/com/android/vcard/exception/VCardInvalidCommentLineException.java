@@ -22,11 +22,11 @@ package com.android.vcard.exception;
  * such lines.
  */
 public class VCardInvalidCommentLineException extends VCardInvalidLineException {
-    public VCardInvalidCommentLineException() {
-        super();
-    }
+  public VCardInvalidCommentLineException() {
+    super();
+  }
 
-    public VCardInvalidCommentLineException(final String message) {
-        super(message);
-    }
+  public VCardInvalidCommentLineException(final String message) {
+    super(message);
+  }
 }

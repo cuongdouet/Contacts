@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2016 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2016 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,31 +13,30 @@
      limitations under the License.
 -->
 
-<com.android.contacts.editor.GroupMembershipView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/group_membership_view"
+<com.android.contacts.editor.GroupMembershipView xmlns:android="http://schemas.android.com/apk/res/android"
+  android:id="@+id/group_membership_view"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:orientation="horizontal">
+
+  <ImageView
+    android:id="@+id/kind_icon"
+    style="@style/EditKindIconStyle"
+    android:src="@drawable/quantum_ic_label_vd_theme_24" />
+
+  <Button
+    android:id="@+id/group_list"
+    style="@style/SpinnerButtonStyle"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
-
-    <ImageView
-        android:id="@+id/kind_icon"
-        android:src="@drawable/quantum_ic_label_vd_theme_24"
-        style="@style/EditKindIconStyle" />
-
-    <Button
-        style="@style/SpinnerButtonStyle"
-        android:id="@+id/group_list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="@dimen/editor_min_line_item_height"
-        android:textSize="@dimen/editor_form_text_size"
-        android:textAlignment="viewStart"
-        android:singleLine="true"
-        android:ellipsize="end"
-        android:focusable="true"
-        android:layout_marginEnd="@dimen/editor_delete_button_size"
-        android:layout_marginBottom="@dimen/editor_padding_between_editor_views"
-        android:paddingEnd="@dimen/editor_spinner_right_padding"/>
+    android:layout_marginEnd="@dimen/editor_delete_button_size"
+    android:layout_marginBottom="@dimen/editor_padding_between_editor_views"
+    android:ellipsize="end"
+    android:focusable="true"
+    android:minHeight="@dimen/editor_min_line_item_height"
+    android:paddingEnd="@dimen/editor_spinner_right_padding"
+    android:singleLine="true"
+    android:textAlignment="viewStart"
+    android:textSize="@dimen/editor_form_text_size" />
 
 </com.android.contacts.editor.GroupMembershipView>

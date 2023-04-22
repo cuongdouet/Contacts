@@ -26,30 +26,30 @@ import android.widget.Spinner;
  */
 public class NotifyingSpinner extends Spinner {
 
-    public interface SelectionListener {
-        void onSetSelection(NotifyingSpinner view, int position);
+  private SelectionListener mListener;
+
+  public NotifyingSpinner(Context context) {
+    super(context);
+  }
+
+  public NotifyingSpinner(Context context, AttributeSet attrs) {
+    super(context, attrs);
+  }
+
+  public void setSetSelectionListener(SelectionListener listener) {
+    mListener = listener;
+  }
+
+  @Override
+  public void setSelection(int position) {
+    super.setSelection(position);
+
+    if (mListener != null) {
+      mListener.onSetSelection(this, position);
     }
+  }
 
-    private SelectionListener mListener;
-
-    public NotifyingSpinner(Context context) {
-        super(context);
-    }
-
-    public NotifyingSpinner(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    public void setSetSelectionListener(SelectionListener listener) {
-        mListener = listener;
-    }
-
-    @Override
-    public void setSelection(int position) {
-        super.setSelection(position);
-
-        if (mListener != null) {
-            mListener.onSetSelection(this, position);
-        }
-    }
+  public interface SelectionListener {
+    void onSetSelection(NotifyingSpinner view, int position);
+  }
 }

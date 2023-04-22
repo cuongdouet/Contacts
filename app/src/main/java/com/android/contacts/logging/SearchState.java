@@ -25,85 +25,90 @@ import com.google.common.base.MoreObjects;
  */
 public final class SearchState implements Parcelable {
 
-    /** The length of the query string input by the user. */
-    public int queryLength;
-
-    /** The number of partitions (groups of results) presented to the user. */
-    public int numPartitions;
-
-    /** The total number of results (across all partitions) presented to the user. */
-    public int numResults;
-
-    /** The number of results presented to the user in the partition that was selected. */
-    public int numResultsInSelectedPartition = -1;
-
-    /** The zero-based index of the partition in which the clicked query result resides. */
-    public int selectedPartition = -1;
-
-    /** The index of the clicked query result within its partition. */
-    public int selectedIndexInPartition = -1;
-
-    /**
-     * The zero-based index of the clicked query result among all results displayed to the user
-     * (across partitions).
-     */
-    public int selectedIndex = -1;
-
-    public static final Creator<SearchState> CREATOR = new Creator<SearchState>() {
-        @Override
-        public SearchState createFromParcel(Parcel in) {
-            return new SearchState(in);
-        }
-
-        @Override
-        public SearchState[] newArray(int size) {
-            return new SearchState[size];
-        }
-    };
-
-    public SearchState() {
-    }
-
-    protected SearchState(Parcel source) {
-        readFromParcel(source);
+  public static final Creator<SearchState> CREATOR = new Creator<SearchState>() {
+    @Override
+    public SearchState createFromParcel(Parcel in) {
+      return new SearchState(in);
     }
 
     @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this)
-                .add("queryLength", queryLength)
-                .add("numPartitions", numPartitions)
-                .add("numResults", numResults)
-                .add("numResultsInSelectedPartition", numResultsInSelectedPartition)
-                .add("selectedPartition", selectedPartition)
-                .add("selectedIndexInPartition", selectedIndexInPartition)
-                .add("selectedIndex", selectedIndex)
-                .toString();
+    public SearchState[] newArray(int size) {
+      return new SearchState[size];
     }
+  };
+  /**
+   * The length of the query string input by the user.
+   */
+  public int queryLength;
+  /**
+   * The number of partitions (groups of results) presented to the user.
+   */
+  public int numPartitions;
+  /**
+   * The total number of results (across all partitions) presented to the user.
+   */
+  public int numResults;
+  /**
+   * The number of results presented to the user in the partition that was selected.
+   */
+  public int numResultsInSelectedPartition = -1;
+  /**
+   * The zero-based index of the partition in which the clicked query result resides.
+   */
+  public int selectedPartition = -1;
+  /**
+   * The index of the clicked query result within its partition.
+   */
+  public int selectedIndexInPartition = -1;
+  /**
+   * The zero-based index of the clicked query result among all results displayed to the user
+   * (across partitions).
+   */
+  public int selectedIndex = -1;
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
+  public SearchState() {
+  }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(queryLength);
-        dest.writeInt(numPartitions);
-        dest.writeInt(numResults);
-        dest.writeInt(numResultsInSelectedPartition);
-        dest.writeInt(selectedPartition);
-        dest.writeInt(selectedIndexInPartition);
-        dest.writeInt(selectedIndex);
-    }
+  protected SearchState(Parcel source) {
+    readFromParcel(source);
+  }
 
-    private void readFromParcel(Parcel source) {
-        queryLength = source.readInt();
-        numPartitions = source.readInt();
-        numResults = source.readInt();
-        numResultsInSelectedPartition = source.readInt();
-        selectedPartition = source.readInt();
-        selectedIndexInPartition = source.readInt();
-        selectedIndex = source.readInt();
-    }
+  @Override
+  public String toString() {
+    return MoreObjects.toStringHelper(this)
+      .add("queryLength", queryLength)
+      .add("numPartitions", numPartitions)
+      .add("numResults", numResults)
+      .add("numResultsInSelectedPartition", numResultsInSelectedPartition)
+      .add("selectedPartition", selectedPartition)
+      .add("selectedIndexInPartition", selectedIndexInPartition)
+      .add("selectedIndex", selectedIndex)
+      .toString();
+  }
+
+  @Override
+  public int describeContents() {
+    return 0;
+  }
+
+  @Override
+  public void writeToParcel(Parcel dest, int flags) {
+    dest.writeInt(queryLength);
+    dest.writeInt(numPartitions);
+    dest.writeInt(numResults);
+    dest.writeInt(numResultsInSelectedPartition);
+    dest.writeInt(selectedPartition);
+    dest.writeInt(selectedIndexInPartition);
+    dest.writeInt(selectedIndex);
+  }
+
+  private void readFromParcel(Parcel source) {
+    queryLength = source.readInt();
+    numPartitions = source.readInt();
+    numResults = source.readInt();
+    numResultsInSelectedPartition = source.readInt();
+    selectedPartition = source.readInt();
+    selectedIndexInPartition = source.readInt();
+    selectedIndex = source.readInt();
+  }
 }

@@ -26,49 +26,49 @@ import com.android.contacts.R;
  * Fragment containing an email list for picking.
  */
 public class EmailAddressPickerFragment extends ContactEntryListFragment<ContactEntryListAdapter> {
-    private OnEmailAddressPickerActionListener mListener;
+  private OnEmailAddressPickerActionListener mListener;
 
-    public EmailAddressPickerFragment() {
-        setQuickContactEnabled(false);
-        setPhotoLoaderEnabled(true);
-        setSectionHeaderDisplayEnabled(true);
-        setDirectorySearchMode(DirectoryListLoader.SEARCH_MODE_DATA_SHORTCUT);
+  public EmailAddressPickerFragment() {
+    setQuickContactEnabled(false);
+    setPhotoLoaderEnabled(true);
+    setSectionHeaderDisplayEnabled(true);
+    setDirectorySearchMode(DirectoryListLoader.SEARCH_MODE_DATA_SHORTCUT);
+  }
+
+  public void setOnEmailAddressPickerActionListener(OnEmailAddressPickerActionListener listener) {
+    mListener = listener;
+  }
+
+  @Override
+  protected void onItemClick(int position, long id) {
+    EmailAddressListAdapter adapter = (EmailAddressListAdapter) getAdapter();
+    if (getAdapter().getItem(position) == null) {
+      return;
     }
+    pickEmailAddress(adapter.getDataUri(position));
+  }
 
-    public void setOnEmailAddressPickerActionListener(OnEmailAddressPickerActionListener listener) {
-        mListener = listener;
-    }
+  @Override
+  protected ContactEntryListAdapter createListAdapter() {
+    EmailAddressListAdapter adapter = new EmailAddressListAdapter(getActivity());
+    adapter.setSectionHeaderDisplayEnabled(true);
+    adapter.setDisplayPhotos(true);
+    return adapter;
+  }
 
-    @Override
-    protected void onItemClick(int position, long id) {
-        EmailAddressListAdapter adapter = (EmailAddressListAdapter)getAdapter();
-        if (getAdapter().getItem(position) == null) {
-            return;
-        }
-        pickEmailAddress(adapter.getDataUri(position));
-    }
+  @Override
+  protected View inflateView(LayoutInflater inflater, ViewGroup container) {
+    return inflater.inflate(R.layout.contact_list_content, null);
+  }
 
-    @Override
-    protected ContactEntryListAdapter createListAdapter() {
-        EmailAddressListAdapter adapter = new EmailAddressListAdapter(getActivity());
-        adapter.setSectionHeaderDisplayEnabled(true);
-        adapter.setDisplayPhotos(true);
-        return adapter;
-    }
+  @Override
+  protected void onCreateView(LayoutInflater inflater, ViewGroup container) {
+    super.onCreateView(inflater, container);
 
-    @Override
-    protected View inflateView(LayoutInflater inflater, ViewGroup container) {
-        return inflater.inflate(R.layout.contact_list_content, null);
-    }
+    setVisibleScrollbarEnabled(!isLegacyCompatibilityMode());
+  }
 
-    @Override
-    protected void onCreateView(LayoutInflater inflater, ViewGroup container) {
-        super.onCreateView(inflater, container);
-
-        setVisibleScrollbarEnabled(!isLegacyCompatibilityMode());
-    }
-
-    private void pickEmailAddress(Uri uri) {
-        mListener.onPickEmailAddressAction(uri);
-    }
+  private void pickEmailAddress(Uri uri) {
+    mListener.onPickEmailAddressAction(uri);
+  }
 }

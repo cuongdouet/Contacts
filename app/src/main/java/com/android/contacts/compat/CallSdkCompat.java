@@ -22,36 +22,36 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class CallSdkCompat {
-    public static class Details {
-        // TODO: This property is hidden in the N release; replace with actual when the API is
-        // made public.
-        public static final int PROPERTY_IS_EXTERNAL_CALL = 0x00000040;
-        public static final int PROPERTY_ENTERPRISE_CALL = Call.Details.PROPERTY_ENTERPRISE_CALL;
-        // TODO: This capability is hidden in the N release; replace with actual when the API is
-        // made public.
-        public static final int CAPABILITY_CAN_PULL_CALL = 0x00800000;
-        public static final int CAPABILITY_CANNOT_DOWNGRADE_VIDEO_TO_AUDIO =
-                Call.Details.CAPABILITY_CANNOT_DOWNGRADE_VIDEO_TO_AUDIO;
+  /**
+   * TODO: This API is hidden in the N release; replace the implementation with a call to the
+   * actual once it is made public.
+   */
+  public static void pullExternalCall(Call call) {
+    if (!CompatUtils.isNCompatible()) {
+      return;
     }
+    Class<?> callClass = Call.class;
+    try {
+      Method pullExternalCallMethod = callClass.getDeclaredMethod("pullExternalCall");
+      pullExternalCallMethod.invoke(call);
+    } catch (NoSuchMethodException e) {
+      // Ignore requests to pull call if there is a problem.
+    } catch (InvocationTargetException e) {
+      // Ignore requests to pull call if there is a problem.
+    } catch (IllegalAccessException e) {
+      // Ignore requests to pull call if there is a problem.
+    }
+  }
 
-    /**
-     * TODO: This API is hidden in the N release; replace the implementation with a call to the
-     * actual once it is made public.
-     */
-    public static void pullExternalCall(Call call) {
-        if (!CompatUtils.isNCompatible()) {
-            return;
-        }
-        Class<?> callClass = Call.class;
-        try {
-            Method pullExternalCallMethod = callClass.getDeclaredMethod("pullExternalCall");
-            pullExternalCallMethod.invoke(call);
-        } catch (NoSuchMethodException e) {
-            // Ignore requests to pull call if there is a problem.
-        } catch (InvocationTargetException e) {
-            // Ignore requests to pull call if there is a problem.
-        } catch (IllegalAccessException e) {
-            // Ignore requests to pull call if there is a problem.
-        }
-    }
+  public static class Details {
+    // TODO: This property is hidden in the N release; replace with actual when the API is
+    // made public.
+    public static final int PROPERTY_IS_EXTERNAL_CALL = 0x00000040;
+    public static final int PROPERTY_ENTERPRISE_CALL = Call.Details.PROPERTY_ENTERPRISE_CALL;
+    // TODO: This capability is hidden in the N release; replace with actual when the API is
+    // made public.
+    public static final int CAPABILITY_CAN_PULL_CALL = 0x00800000;
+    public static final int CAPABILITY_CANNOT_DOWNGRADE_VIDEO_TO_AUDIO =
+      Call.Details.CAPABILITY_CANNOT_DOWNGRADE_VIDEO_TO_AUDIO;
+  }
 }

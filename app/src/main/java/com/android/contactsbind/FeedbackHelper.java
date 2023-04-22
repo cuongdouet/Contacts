@@ -18,10 +18,10 @@ import android.util.Log;
 
 public final class FeedbackHelper {
 
-    public static void sendFeedback(Context context, String tag, String description, Throwable t) {
-        Log.e(tag, description == null ? t.getMessage() : description, t);
-    }
+  private FeedbackHelper() {
+  }
 
-    private FeedbackHelper() {
-    }
+  public static void sendFeedback(Context context, String tag, String description, Throwable t) {
+    Log.e(tag, description == null ? t.getMessage() : description, t);
+  }
 }

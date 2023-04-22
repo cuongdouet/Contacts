@@ -16,12 +16,12 @@
 package com.android.vcard.exception;
 
 public class VCardAgentNotSupportedException extends VCardNotSupportedException {
-    public VCardAgentNotSupportedException() {
-        super();
-    }
+  public VCardAgentNotSupportedException() {
+    super();
+  }
 
-    public VCardAgentNotSupportedException(String message) {
-        super(message);
-    }
+  public VCardAgentNotSupportedException(String message) {
+    super(message);
+  }
 
 }

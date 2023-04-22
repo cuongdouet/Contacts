@@ -19,10 +19,10 @@ package com.android.contacts.compat;
 import android.app.Activity;
 
 public class MultiWindowCompat {
-    /**
-     * Returns true if the activity is currently in multi-window mode.
-     */
-    public static boolean isInMultiWindowMode(Activity activity) {
-        return CompatUtils.isNCompatible() ? activity.isInMultiWindowMode() : false;
-    }
+  /**
+   * Returns true if the activity is currently in multi-window mode.
+   */
+  public static boolean isInMultiWindowMode(Activity activity) {
+    return CompatUtils.isNCompatible() ? activity.isInMultiWindowMode() : false;
+  }
 }

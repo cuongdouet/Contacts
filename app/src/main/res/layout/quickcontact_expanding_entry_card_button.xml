@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2014 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2014 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -15,40 +14,40 @@
 -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/SelectableItem"
+  style="@style/SelectableItem"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:orientation="vertical">
+
+  <View
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/divider_line_height"
+    android:background="@color/divider_line_color_light" />
+
+  <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical" >
+    android:orientation="horizontal">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/divider_line_height"
-        android:background="@color/divider_line_color_light" />
+    <ImageView
+      android:id="@+id/arrow"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginStart="@dimen/expanding_entry_card_item_padding_start"
+      android:paddingTop="@dimen/expanding_entry_card_button_padding_vertical"
+      android:paddingBottom="@dimen/expanding_entry_card_button_padding_vertical"
+      android:src="@drawable/quantum_ic_expand_more_vd_theme_24" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal" >
-
-        <ImageView
-            android:id="@+id/arrow"
-            android:src="@drawable/quantum_ic_expand_more_vd_theme_24"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/expanding_entry_card_item_padding_start"
-            android:paddingBottom="@dimen/expanding_entry_card_button_padding_vertical"
-            android:paddingTop="@dimen/expanding_entry_card_button_padding_vertical"/>
-
-        <TextView
-            android:id="@+id/text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingStart="@dimen/expanding_entry_card_item_image_spacing"
-            android:gravity="center_vertical"
-            android:paddingBottom="@dimen/expanding_entry_card_button_padding_vertical"
-            android:paddingTop="@dimen/expanding_entry_card_button_padding_vertical"
-            android:textColor="@color/expanding_entry_card_button_text_color"
-            android:textSize="@dimen/expanding_entry_card_title_text_size" />
-    </LinearLayout>
+    <TextView
+      android:id="@+id/text"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:gravity="center_vertical"
+      android:paddingStart="@dimen/expanding_entry_card_item_image_spacing"
+      android:paddingTop="@dimen/expanding_entry_card_button_padding_vertical"
+      android:paddingBottom="@dimen/expanding_entry_card_button_padding_vertical"
+      android:textColor="@color/expanding_entry_card_button_text_color"
+      android:textSize="@dimen/expanding_entry_card_title_text_size" />
+  </LinearLayout>
 
 </LinearLayout>

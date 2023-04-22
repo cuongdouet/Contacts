@@ -24,15 +24,15 @@ import android.telephony.TelephonyManager;
  * On N and above, this will look up voicemail notification settings from Telephony.
  */
 public class TelephonyManagerSdkCompat {
-    public static Uri getVoicemailRingtoneUri(TelephonyManager telephonyManager,
-            PhoneAccountHandle accountHandle) {
-        return CompatUtils.isNCompatible()
-                ? telephonyManager.getVoicemailRingtoneUri(accountHandle) : null;
-    }
+  public static Uri getVoicemailRingtoneUri(TelephonyManager telephonyManager,
+                                            PhoneAccountHandle accountHandle) {
+    return CompatUtils.isNCompatible()
+      ? telephonyManager.getVoicemailRingtoneUri(accountHandle) : null;
+  }
 
-    public static boolean isVoicemailVibrationEnabled(TelephonyManager telephonyManager,
-            PhoneAccountHandle accountHandle) {
-        return CompatUtils.isNCompatible()
-                ? telephonyManager.isVoicemailVibrationEnabled(accountHandle) : false;
-    }
+  public static boolean isVoicemailVibrationEnabled(TelephonyManager telephonyManager,
+                                                    PhoneAccountHandle accountHandle) {
+    return CompatUtils.isNCompatible()
+      ? telephonyManager.isVoicemailVibrationEnabled(accountHandle) : false;
+  }
 }

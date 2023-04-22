@@ -26,41 +26,35 @@ import android.provider.ContactsContract.ProviderStatus;
  * API level 23.
  */
 public class ProviderStatusCompat {
-    /**
-     * Not instantiable.
-     */
-    private ProviderStatusCompat() {
-    }
+  public static final boolean USE_CURRENT_VERSION = CompatUtils.isMarshmallowCompatible();
+  /**
+   * Default status of the provider, using the actual constant to guard against errors
+   */
+  public static final int STATUS_NORMAL = ProviderStatus.STATUS_NORMAL;
+  /**
+   * The status used during a locale change.
+   */
+  public static final int STATUS_CHANGING_LOCALE = 3;
+  /**
+   * The following three constants are from pre-M.
+   * <p>
+   * The status used when the provider is in the process of upgrading.  Contacts
+   * are temporarily unaccessible.
+   */
+  private static final int STATUS_UPGRADING = 1;
+  public static final int STATUS_BUSY = USE_CURRENT_VERSION ?
+    ProviderStatus.STATUS_BUSY : ProviderStatusCompat.STATUS_UPGRADING;
+  /**
+   * The status that indicates that there are no accounts and no contacts
+   * on the device.
+   */
+  private static final int STATUS_NO_ACCOUNTS_NO_CONTACTS = 4;
+  public static final int STATUS_EMPTY = USE_CURRENT_VERSION ?
+    ProviderStatus.STATUS_EMPTY : ProviderStatusCompat.STATUS_NO_ACCOUNTS_NO_CONTACTS;
 
-    public static final boolean USE_CURRENT_VERSION = CompatUtils.isMarshmallowCompatible();
-
-    public static final int STATUS_EMPTY = USE_CURRENT_VERSION ?
-            ProviderStatus.STATUS_EMPTY : ProviderStatusCompat.STATUS_NO_ACCOUNTS_NO_CONTACTS;
-
-    public static final int STATUS_BUSY = USE_CURRENT_VERSION ?
-            ProviderStatus.STATUS_BUSY : ProviderStatusCompat.STATUS_UPGRADING;
-
-    /**
-     * Default status of the provider, using the actual constant to guard against errors
-     */
-    public static final int STATUS_NORMAL = ProviderStatus.STATUS_NORMAL;
-
-    /**
-     * The following three constants are from pre-M.
-     *
-     * The status used when the provider is in the process of upgrading.  Contacts
-     * are temporarily unaccessible.
-     */
-    private static final int STATUS_UPGRADING = 1;
-
-    /**
-     * The status used during a locale change.
-     */
-    public static final int STATUS_CHANGING_LOCALE = 3;
-
-    /**
-     * The status that indicates that there are no accounts and no contacts
-     * on the device.
-     */
-    private static final int STATUS_NO_ACCOUNTS_NO_CONTACTS = 4;
+  /**
+   * Not instantiable.
+   */
+  private ProviderStatusCompat() {
+  }
 }

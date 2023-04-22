@@ -34,97 +34,97 @@ import com.android.contacts.testing.InjectedServices;
  * is done.
  */
 public abstract class AppCompatContactsActivity extends AppCompatTransactionSafeActivity
-        implements ContactSaveService.Listener {
+  implements ContactSaveService.Listener {
 
-    private ContentResolver mContentResolver;
+  private ContentResolver mContentResolver;
 
-    @Override
-    public ContentResolver getContentResolver() {
-        if (mContentResolver == null) {
-            InjectedServices services = ContactsApplication.getInjectedServices();
-            if (services != null) {
-                mContentResolver = services.getContentResolver();
-            }
-            if (mContentResolver == null) {
-                mContentResolver = super.getContentResolver();
-            }
-        }
-        return mContentResolver;
+  protected static void showFragment(FragmentTransaction ft, Fragment f) {
+    if ((f != null) && f.isHidden()) ft.show(f);
+  }
+
+  protected static void hideFragment(FragmentTransaction ft, Fragment f) {
+    if ((f != null) && !f.isHidden()) ft.hide(f);
+  }
+
+  @Override
+  public ContentResolver getContentResolver() {
+    if (mContentResolver == null) {
+      InjectedServices services = ContactsApplication.getInjectedServices();
+      if (services != null) {
+        mContentResolver = services.getContentResolver();
+      }
+      if (mContentResolver == null) {
+        mContentResolver = super.getContentResolver();
+      }
+    }
+    return mContentResolver;
+  }
+
+  @Override
+  public SharedPreferences getSharedPreferences(String name, int mode) {
+    InjectedServices services = ContactsApplication.getInjectedServices();
+    if (services != null) {
+      SharedPreferences prefs = services.getSharedPreferences();
+      if (prefs != null) {
+        return prefs;
+      }
     }
 
-    @Override
-    public SharedPreferences getSharedPreferences(String name, int mode) {
-        InjectedServices services = ContactsApplication.getInjectedServices();
-        if (services != null) {
-            SharedPreferences prefs = services.getSharedPreferences();
-            if (prefs != null) {
-                return prefs;
-            }
-        }
+    return super.getSharedPreferences(name, mode);
+  }
 
-        return super.getSharedPreferences(name, mode);
+  @Override
+  public Object getSystemService(String name) {
+    Object service = super.getSystemService(name);
+    if (service != null) {
+      return service;
     }
 
-    @Override
-    public Object getSystemService(String name) {
-        Object service = super.getSystemService(name);
-        if (service != null) {
-            return service;
-        }
+    return getApplicationContext().getSystemService(name);
+  }
 
-        return getApplicationContext().getSystemService(name);
-    }
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    ContactSaveService.registerListener(this);
+    super.onCreate(savedInstanceState);
+  }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        ContactSaveService.registerListener(this);
-        super.onCreate(savedInstanceState);
-    }
+  @Override
+  protected void onDestroy() {
+    ContactSaveService.unregisterListener(this);
+    super.onDestroy();
+  }
 
-    @Override
-    protected void onDestroy() {
-        ContactSaveService.unregisterListener(this);
-        super.onDestroy();
-    }
+  @Override
+  public void onServiceCompleted(Intent callbackIntent) {
+    onNewIntent(callbackIntent);
+  }
 
-    @Override
-    public void onServiceCompleted(Intent callbackIntent) {
-        onNewIntent(callbackIntent);
+  /**
+   * Convenient version of {@link FragmentManager#findFragmentById(int)}, which throws
+   * an exception if the fragment doesn't exist.
+   */
+  @SuppressWarnings("unchecked")
+  public <T extends Fragment> T getFragment(int id) {
+    T result = (T) getFragmentManager().findFragmentById(id);
+    if (result == null) {
+      throw new IllegalArgumentException("fragment 0x" + Integer.toHexString(id)
+        + " doesn't exist");
     }
+    return result;
+  }
 
-    /**
-     * Convenient version of {@link FragmentManager#findFragmentById(int)}, which throws
-     * an exception if the fragment doesn't exist.
-     */
-    @SuppressWarnings("unchecked")
-    public <T extends Fragment> T getFragment(int id) {
-        T result = (T)getFragmentManager().findFragmentById(id);
-        if (result == null) {
-            throw new IllegalArgumentException("fragment 0x" + Integer.toHexString(id)
-                    + " doesn't exist");
-        }
-        return result;
+  /**
+   * Convenient version of {@link #findViewById(int)}, which throws
+   * an exception if the view doesn't exist.
+   */
+  @SuppressWarnings("unchecked")
+  public <T extends View> T getView(int id) {
+    T result = (T) findViewById(id);
+    if (result == null) {
+      throw new IllegalArgumentException("view 0x" + Integer.toHexString(id)
+        + " doesn't exist");
     }
-
-    /**
-     * Convenient version of {@link #findViewById(int)}, which throws
-     * an exception if the view doesn't exist.
-     */
-    @SuppressWarnings("unchecked")
-    public <T extends View> T getView(int id) {
-        T result = (T)findViewById(id);
-        if (result == null) {
-            throw new IllegalArgumentException("view 0x" + Integer.toHexString(id)
-                    + " doesn't exist");
-        }
-        return result;
-    }
-
-    protected static void showFragment(FragmentTransaction ft, Fragment f) {
-        if ((f != null) && f.isHidden()) ft.show(f);
-    }
-
-    protected static void hideFragment(FragmentTransaction ft, Fragment f) {
-        if ((f != null) && !f.isHidden()) ft.hide(f);
-    }
+    return result;
+  }
 }

@@ -26,8 +26,8 @@ import android.os.IBinder;
  * background tasks when needed.
  */
 public class EmptyService extends Service {
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
+  @Override
+  public IBinder onBind(Intent intent) {
+    return null;
+  }
 }

@@ -19,22 +19,26 @@ import com.google.common.base.MoreObjects;
 
 public class EditorEvent {
 
-    /** The editor event type that is logged. */
-    public int eventType;
+  /**
+   * The editor event type that is logged.
+   */
+  public int eventType;
 
-    /** The number of raw contacts shown in the raw contacts picker. */
-    public int numberRawContacts;
+  /**
+   * The number of raw contacts shown in the raw contacts picker.
+   */
+  public int numberRawContacts;
 
-    public static final class EventType {
-        public static final int UNKNOWN = 0;
-        public static final int SHOW_RAW_CONTACT_PICKER = 1;
-    }
+  @Override
+  public String toString() {
+    return MoreObjects.toStringHelper(this)
+      .add("eventType", eventType)
+      .add("numberRawContacts", numberRawContacts)
+      .toString();
+  }
 
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this)
-                .add("eventType", eventType)
-                .add("numberRawContacts", numberRawContacts)
-                .toString();
-    }
+  public static final class EventType {
+    public static final int UNKNOWN = 0;
+    public static final int SHOW_RAW_CONTACT_PICKER = 1;
+  }
 }

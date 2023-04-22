@@ -33,114 +33,115 @@ import com.android.contacts.R;
  * child of this layout.</p>
  */
 public class ProportionalLayout extends ViewGroup {
-    /** Specifies whether the width should be calculated based on the height or vice-versa  */
-    public enum Direction {
-        widthToHeight("widthToHeight"),
-        heightToWidth("heightToWidth");
+  private Direction mDirection;
+  private float mRatio;
+  public ProportionalLayout(Context context) {
+    super(context);
+  }
 
-        public final String XmlName;
+  public ProportionalLayout(Context context, AttributeSet attrs) {
+    super(context, attrs);
+    initFromAttributes(context, attrs);
+  }
 
-        private Direction(String xmlName) {
-            XmlName = xmlName;
-        }
+  public ProportionalLayout(Context context, AttributeSet attrs, int defStyle) {
+    super(context, attrs, defStyle);
+    initFromAttributes(context, attrs);
+  }
 
-        /**
-         * Parses the given direction string and returns the Direction instance. This
-         * should be used when inflating from xml
-         */
-        public static Direction parse(String value) {
-            if (widthToHeight.XmlName.equals(value)) {
-                return Direction.widthToHeight;
-            } else if (heightToWidth.XmlName.equals(value)) {
-                return Direction.heightToWidth;
-            } else {
-                throw new IllegalStateException("direction must be either " +
-                        widthToHeight.XmlName + " or " + heightToWidth.XmlName);
-            }
-        }
+  private void initFromAttributes(Context context, AttributeSet attrs) {
+    TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ProportionalLayout);
+
+    mDirection = Direction.parse(a.getString(R.styleable.ProportionalLayout_direction));
+    mRatio = a.getFloat(R.styleable.ProportionalLayout_ratio, 1.0f);
+
+    a.recycle();
+  }
+
+  @Override
+  protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+    if (getChildCount() != 1) {
+      throw new IllegalStateException("ProportionalLayout requires exactly one child");
     }
 
-    private Direction mDirection;
-    private float mRatio;
+    final View child = getChildAt(0);
 
-    public ProportionalLayout(Context context) {
-        super(context);
+    // Do a first pass to get the optimal size
+    measureChild(child, widthMeasureSpec, heightMeasureSpec);
+    final int childWidth = child.getMeasuredWidth();
+    final int childHeight = child.getMeasuredHeight();
+
+    final int width;
+    final int height;
+    if (mDirection == Direction.heightToWidth) {
+      width = Math.round(childHeight * mRatio);
+      height = childHeight;
+    } else {
+      width = childWidth;
+      height = Math.round(childWidth * mRatio);
     }
 
-    public ProportionalLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        initFromAttributes(context, attrs);
+    // Do a second pass so that all children are informed of the new size
+    measureChild(child,
+      MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
+      MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
+
+    setMeasuredDimension(
+      resolveSize(width, widthMeasureSpec), resolveSize(height, heightMeasureSpec));
+  }
+
+  @Override
+  protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+    if (getChildCount() != 1) {
+      throw new IllegalStateException("ProportionalLayout requires exactly one child");
     }
 
-    public ProportionalLayout(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-        initFromAttributes(context, attrs);
+    final View child = getChildAt(0);
+    child.layout(0, 0, right - left, bottom - top);
+  }
+
+  public Direction getDirection() {
+    return mDirection;
+  }
+
+  public void setDirection(Direction direction) {
+    mDirection = direction;
+  }
+
+  public float getRatio() {
+    return mRatio;
+  }
+
+  public void setRatio(float ratio) {
+    mRatio = ratio;
+  }
+
+  /**
+   * Specifies whether the width should be calculated based on the height or vice-versa
+   */
+  public enum Direction {
+    widthToHeight("widthToHeight"),
+    heightToWidth("heightToWidth");
+
+    public final String XmlName;
+
+    private Direction(String xmlName) {
+      XmlName = xmlName;
     }
 
-    private void initFromAttributes(Context context, AttributeSet attrs) {
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ProportionalLayout);
-
-        mDirection = Direction.parse(a.getString(R.styleable.ProportionalLayout_direction));
-        mRatio = a.getFloat(R.styleable.ProportionalLayout_ratio, 1.0f);
-
-        a.recycle();
+    /**
+     * Parses the given direction string and returns the Direction instance. This
+     * should be used when inflating from xml
+     */
+    public static Direction parse(String value) {
+      if (widthToHeight.XmlName.equals(value)) {
+        return Direction.widthToHeight;
+      } else if (heightToWidth.XmlName.equals(value)) {
+        return Direction.heightToWidth;
+      } else {
+        throw new IllegalStateException("direction must be either " +
+          widthToHeight.XmlName + " or " + heightToWidth.XmlName);
+      }
     }
-
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        if (getChildCount() != 1) {
-            throw new IllegalStateException("ProportionalLayout requires exactly one child");
-        }
-
-        final View child = getChildAt(0);
-
-        // Do a first pass to get the optimal size
-        measureChild(child, widthMeasureSpec, heightMeasureSpec);
-        final int childWidth = child.getMeasuredWidth();
-        final int childHeight = child.getMeasuredHeight();
-
-        final int width;
-        final int height;
-        if (mDirection == Direction.heightToWidth) {
-            width = Math.round(childHeight * mRatio);
-            height = childHeight;
-        } else {
-            width = childWidth;
-            height = Math.round(childWidth * mRatio);
-        }
-
-        // Do a second pass so that all children are informed of the new size
-        measureChild(child,
-                MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
-                MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
-
-        setMeasuredDimension(
-                resolveSize(width, widthMeasureSpec), resolveSize(height, heightMeasureSpec));
-    }
-
-    @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        if (getChildCount() != 1) {
-            throw new IllegalStateException("ProportionalLayout requires exactly one child");
-        }
-
-        final View child = getChildAt(0);
-        child.layout(0, 0, right-left, bottom-top);
-    }
-
-    public Direction getDirection() {
-        return mDirection;
-    }
-
-    public void setDirection(Direction direction) {
-        mDirection = direction;
-    }
-
-    public float getRatio() {
-        return mRatio;
-    }
-
-    public void setRatio(float ratio) {
-        mRatio = ratio;
-    }
+  }
 }

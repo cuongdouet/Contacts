@@ -15,26 +15,25 @@
      limitations under the License.
 -->
 
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:layout_gravity="center_vertical"
+  android:background="@color/navigation_drawer_background_color"
+  android:orientation="vertical">
+
+  <include layout="@layout/drawer_horizontal_divider" />
+
+  <FrameLayout
+    style="@style/DrawerHeaderItemStyle"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_gravity="center_vertical"
-    android:orientation="vertical"
-    android:background="@color/navigation_drawer_background_color">
+    android:clickable="false">
 
-    <include layout="@layout/drawer_horizontal_divider" />
-
-    <FrameLayout
-        style="@style/DrawerHeaderItemStyle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clickable="false">
-
-        <TextView
-            android:id="@+id/title"
-            style="@style/DrawerHeaderTextStyle"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"/>
-    </FrameLayout>
+    <TextView
+      android:id="@+id/title"
+      style="@style/DrawerHeaderTextStyle"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content" />
+  </FrameLayout>
 </LinearLayout>

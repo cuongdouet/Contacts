@@ -32,81 +32,79 @@ import android.view.ViewGroup;
 @SuppressWarnings("deprecation")
 public class LegacyPostalAddressListAdapter extends ContactEntryListAdapter {
 
-    static final String[] POSTALS_PROJECTION = new String[] {
-        ContactMethods._ID,     // 0
-        ContactMethods.TYPE,    // 1
-        ContactMethods.LABEL,   // 2
-        ContactMethods.DATA,    // 3
-        People.DISPLAY_NAME,    // 4
-        People.PHONETIC_NAME,   // 5
-    };
+  public static final int POSTAL_ID_COLUMN_INDEX = 0;
+  public static final int POSTAL_TYPE_COLUMN_INDEX = 1;
+  public static final int POSTAL_LABEL_COLUMN_INDEX = 2;
+  public static final int POSTAL_NUMBER_COLUMN_INDEX = 3;
+  public static final int POSTAL_DISPLAY_NAME_COLUMN_INDEX = 4;
+  public static final int POSTAL_PHONETIC_NAME_COLUMN_INDEX = 5;
+  static final String[] POSTALS_PROJECTION = new String[]{
+    ContactMethods._ID,     // 0
+    ContactMethods.TYPE,    // 1
+    ContactMethods.LABEL,   // 2
+    ContactMethods.DATA,    // 3
+    People.DISPLAY_NAME,    // 4
+    People.PHONETIC_NAME,   // 5
+  };
+  private CharSequence mUnknownNameText;
 
-    public static final int POSTAL_ID_COLUMN_INDEX = 0;
-    public static final int POSTAL_TYPE_COLUMN_INDEX = 1;
-    public static final int POSTAL_LABEL_COLUMN_INDEX = 2;
-    public static final int POSTAL_NUMBER_COLUMN_INDEX = 3;
-    public static final int POSTAL_DISPLAY_NAME_COLUMN_INDEX = 4;
-    public static final int POSTAL_PHONETIC_NAME_COLUMN_INDEX = 5;
+  public LegacyPostalAddressListAdapter(Context context) {
+    super(context);
+    mUnknownNameText = context.getText(android.R.string.unknownName);
+  }
 
-    private CharSequence mUnknownNameText;
+  @Override
+  public void configureLoader(CursorLoader loader, long directoryId) {
+    loader.setUri(ContactMethods.CONTENT_URI);
+    loader.setProjection(POSTALS_PROJECTION);
+    loader.setSortOrder(People.DISPLAY_NAME);
+    loader.setSelection(ContactMethods.KIND + "=" + android.provider.Contacts.KIND_POSTAL);
+  }
 
-    public LegacyPostalAddressListAdapter(Context context) {
-        super(context);
-        mUnknownNameText = context.getText(android.R.string.unknownName);
+  @Override
+  public String getContactDisplayName(int position) {
+    return ((Cursor) getItem(position)).getString(POSTAL_DISPLAY_NAME_COLUMN_INDEX);
+  }
+
+  public Uri getContactMethodUri(int position) {
+    Cursor cursor = ((Cursor) getItem(position));
+    long id = cursor.getLong(POSTAL_ID_COLUMN_INDEX);
+    return ContentUris.withAppendedId(ContactMethods.CONTENT_URI, id);
+  }
+
+  @Override
+  protected ContactListItemView newView(
+    Context context, int partition, Cursor cursor, int position, ViewGroup parent) {
+    final ContactListItemView view = new ContactListItemView(context, null);
+    view.setUnknownNameText(mUnknownNameText);
+    return view;
+  }
+
+  @Override
+  protected void bindView(View itemView, int partition, Cursor cursor, int position) {
+    super.bindView(itemView, partition, cursor, position);
+    ContactListItemView view = (ContactListItemView) itemView;
+    bindName(view, cursor);
+    bindViewId(view, cursor, POSTAL_ID_COLUMN_INDEX);
+    bindPostalAddress(view, cursor);
+  }
+
+  protected void bindName(final ContactListItemView view, Cursor cursor) {
+    view.showDisplayName(cursor, POSTAL_DISPLAY_NAME_COLUMN_INDEX,
+      getContactNameDisplayOrder());
+    view.showPhoneticName(cursor, POSTAL_PHONETIC_NAME_COLUMN_INDEX);
+  }
+
+  protected void bindPostalAddress(ContactListItemView view, Cursor cursor) {
+    CharSequence label = null;
+    if (!cursor.isNull(POSTAL_TYPE_COLUMN_INDEX)) {
+      final int type = cursor.getInt(POSTAL_TYPE_COLUMN_INDEX);
+      final String customLabel = cursor.getString(POSTAL_LABEL_COLUMN_INDEX);
+
+      // TODO cache
+      label = StructuredPostal.getTypeLabel(getContext().getResources(), type, customLabel);
     }
-
-    @Override
-    public void configureLoader(CursorLoader loader, long directoryId) {
-        loader.setUri(ContactMethods.CONTENT_URI);
-        loader.setProjection(POSTALS_PROJECTION);
-        loader.setSortOrder(People.DISPLAY_NAME);
-        loader.setSelection(ContactMethods.KIND + "=" + android.provider.Contacts.KIND_POSTAL);
-    }
-
-    @Override
-    public String getContactDisplayName(int position) {
-        return ((Cursor)getItem(position)).getString(POSTAL_DISPLAY_NAME_COLUMN_INDEX);
-    }
-
-    public Uri getContactMethodUri(int position) {
-        Cursor cursor = ((Cursor)getItem(position));
-        long id = cursor.getLong(POSTAL_ID_COLUMN_INDEX);
-        return ContentUris.withAppendedId(ContactMethods.CONTENT_URI, id);
-    }
-
-    @Override
-    protected ContactListItemView newView(
-            Context context, int partition, Cursor cursor, int position, ViewGroup parent) {
-        final ContactListItemView view = new ContactListItemView(context, null);
-        view.setUnknownNameText(mUnknownNameText);
-        return view;
-    }
-
-    @Override
-    protected void bindView(View itemView, int partition, Cursor cursor, int position) {
-        super.bindView(itemView, partition, cursor, position);
-        ContactListItemView view = (ContactListItemView)itemView;
-        bindName(view, cursor);
-        bindViewId(view, cursor, POSTAL_ID_COLUMN_INDEX);
-        bindPostalAddress(view, cursor);
-    }
-
-    protected void bindName(final ContactListItemView view, Cursor cursor) {
-        view.showDisplayName(cursor, POSTAL_DISPLAY_NAME_COLUMN_INDEX,
-                getContactNameDisplayOrder());
-        view.showPhoneticName(cursor, POSTAL_PHONETIC_NAME_COLUMN_INDEX);
-    }
-
-    protected void bindPostalAddress(ContactListItemView view, Cursor cursor) {
-        CharSequence label = null;
-        if (!cursor.isNull(POSTAL_TYPE_COLUMN_INDEX)) {
-            final int type = cursor.getInt(POSTAL_TYPE_COLUMN_INDEX);
-            final String customLabel = cursor.getString(POSTAL_LABEL_COLUMN_INDEX);
-
-            // TODO cache
-            label = StructuredPostal.getTypeLabel(getContext().getResources(), type, customLabel);
-        }
-        view.setLabel(label);
-        view.showData(cursor, POSTAL_NUMBER_COLUMN_INDEX);
-    }
+    view.setLabel(label);
+    view.showData(cursor, POSTAL_NUMBER_COLUMN_INDEX);
+  }
 }

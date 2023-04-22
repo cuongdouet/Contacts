@@ -16,13 +16,14 @@
 package com.android.vcard.exception;
 
 /**
- * VCardException used only when the version of the vCard is different. 
+ * VCardException used only when the version of the vCard is different.
  */
 public class VCardVersionException extends VCardException {
-    public VCardVersionException() {
-        super();
-    }
-    public VCardVersionException(String message) {
-        super(message);
-    }
+  public VCardVersionException() {
+    super();
+  }
+
+  public VCardVersionException(String message) {
+    super(message);
+  }
 }

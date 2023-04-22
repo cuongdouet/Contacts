@@ -24,15 +24,15 @@ import android.widget.EdgeEffect;
  * our own and keep using EdgeEffect to customize color.
  */
 public class EdgeEffectCompat {
-    /**
-     * Compatibility method for {@link EdgeEffect#onPull(float, float)}, which is only available
-     * on Lollipop+.
-     */
-    public static void onPull(EdgeEffect edgeEffect, float deltaDistance, float displacement) {
-        if (CompatUtils.isLollipopCompatible()) {
-            edgeEffect.onPull(deltaDistance, displacement);
-        } else {
-            edgeEffect.onPull(deltaDistance);
-        }
+  /**
+   * Compatibility method for {@link EdgeEffect#onPull(float, float)}, which is only available
+   * on Lollipop+.
+   */
+  public static void onPull(EdgeEffect edgeEffect, float deltaDistance, float displacement) {
+    if (CompatUtils.isLollipopCompatible()) {
+      edgeEffect.onPull(deltaDistance, displacement);
+    } else {
+      edgeEffect.onPull(deltaDistance);
     }
+  }
 }

@@ -15,31 +15,30 @@
      limitations under the License.
 -->
 
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/DrawerPrimaryItemStyle">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  style="@style/DrawerPrimaryItemStyle">
 
-    <ImageView
-        android:id="@+id/icon"
-        style="@style/DrawerItemIconStyle"/>
+  <ImageView
+    android:id="@+id/icon"
+    style="@style/DrawerItemIconStyle" />
 
-    <TextView
-        android:id="@+id/title"
-        style="@style/DrawerItemTextStyle" />
+  <TextView
+    android:id="@+id/title"
+    style="@style/DrawerItemTextStyle" />
 
-    <TextView
-        android:id="@+id/assistant_new_badge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical|end"
-        android:paddingLeft="@dimen/nav_new_badge_horizontal_pad"
-        android:paddingTop="@dimen/nav_new_badge_vertical_pad"
-        android:paddingRight="@dimen/nav_new_badge_horizontal_pad"
-        android:paddingBottom="@dimen/nav_new_badge_vertical_pad"
-        android:background="@drawable/new_badge_background"
-        android:textSize="@dimen/nav_new_badge_font_size"
-        android:textStyle="bold"
-        android:textAllCaps="true"
-        android:textColor="@android:color/white"
-        android:text="@string/menu_assistant_new_badge"/>
+  <TextView
+    android:id="@+id/assistant_new_badge"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_vertical|end"
+    android:background="@drawable/new_badge_background"
+    android:paddingLeft="@dimen/nav_new_badge_horizontal_pad"
+    android:paddingTop="@dimen/nav_new_badge_vertical_pad"
+    android:paddingRight="@dimen/nav_new_badge_horizontal_pad"
+    android:paddingBottom="@dimen/nav_new_badge_vertical_pad"
+    android:text="@string/menu_assistant_new_badge"
+    android:textAllCaps="true"
+    android:textColor="@android:color/white"
+    android:textSize="@dimen/nav_new_badge_font_size"
+    android:textStyle="bold" />
 </LinearLayout>

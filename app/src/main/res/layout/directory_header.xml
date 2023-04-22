@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2009 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2009 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -15,40 +14,42 @@
 -->
 
 <!-- Layout used for list section separators. -->
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/directory_header"
-    android:background="@android:color/transparent"
-    android:paddingLeft="@dimen/directory_header_left_padding"
-    android:paddingRight="?attr/list_item_padding_right"
-    android:paddingStart="@dimen/directory_header_left_padding"
-    android:paddingEnd="?attr/list_item_padding_right"
-    android:paddingTop="@dimen/directory_header_extra_top_padding"
-    android:paddingBottom="@dimen/directory_header_extra_bottom_padding"
-    android:minHeight="@dimen/list_section_divider_min_height"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content" >
-    <TextView
-        android:id="@+id/label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="@style/DirectoryHeaderStyle"
-        android:singleLine="true"
-        android:textAlignment="viewStart" />
-    <TextView
-        android:id="@+id/display_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:textAppearance="@style/DirectoryHeaderStyle"
-        android:singleLine="true"
-        android:textAlignment="viewStart" />
-    <TextView
-        android:id="@+id/count"
-        android:paddingTop="1dip"
-        android:layout_width="0dip"
-        android:layout_height="wrap_content"
-        android:gravity="end"
-        android:singleLine="true"
-        android:textAppearance="@style/DirectoryHeaderStyle" />
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:id="@+id/directory_header"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:background="@android:color/transparent"
+  android:minHeight="@dimen/list_section_divider_min_height"
+  android:paddingStart="@dimen/directory_header_left_padding"
+  android:paddingLeft="@dimen/directory_header_left_padding"
+  android:paddingTop="@dimen/directory_header_extra_top_padding"
+  android:paddingEnd="?attr/list_item_padding_right"
+  android:paddingRight="?attr/list_item_padding_right"
+  android:paddingBottom="@dimen/directory_header_extra_bottom_padding">
+
+  <TextView
+    android:id="@+id/label"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:singleLine="true"
+    android:textAlignment="viewStart"
+    android:textAppearance="@style/DirectoryHeaderStyle" />
+
+  <TextView
+    android:id="@+id/display_name"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="8dp"
+    android:singleLine="true"
+    android:textAlignment="viewStart"
+    android:textAppearance="@style/DirectoryHeaderStyle" />
+
+  <TextView
+    android:id="@+id/count"
+    android:layout_width="0dip"
+    android:layout_height="wrap_content"
+    android:gravity="end"
+    android:paddingTop="1dip"
+    android:singleLine="true"
+    android:textAppearance="@style/DirectoryHeaderStyle" />
 </LinearLayout>

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2016 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2016 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,16 +13,14 @@
      limitations under the License.
 -->
 
-<TextView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:paddingTop="18dp"
-    android:paddingStart="24dp"
-    android:paddingEnd="24dp"
-    android:textSize="20sp"
-    android:textColor="@color/contacts_text_color"
-    android:textAlignment="viewStart"
-    android:fontFamily="sans-serif-medium"
-    android:ellipsize="end"
-/>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"
+  android:ellipsize="end"
+  android:fontFamily="sans-serif-medium"
+  android:paddingStart="24dp"
+  android:paddingTop="18dp"
+  android:paddingEnd="24dp"
+  android:textAlignment="viewStart"
+  android:textColor="@color/contacts_text_color"
+  android:textSize="20sp" />

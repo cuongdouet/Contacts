@@ -15,7 +15,10 @@
  */
 package com.android.contacts.util;
 
+import static java.lang.annotation.RetentionPolicy.SOURCE;
+
 import android.content.Context;
+
 import androidx.annotation.IntDef;
 
 import com.android.contacts.model.account.AccountType;
@@ -23,57 +26,59 @@ import com.android.contacts.model.account.DeviceLocalAccountType;
 
 import java.lang.annotation.Retention;
 
-import static java.lang.annotation.RetentionPolicy.SOURCE;
-
 /**
  * Reports whether a value from RawContacts.ACCOUNT_TYPE should be considered a "Device"
  * account
  */
 public interface DeviceLocalAccountTypeFactory {
 
-    @Retention(SOURCE)
-    @IntDef({TYPE_OTHER, TYPE_DEVICE, TYPE_SIM})
-    @interface LocalAccountType {}
-    static final int TYPE_OTHER = 0;
-    static final int TYPE_DEVICE = 1;
-    static final int TYPE_SIM = 2;
+  static final int TYPE_OTHER = 0;
+  static final int TYPE_DEVICE = 1;
+  static final int TYPE_SIM = 2;
 
-    @DeviceLocalAccountTypeFactory.LocalAccountType int classifyAccount(String accountType);
+  @DeviceLocalAccountTypeFactory.LocalAccountType
+  int classifyAccount(String accountType);
 
-    AccountType getAccountType(String accountType);
+  AccountType getAccountType(String accountType);
 
-    class Util {
-        private Util() { }
+  @Retention(SOURCE)
+  @IntDef({TYPE_OTHER, TYPE_DEVICE, TYPE_SIM})
+  @interface LocalAccountType {
+  }
 
-        public static boolean isLocalAccountType(@LocalAccountType int type) {
-            return type == TYPE_SIM || type == TYPE_DEVICE;
-        }
-
-        public static boolean isLocalAccountType(DeviceLocalAccountTypeFactory factory,
-                String type) {
-
-            return isLocalAccountType(factory.classifyAccount(type));
-        }
+  class Util {
+    private Util() {
     }
 
-    class Default implements DeviceLocalAccountTypeFactory {
-        private Context mContext;
-
-        public Default(Context context) {
-            mContext = context;
-        }
-
-        @Override
-        public int classifyAccount(String accountType) {
-            return accountType == null ? TYPE_DEVICE : TYPE_OTHER;
-        }
-
-        @Override
-        public AccountType getAccountType(String accountType) {
-            if (accountType != null) {
-                throw new IllegalArgumentException(accountType + " is not a device account type.");
-            }
-            return new DeviceLocalAccountType(mContext);
-        }
+    public static boolean isLocalAccountType(@LocalAccountType int type) {
+      return type == TYPE_SIM || type == TYPE_DEVICE;
     }
+
+    public static boolean isLocalAccountType(DeviceLocalAccountTypeFactory factory,
+                                             String type) {
+
+      return isLocalAccountType(factory.classifyAccount(type));
+    }
+  }
+
+  class Default implements DeviceLocalAccountTypeFactory {
+    private Context mContext;
+
+    public Default(Context context) {
+      mContext = context;
+    }
+
+    @Override
+    public int classifyAccount(String accountType) {
+      return accountType == null ? TYPE_DEVICE : TYPE_OTHER;
+    }
+
+    @Override
+    public AccountType getAccountType(String accountType) {
+      if (accountType != null) {
+        throw new IllegalArgumentException(accountType + " is not a device account type.");
+      }
+      return new DeviceLocalAccountType(mContext);
+    }
+  }
 }

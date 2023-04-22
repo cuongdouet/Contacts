@@ -30,13 +30,13 @@ import com.android.contacts.util.ImplicitIntentsUtil;
  * with our own animation
  */
 public class QuickContactBroadcastReceiver extends BroadcastReceiver {
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        final Uri dataUri = intent.getData();
-        final Intent newIntent = new Intent(QuickContact.ACTION_QUICK_CONTACT);
-        newIntent.setSourceBounds(intent.getSourceBounds());
-        newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        newIntent.setData(dataUri);
-        ImplicitIntentsUtil.startActivityInApp(context, newIntent);
-    }
+  @Override
+  public void onReceive(Context context, Intent intent) {
+    final Uri dataUri = intent.getData();
+    final Intent newIntent = new Intent(QuickContact.ACTION_QUICK_CONTACT);
+    newIntent.setSourceBounds(intent.getSourceBounds());
+    newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+    newIntent.setData(dataUri);
+    ImplicitIntentsUtil.startActivityInApp(context, newIntent);
+  }
 }

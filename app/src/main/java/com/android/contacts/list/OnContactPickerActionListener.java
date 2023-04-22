@@ -21,25 +21,25 @@ import android.net.Uri;
 /**
  * Action callbacks that can be sent by a contact picker.
  */
-public interface OnContactPickerActionListener  {
+public interface OnContactPickerActionListener {
 
-    /**
-     * Returns the selected contact to the requester.
-     */
-    void onPickContactAction(Uri contactUri);
+  /**
+   * Returns the selected contact to the requester.
+   */
+  void onPickContactAction(Uri contactUri);
 
-    /**
-     * Returns the selected contact as a shortcut intent.
-     */
-    void onShortcutIntentCreated(Intent intent);
+  /**
+   * Returns the selected contact as a shortcut intent.
+   */
+  void onShortcutIntentCreated(Intent intent);
 
-    /**
-     * Creates a new contact and then returns it to the caller.
-     */
-    void onCreateNewContactAction();
+  /**
+   * Creates a new contact and then returns it to the caller.
+   */
+  void onCreateNewContactAction();
 
-    /**
-     * Opens the specified contact for editing.
-     */
-    void onEditContactAction(Uri contactLookupUri);
+  /**
+   * Opens the specified contact for editing.
+   */
+  void onEditContactAction(Uri contactLookupUri);
 }

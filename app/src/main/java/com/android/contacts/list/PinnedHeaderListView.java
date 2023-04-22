@@ -37,545 +37,538 @@ import com.android.contacts.util.ViewUtil;
  * pinned header can be pushed up and dissolved as needed.
  */
 public class PinnedHeaderListView extends AutoScrollListView
-        implements OnScrollListener, OnItemSelectedListener {
+  implements OnScrollListener, OnItemSelectedListener {
 
-    /**
-     * Adapter interface.  The list adapter must implement this interface.
-     */
-    public interface PinnedHeaderAdapter {
+  private static final int MAX_ALPHA = 255;
+  private static final int TOP = 0;
+  private static final int BOTTOM = 1;
+  private static final int FADING = 2;
+  private static final int DEFAULT_ANIMATION_DURATION = 20;
+  private static final int DEFAULT_SMOOTH_SCROLL_DURATION = 100;
+  private PinnedHeaderAdapter mAdapter;
+  private int mSize;
+  private PinnedHeader[] mHeaders;
+  private RectF mBounds = new RectF();
+  private OnScrollListener mOnScrollListener;
+  private OnItemSelectedListener mOnItemSelectedListener;
+  private int mScrollState;
+  private boolean mScrollToSectionOnHeaderTouch = false;
+  private boolean mHeaderTouched = false;
+  private int mAnimationDuration = DEFAULT_ANIMATION_DURATION;
+  private boolean mAnimating;
+  private long mAnimationTargetTime;
+  private int mHeaderPaddingStart;
+  private int mHeaderWidth;
+  public PinnedHeaderListView(Context context) {
+    this(context, null, android.R.attr.listViewStyle);
+  }
+  public PinnedHeaderListView(Context context, AttributeSet attrs) {
+    this(context, attrs, android.R.attr.listViewStyle);
+  }
 
-        /**
-         * Returns the overall number of pinned headers, visible or not.
-         */
-        int getPinnedHeaderCount();
+  public PinnedHeaderListView(Context context, AttributeSet attrs, int defStyle) {
+    super(context, attrs, defStyle);
+    super.setOnScrollListener(this);
+    super.setOnItemSelectedListener(this);
+  }
 
-        /**
-         * Creates or updates the pinned header view.
-         */
-        View getPinnedHeaderView(int viewIndex, View convertView, ViewGroup parent);
+  @Override
+  protected void onLayout(boolean changed, int l, int t, int r, int b) {
+    super.onLayout(changed, l, t, r, b);
+    mHeaderPaddingStart = getPaddingStart();
+    mHeaderWidth = r - l - mHeaderPaddingStart - getPaddingEnd();
+  }
 
-        /**
-         * Configures the pinned headers to match the visible list items. The
-         * adapter should call {@link PinnedHeaderListView#setHeaderPinnedAtTop},
-         * {@link PinnedHeaderListView#setHeaderPinnedAtBottom},
-         * {@link PinnedHeaderListView#setFadingHeader} or
-         * {@link PinnedHeaderListView#setHeaderInvisible}, for each header that
-         * needs to change its position or visibility.
-         */
-        void configurePinnedHeaders(PinnedHeaderListView listView);
+  @Override
+  public void setAdapter(ListAdapter adapter) {
+    mAdapter = (PinnedHeaderAdapter) adapter;
+    super.setAdapter(adapter);
+  }
 
-        /**
-         * Returns the list position to scroll to if the pinned header is touched.
-         * Return -1 if the list does not need to be scrolled.
-         */
-        int getScrollPositionForHeader(int viewIndex);
-    }
+  @Override
+  public void setOnScrollListener(OnScrollListener onScrollListener) {
+    mOnScrollListener = onScrollListener;
+    super.setOnScrollListener(this);
+  }
 
-    private static final int MAX_ALPHA = 255;
-    private static final int TOP = 0;
-    private static final int BOTTOM = 1;
-    private static final int FADING = 2;
+  @Override
+  public void setOnItemSelectedListener(OnItemSelectedListener listener) {
+    mOnItemSelectedListener = listener;
+    super.setOnItemSelectedListener(this);
+  }
 
-    private static final int DEFAULT_ANIMATION_DURATION = 20;
+  public void setScrollToSectionOnHeaderTouch(boolean value) {
+    mScrollToSectionOnHeaderTouch = value;
+  }
 
-    private static final int DEFAULT_SMOOTH_SCROLL_DURATION = 100;
-
-    private static final class PinnedHeader {
-        View view;
-        boolean visible;
-        int y;
-        int height;
-        int alpha;
-        int state;
-
-        boolean animating;
-        boolean targetVisible;
-        int sourceY;
-        int targetY;
-        long targetTime;
-    }
-
-    private PinnedHeaderAdapter mAdapter;
-    private int mSize;
-    private PinnedHeader[] mHeaders;
-    private RectF mBounds = new RectF();
-    private OnScrollListener mOnScrollListener;
-    private OnItemSelectedListener mOnItemSelectedListener;
-    private int mScrollState;
-
-    private boolean mScrollToSectionOnHeaderTouch = false;
-    private boolean mHeaderTouched = false;
-
-    private int mAnimationDuration = DEFAULT_ANIMATION_DURATION;
-    private boolean mAnimating;
-    private long mAnimationTargetTime;
-    private int mHeaderPaddingStart;
-    private int mHeaderWidth;
-
-    public PinnedHeaderListView(Context context) {
-        this(context, null, android.R.attr.listViewStyle);
-    }
-
-    public PinnedHeaderListView(Context context, AttributeSet attrs) {
-        this(context, attrs, android.R.attr.listViewStyle);
-    }
-
-    public PinnedHeaderListView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-        super.setOnScrollListener(this);
-        super.setOnItemSelectedListener(this);
-    }
-
-    @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        super.onLayout(changed, l, t, r, b);
-        mHeaderPaddingStart = getPaddingStart();
-        mHeaderWidth = r - l - mHeaderPaddingStart - getPaddingEnd();
-    }
-
-    @Override
-    public void setAdapter(ListAdapter adapter) {
-        mAdapter = (PinnedHeaderAdapter)adapter;
-        super.setAdapter(adapter);
-    }
-
-    @Override
-    public void setOnScrollListener(OnScrollListener onScrollListener) {
-        mOnScrollListener = onScrollListener;
-        super.setOnScrollListener(this);
-    }
-
-    @Override
-    public void setOnItemSelectedListener(OnItemSelectedListener listener) {
-        mOnItemSelectedListener = listener;
-        super.setOnItemSelectedListener(this);
-    }
-
-    public void setScrollToSectionOnHeaderTouch(boolean value) {
-        mScrollToSectionOnHeaderTouch = value;
-    }
-
-    @Override
-    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
-            int totalItemCount) {
-        if (mAdapter != null) {
-            int count = mAdapter.getPinnedHeaderCount();
-            if (count != mSize) {
-                mSize = count;
-                if (mHeaders == null) {
-                    mHeaders = new PinnedHeader[mSize];
-                } else if (mHeaders.length < mSize) {
-                    PinnedHeader[] headers = mHeaders;
-                    mHeaders = new PinnedHeader[mSize];
-                    System.arraycopy(headers, 0, mHeaders, 0, headers.length);
-                }
-            }
-
-            for (int i = 0; i < mSize; i++) {
-                if (mHeaders[i] == null) {
-                    mHeaders[i] = new PinnedHeader();
-                }
-                mHeaders[i].view = mAdapter.getPinnedHeaderView(i, mHeaders[i].view, this);
-            }
-
-            mAnimationTargetTime = System.currentTimeMillis() + mAnimationDuration;
-            mAdapter.configurePinnedHeaders(this);
-            invalidateIfAnimating();
+  @Override
+  public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
+                       int totalItemCount) {
+    if (mAdapter != null) {
+      int count = mAdapter.getPinnedHeaderCount();
+      if (count != mSize) {
+        mSize = count;
+        if (mHeaders == null) {
+          mHeaders = new PinnedHeader[mSize];
+        } else if (mHeaders.length < mSize) {
+          PinnedHeader[] headers = mHeaders;
+          mHeaders = new PinnedHeader[mSize];
+          System.arraycopy(headers, 0, mHeaders, 0, headers.length);
         }
-        if (mOnScrollListener != null) {
-            mOnScrollListener.onScroll(this, firstVisibleItem, visibleItemCount, totalItemCount);
+      }
+
+      for (int i = 0; i < mSize; i++) {
+        if (mHeaders[i] == null) {
+          mHeaders[i] = new PinnedHeader();
         }
+        mHeaders[i].view = mAdapter.getPinnedHeaderView(i, mHeaders[i].view, this);
+      }
+
+      mAnimationTargetTime = System.currentTimeMillis() + mAnimationDuration;
+      mAdapter.configurePinnedHeaders(this);
+      invalidateIfAnimating();
+    }
+    if (mOnScrollListener != null) {
+      mOnScrollListener.onScroll(this, firstVisibleItem, visibleItemCount, totalItemCount);
+    }
+  }
+
+  @Override
+  protected float getTopFadingEdgeStrength() {
+    // Disable vertical fading at the top when the pinned header is present
+    return mSize > 0 ? 0 : super.getTopFadingEdgeStrength();
+  }
+
+  @Override
+  public void onScrollStateChanged(AbsListView view, int scrollState) {
+    mScrollState = scrollState;
+    if (mOnScrollListener != null) {
+      mOnScrollListener.onScrollStateChanged(this, scrollState);
+    }
+  }
+
+  /**
+   * Ensures that the selected item is positioned below the top-pinned headers
+   * and above the bottom-pinned ones.
+   */
+  @Override
+  public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+    int height = getHeight();
+
+    int windowTop = 0;
+    int windowBottom = height;
+
+    for (int i = 0; i < mSize; i++) {
+      PinnedHeader header = mHeaders[i];
+      if (header.visible) {
+        if (header.state == TOP) {
+          windowTop = header.y + header.height;
+        } else if (header.state == BOTTOM) {
+          windowBottom = header.y;
+          break;
+        }
+      }
     }
 
-    @Override
-    protected float getTopFadingEdgeStrength() {
-        // Disable vertical fading at the top when the pinned header is present
-        return mSize > 0 ? 0 : super.getTopFadingEdgeStrength();
+    View selectedView = getSelectedView();
+    if (selectedView != null) {
+      if (selectedView.getTop() < windowTop) {
+        setSelectionFromTop(position, windowTop);
+      } else if (selectedView.getBottom() > windowBottom) {
+        setSelectionFromTop(position, windowBottom - selectedView.getHeight());
+      }
     }
 
-    @Override
-    public void onScrollStateChanged(AbsListView view, int scrollState) {
-        mScrollState = scrollState;
-        if (mOnScrollListener != null) {
-            mOnScrollListener.onScrollStateChanged(this, scrollState);
-        }
+    if (mOnItemSelectedListener != null) {
+      mOnItemSelectedListener.onItemSelected(parent, view, position, id);
     }
+  }
 
-    /**
-     * Ensures that the selected item is positioned below the top-pinned headers
-     * and above the bottom-pinned ones.
-     */
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        int height = getHeight();
-
-        int windowTop = 0;
-        int windowBottom = height;
-
-        for (int i = 0; i < mSize; i++) {
-            PinnedHeader header = mHeaders[i];
-            if (header.visible) {
-                if (header.state == TOP) {
-                    windowTop = header.y + header.height;
-                } else if (header.state == BOTTOM) {
-                    windowBottom = header.y;
-                    break;
-                }
-            }
-        }
-
-        View selectedView = getSelectedView();
-        if (selectedView != null) {
-            if (selectedView.getTop() < windowTop) {
-                setSelectionFromTop(position, windowTop);
-            } else if (selectedView.getBottom() > windowBottom) {
-                setSelectionFromTop(position, windowBottom - selectedView.getHeight());
-            }
-        }
-
-        if (mOnItemSelectedListener != null) {
-            mOnItemSelectedListener.onItemSelected(parent, view, position, id);
-        }
+  @Override
+  public void onNothingSelected(AdapterView<?> parent) {
+    if (mOnItemSelectedListener != null) {
+      mOnItemSelectedListener.onNothingSelected(parent);
     }
+  }
 
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-        if (mOnItemSelectedListener != null) {
-            mOnItemSelectedListener.onNothingSelected(parent);
-        }
-    }
+  public int getPinnedHeaderHeight(int viewIndex) {
+    ensurePinnedHeaderLayout(viewIndex);
+    return mHeaders[viewIndex].view.getHeight();
+  }
 
-    public int getPinnedHeaderHeight(int viewIndex) {
-        ensurePinnedHeaderLayout(viewIndex);
-        return mHeaders[viewIndex].view.getHeight();
-    }
+  /**
+   * Set header to be pinned at the top.
+   *
+   * @param viewIndex index of the header view
+   * @param y         is position of the header in pixels.
+   * @param animate   true if the transition to the new coordinate should be animated
+   */
+  public void setHeaderPinnedAtTop(int viewIndex, int y, boolean animate) {
+    ensurePinnedHeaderLayout(viewIndex);
+    PinnedHeader header = mHeaders[viewIndex];
+    header.visible = true;
+    header.y = y;
+    header.state = TOP;
 
-    /**
-     * Set header to be pinned at the top.
-     *
-     * @param viewIndex index of the header view
-     * @param y is position of the header in pixels.
-     * @param animate true if the transition to the new coordinate should be animated
-     */
-    public void setHeaderPinnedAtTop(int viewIndex, int y, boolean animate) {
-        ensurePinnedHeaderLayout(viewIndex);
-        PinnedHeader header = mHeaders[viewIndex];
+    // TODO perhaps we should animate at the top as well
+    header.animating = false;
+  }
+
+  /**
+   * Set header to be pinned at the bottom.
+   *
+   * @param viewIndex index of the header view
+   * @param y         is position of the header in pixels.
+   * @param animate   true if the transition to the new coordinate should be animated
+   */
+  public void setHeaderPinnedAtBottom(int viewIndex, int y, boolean animate) {
+    ensurePinnedHeaderLayout(viewIndex);
+    PinnedHeader header = mHeaders[viewIndex];
+    header.state = BOTTOM;
+    if (header.animating) {
+      header.targetTime = mAnimationTargetTime;
+      header.sourceY = header.y;
+      header.targetY = y;
+    } else if (animate && (header.y != y || !header.visible)) {
+      if (header.visible) {
+        header.sourceY = header.y;
+      } else {
         header.visible = true;
-        header.y = y;
-        header.state = TOP;
+        header.sourceY = y + header.height;
+      }
+      header.animating = true;
+      header.targetVisible = true;
+      header.targetTime = mAnimationTargetTime;
+      header.targetY = y;
+    } else {
+      header.visible = true;
+      header.y = y;
+    }
+  }
 
-        // TODO perhaps we should animate at the top as well
-        header.animating = false;
+  /**
+   * Set header to be pinned at the top of the first visible item.
+   *
+   * @param viewIndex index of the header view
+   * @param position  is position of the header in pixels.
+   */
+  public void setFadingHeader(int viewIndex, int position, boolean fade) {
+    ensurePinnedHeaderLayout(viewIndex);
+
+    View child = getChildAt(position - getFirstVisiblePosition());
+    if (child == null) return;
+
+    PinnedHeader header = mHeaders[viewIndex];
+    // Hide header when it's a star.
+    // TODO: try showing the view even when it's a star;
+    // if we have to hide the star view, then try hiding it in some higher layer.
+    header.visible = !((TextView) header.view).getText().toString().isEmpty();
+    header.state = FADING;
+    header.alpha = MAX_ALPHA;
+    header.animating = false;
+
+    int top = getTotalTopPinnedHeaderHeight();
+    header.y = top;
+    if (fade) {
+      int bottom = child.getBottom() - top;
+      int headerHeight = header.height;
+      if (bottom < headerHeight) {
+        int portion = bottom - headerHeight;
+        header.alpha = MAX_ALPHA * (headerHeight + portion) / headerHeight;
+        header.y = top + portion;
+      }
+    }
+  }
+
+  /**
+   * Makes header invisible.
+   *
+   * @param viewIndex index of the header view
+   * @param animate   true if the transition to the new coordinate should be animated
+   */
+  public void setHeaderInvisible(int viewIndex, boolean animate) {
+    PinnedHeader header = mHeaders[viewIndex];
+    if (header.visible && (animate || header.animating) && header.state == BOTTOM) {
+      header.sourceY = header.y;
+      if (!header.animating) {
+        header.visible = true;
+        header.targetY = getBottom() + header.height;
+      }
+      header.animating = true;
+      header.targetTime = mAnimationTargetTime;
+      header.targetVisible = false;
+    } else {
+      header.visible = false;
+    }
+  }
+
+  private void ensurePinnedHeaderLayout(int viewIndex) {
+    View view = mHeaders[viewIndex].view;
+    if (view.isLayoutRequested()) {
+      ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
+      int widthSpec;
+      int heightSpec;
+
+      if (layoutParams != null && layoutParams.width > 0) {
+        widthSpec = View.MeasureSpec
+          .makeMeasureSpec(layoutParams.width, View.MeasureSpec.EXACTLY);
+      } else {
+        widthSpec = View.MeasureSpec
+          .makeMeasureSpec(mHeaderWidth, View.MeasureSpec.EXACTLY);
+      }
+
+      if (layoutParams != null && layoutParams.height > 0) {
+        heightSpec = View.MeasureSpec
+          .makeMeasureSpec(layoutParams.height, View.MeasureSpec.EXACTLY);
+      } else {
+        heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+      }
+      view.measure(widthSpec, heightSpec);
+      int height = view.getMeasuredHeight();
+      mHeaders[viewIndex].height = height;
+      view.layout(0, 0, view.getMeasuredWidth(), height);
+    }
+  }
+
+  /**
+   * Returns the sum of heights of headers pinned to the top.
+   */
+  public int getTotalTopPinnedHeaderHeight() {
+    for (int i = mSize; --i >= 0; ) {
+      PinnedHeader header = mHeaders[i];
+      if (header.visible && header.state == TOP) {
+        return header.y + header.height;
+      }
+    }
+    return 0;
+  }
+
+  /**
+   * Returns the list item position at the specified y coordinate.
+   */
+  public int getPositionAt(int y) {
+    do {
+      int position = pointToPosition(getPaddingLeft() + 1, y);
+      if (position != -1) {
+        return position;
+      }
+      // If position == -1, we must have hit a separator. Let's examine
+      // a nearby pixel
+      y--;
+    } while (y > 0);
+    return 0;
+  }
+
+  @Override
+  public boolean onInterceptTouchEvent(MotionEvent ev) {
+    mHeaderTouched = false;
+    if (super.onInterceptTouchEvent(ev)) {
+      return true;
     }
 
-    /**
-     * Set header to be pinned at the bottom.
-     *
-     * @param viewIndex index of the header view
-     * @param y is position of the header in pixels.
-     * @param animate true if the transition to the new coordinate should be animated
-     */
-    public void setHeaderPinnedAtBottom(int viewIndex, int y, boolean animate) {
-        ensurePinnedHeaderLayout(viewIndex);
-        PinnedHeader header = mHeaders[viewIndex];
-        header.state = BOTTOM;
-        if (header.animating) {
-            header.targetTime = mAnimationTargetTime;
-            header.sourceY = header.y;
-            header.targetY = y;
-        } else if (animate && (header.y != y || !header.visible)) {
-            if (header.visible) {
-                header.sourceY = header.y;
-            } else {
-                header.visible = true;
-                header.sourceY = y + header.height;
-            }
-            header.animating = true;
-            header.targetVisible = true;
-            header.targetTime = mAnimationTargetTime;
-            header.targetY = y;
-        } else {
-            header.visible = true;
-            header.y = y;
+    if (mScrollState == SCROLL_STATE_IDLE) {
+      final int y = (int) ev.getY();
+      final int x = (int) ev.getX();
+      for (int i = mSize; --i >= 0; ) {
+        PinnedHeader header = mHeaders[i];
+        final int padding = ViewUtil.isViewLayoutRtl(this) ?
+          getWidth() - mHeaderPaddingStart - header.view.getWidth() :
+          mHeaderPaddingStart;
+        if (header.visible && header.y <= y && header.y + header.height > y &&
+          x >= padding && padding + header.view.getWidth() >= x) {
+          mHeaderTouched = true;
+          if (mScrollToSectionOnHeaderTouch &&
+            ev.getAction() == MotionEvent.ACTION_DOWN) {
+            return smoothScrollToPartition(i);
+          } else {
+            return true;
+          }
         }
+      }
     }
 
-    /**
-     * Set header to be pinned at the top of the first visible item.
-     *
-     * @param viewIndex index of the header view
-     * @param position is position of the header in pixels.
-     */
-    public void setFadingHeader(int viewIndex, int position, boolean fade) {
-        ensurePinnedHeaderLayout(viewIndex);
+    return false;
+  }
 
-        View child = getChildAt(position - getFirstVisiblePosition());
-        if (child == null) return;
-
-        PinnedHeader header = mHeaders[viewIndex];
-        // Hide header when it's a star.
-        // TODO: try showing the view even when it's a star;
-        // if we have to hide the star view, then try hiding it in some higher layer.
-        header.visible = !((TextView) header.view).getText().toString().isEmpty();
-        header.state = FADING;
-        header.alpha = MAX_ALPHA;
-        header.animating = false;
-
-        int top = getTotalTopPinnedHeaderHeight();
-        header.y = top;
-        if (fade) {
-            int bottom = child.getBottom() - top;
-            int headerHeight = header.height;
-            if (bottom < headerHeight) {
-                int portion = bottom - headerHeight;
-                header.alpha = MAX_ALPHA * (headerHeight + portion) / headerHeight;
-                header.y = top + portion;
-            }
-        }
-    }
-
-    /**
-     * Makes header invisible.
-     *
-     * @param viewIndex index of the header view
-     * @param animate true if the transition to the new coordinate should be animated
-     */
-    public void setHeaderInvisible(int viewIndex, boolean animate) {
-        PinnedHeader header = mHeaders[viewIndex];
-        if (header.visible && (animate || header.animating) && header.state == BOTTOM) {
-            header.sourceY = header.y;
-            if (!header.animating) {
-                header.visible = true;
-                header.targetY = getBottom() + header.height;
-            }
-            header.animating = true;
-            header.targetTime = mAnimationTargetTime;
-            header.targetVisible = false;
-        } else {
-            header.visible = false;
-        }
-    }
-
-    private void ensurePinnedHeaderLayout(int viewIndex) {
-        View view = mHeaders[viewIndex].view;
-        if (view.isLayoutRequested()) {
-            ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
-            int widthSpec;
-            int heightSpec;
-
-            if (layoutParams != null && layoutParams.width > 0) {
-                widthSpec = View.MeasureSpec
-                        .makeMeasureSpec(layoutParams.width, View.MeasureSpec.EXACTLY);
-            } else {
-                widthSpec = View.MeasureSpec
-                        .makeMeasureSpec(mHeaderWidth, View.MeasureSpec.EXACTLY);
-            }
-
-            if (layoutParams != null && layoutParams.height > 0) {
-                heightSpec = View.MeasureSpec
-                        .makeMeasureSpec(layoutParams.height, View.MeasureSpec.EXACTLY);
-            } else {
-                heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-            }
-            view.measure(widthSpec, heightSpec);
-            int height = view.getMeasuredHeight();
-            mHeaders[viewIndex].height = height;
-            view.layout(0, 0, view.getMeasuredWidth(), height);
-        }
-    }
-
-    /**
-     * Returns the sum of heights of headers pinned to the top.
-     */
-    public int getTotalTopPinnedHeaderHeight() {
-        for (int i = mSize; --i >= 0;) {
-            PinnedHeader header = mHeaders[i];
-            if (header.visible && header.state == TOP) {
-                return header.y + header.height;
-            }
-        }
-        return 0;
-    }
-
-    /**
-     * Returns the list item position at the specified y coordinate.
-     */
-    public int getPositionAt(int y) {
-        do {
-            int position = pointToPosition(getPaddingLeft() + 1, y);
-            if (position != -1) {
-                return position;
-            }
-            // If position == -1, we must have hit a separator. Let's examine
-            // a nearby pixel
-            y--;
-        } while (y > 0);
-        return 0;
-    }
-
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
+  @Override
+  public boolean onTouchEvent(MotionEvent ev) {
+    if (mHeaderTouched) {
+      if (ev.getAction() == MotionEvent.ACTION_UP) {
         mHeaderTouched = false;
-        if (super.onInterceptTouchEvent(ev)) {
-            return true;
-        }
+      }
+      return true;
+    }
+    return super.onTouchEvent(ev);
+  }
 
-        if (mScrollState == SCROLL_STATE_IDLE) {
-            final int y = (int)ev.getY();
-            final int x = (int)ev.getX();
-            for (int i = mSize; --i >= 0;) {
-                PinnedHeader header = mHeaders[i];
-                final int padding = ViewUtil.isViewLayoutRtl(this) ?
-                        getWidth() - mHeaderPaddingStart - header.view.getWidth() :
-                        mHeaderPaddingStart;
-                if (header.visible && header.y <= y && header.y + header.height > y &&
-                        x >= padding && padding + header.view.getWidth() >= x) {
-                    mHeaderTouched = true;
-                    if (mScrollToSectionOnHeaderTouch &&
-                            ev.getAction() == MotionEvent.ACTION_DOWN) {
-                        return smoothScrollToPartition(i);
-                    } else {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
+  private boolean smoothScrollToPartition(int partition) {
+    if (mAdapter == null) {
+      return false;
+    }
+    final int position = mAdapter.getScrollPositionForHeader(partition);
+    if (position == -1) {
+      return false;
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        if (mHeaderTouched) {
-            if (ev.getAction() == MotionEvent.ACTION_UP) {
-                mHeaderTouched = false;
-            }
-            return true;
+    int offset = 0;
+    for (int i = 0; i < partition; i++) {
+      PinnedHeader header = mHeaders[i];
+      if (header.visible) {
+        offset += header.height;
+      }
+    }
+    smoothScrollToPositionFromTop(position + getHeaderViewsCount(), offset,
+      DEFAULT_SMOOTH_SCROLL_DURATION);
+    return true;
+  }
+
+  private void invalidateIfAnimating() {
+    mAnimating = false;
+    for (int i = 0; i < mSize; i++) {
+      if (mHeaders[i].animating) {
+        mAnimating = true;
+        invalidate();
+        return;
+      }
+    }
+  }
+
+  @Override
+  protected void dispatchDraw(Canvas canvas) {
+    long currentTime = mAnimating ? System.currentTimeMillis() : 0;
+
+    int top = 0;
+    int right = 0;
+    int bottom = getBottom();
+    boolean hasVisibleHeaders = false;
+    for (int i = 0; i < mSize; i++) {
+      PinnedHeader header = mHeaders[i];
+      if (header.visible) {
+        hasVisibleHeaders = true;
+        if (header.state == BOTTOM && header.y < bottom) {
+          bottom = header.y;
+        } else if (header.state == TOP || header.state == FADING) {
+          int newTop = header.y + header.height;
+          if (newTop > top) {
+            top = newTop;
+          }
         }
-        return super.onTouchEvent(ev);
+      }
     }
 
-    private boolean smoothScrollToPartition(int partition) {
-        if (mAdapter == null) {
-            return false;
-        }
-        final int position = mAdapter.getScrollPositionForHeader(partition);
-        if (position == -1) {
-            return false;
-        }
-
-        int offset = 0;
-        for (int i = 0; i < partition; i++) {
-            PinnedHeader header = mHeaders[i];
-            if (header.visible) {
-                offset += header.height;
-            }
-        }
-        smoothScrollToPositionFromTop(position + getHeaderViewsCount(), offset,
-                DEFAULT_SMOOTH_SCROLL_DURATION);
-        return true;
+    if (hasVisibleHeaders) {
+      canvas.save();
     }
 
-    private void invalidateIfAnimating() {
-        mAnimating = false;
-        for (int i = 0; i < mSize; i++) {
-            if (mHeaders[i].animating) {
-                mAnimating = true;
-                invalidate();
-                return;
-            }
+    super.dispatchDraw(canvas);
+
+    if (hasVisibleHeaders) {
+      canvas.restore();
+
+      // If the first item is visible and if it has a positive top that is greater than the
+      // first header's assigned y-value, use that for the first header's y value. This way,
+      // the header inherits any padding applied to the list view.
+      if (mSize > 0 && getFirstVisiblePosition() == 0) {
+        View firstChild = getChildAt(0);
+        PinnedHeader firstHeader = mHeaders[0];
+
+        if (firstHeader != null) {
+          int firstHeaderTop = firstChild != null ? firstChild.getTop() : 0;
+          firstHeader.y = Math.max(firstHeader.y, firstHeaderTop);
         }
+      }
+
+      // First draw top headers, then the bottom ones to handle the Z axis correctly
+      for (int i = mSize; --i >= 0; ) {
+        PinnedHeader header = mHeaders[i];
+        if (header.visible && (header.state == TOP || header.state == FADING)) {
+          drawHeader(canvas, header, currentTime);
+        }
+      }
+
+      for (int i = 0; i < mSize; i++) {
+        PinnedHeader header = mHeaders[i];
+        if (header.visible && header.state == BOTTOM) {
+          drawHeader(canvas, header, currentTime);
+        }
+      }
     }
 
-    @Override
-    protected void dispatchDraw(Canvas canvas) {
-        long currentTime = mAnimating ? System.currentTimeMillis() : 0;
+    invalidateIfAnimating();
+  }
 
-        int top = 0;
-        int right = 0;
-        int bottom = getBottom();
-        boolean hasVisibleHeaders = false;
-        for (int i = 0; i < mSize; i++) {
-            PinnedHeader header = mHeaders[i];
-            if (header.visible) {
-                hasVisibleHeaders = true;
-                if (header.state == BOTTOM && header.y < bottom) {
-                    bottom = header.y;
-                } else if (header.state == TOP || header.state == FADING) {
-                    int newTop = header.y + header.height;
-                    if (newTop > top) {
-                        top = newTop;
-                    }
-                }
-            }
-        }
-
-        if (hasVisibleHeaders) {
-            canvas.save();
-        }
-
-        super.dispatchDraw(canvas);
-
-        if (hasVisibleHeaders) {
-            canvas.restore();
-
-            // If the first item is visible and if it has a positive top that is greater than the
-            // first header's assigned y-value, use that for the first header's y value. This way,
-            // the header inherits any padding applied to the list view.
-            if (mSize > 0 && getFirstVisiblePosition() == 0) {
-                View firstChild = getChildAt(0);
-                PinnedHeader firstHeader = mHeaders[0];
-
-                if (firstHeader != null) {
-                    int firstHeaderTop = firstChild != null ? firstChild.getTop() : 0;
-                    firstHeader.y = Math.max(firstHeader.y, firstHeaderTop);
-                }
-            }
-
-            // First draw top headers, then the bottom ones to handle the Z axis correctly
-            for (int i = mSize; --i >= 0;) {
-                PinnedHeader header = mHeaders[i];
-                if (header.visible && (header.state == TOP || header.state == FADING)) {
-                    drawHeader(canvas, header, currentTime);
-                }
-            }
-
-            for (int i = 0; i < mSize; i++) {
-                PinnedHeader header = mHeaders[i];
-                if (header.visible && header.state == BOTTOM) {
-                    drawHeader(canvas, header, currentTime);
-                }
-            }
-        }
-
-        invalidateIfAnimating();
+  private void drawHeader(Canvas canvas, PinnedHeader header, long currentTime) {
+    if (header.animating) {
+      int timeLeft = (int) (header.targetTime - currentTime);
+      if (timeLeft <= 0) {
+        header.y = header.targetY;
+        header.visible = header.targetVisible;
+        header.animating = false;
+      } else {
+        header.y = header.targetY + (header.sourceY - header.targetY) * timeLeft
+          / mAnimationDuration;
+      }
     }
-
-    private void drawHeader(Canvas canvas, PinnedHeader header, long currentTime) {
-        if (header.animating) {
-            int timeLeft = (int)(header.targetTime - currentTime);
-            if (timeLeft <= 0) {
-                header.y = header.targetY;
-                header.visible = header.targetVisible;
-                header.animating = false;
-            } else {
-                header.y = header.targetY + (header.sourceY - header.targetY) * timeLeft
-                        / mAnimationDuration;
-            }
-        }
-        if (header.visible) {
-            View view = header.view;
-            int saveCount = canvas.save();
-            int translateX = ViewUtil.isViewLayoutRtl(this) ?
-                    getWidth() - mHeaderPaddingStart - view.getWidth() :
-                    mHeaderPaddingStart;
-            canvas.translate(translateX, header.y);
-            if (header.state == FADING) {
-                mBounds.set(0, 0, view.getWidth(), view.getHeight());
-                canvas.saveLayerAlpha(mBounds, header.alpha, Canvas.ALL_SAVE_FLAG);
-            }
-            view.draw(canvas);
-            canvas.restoreToCount(saveCount);
-        }
+    if (header.visible) {
+      View view = header.view;
+      int saveCount = canvas.save();
+      int translateX = ViewUtil.isViewLayoutRtl(this) ?
+        getWidth() - mHeaderPaddingStart - view.getWidth() :
+        mHeaderPaddingStart;
+      canvas.translate(translateX, header.y);
+      if (header.state == FADING) {
+        mBounds.set(0, 0, view.getWidth(), view.getHeight());
+        canvas.saveLayerAlpha(mBounds, header.alpha, Canvas.ALL_SAVE_FLAG);
+      }
+      view.draw(canvas);
+      canvas.restoreToCount(saveCount);
     }
+  }
+
+  /**
+   * Adapter interface.  The list adapter must implement this interface.
+   */
+  public interface PinnedHeaderAdapter {
+
+    /**
+     * Returns the overall number of pinned headers, visible or not.
+     */
+    int getPinnedHeaderCount();
+
+    /**
+     * Creates or updates the pinned header view.
+     */
+    View getPinnedHeaderView(int viewIndex, View convertView, ViewGroup parent);
+
+    /**
+     * Configures the pinned headers to match the visible list items. The
+     * adapter should call {@link PinnedHeaderListView#setHeaderPinnedAtTop},
+     * {@link PinnedHeaderListView#setHeaderPinnedAtBottom},
+     * {@link PinnedHeaderListView#setFadingHeader} or
+     * {@link PinnedHeaderListView#setHeaderInvisible}, for each header that
+     * needs to change its position or visibility.
+     */
+    void configurePinnedHeaders(PinnedHeaderListView listView);
+
+    /**
+     * Returns the list position to scroll to if the pinned header is touched.
+     * Return -1 if the list does not need to be scrolled.
+     */
+    int getScrollPositionForHeader(int viewIndex);
+  }
+
+  private static final class PinnedHeader {
+    View view;
+    boolean visible;
+    int y;
+    int height;
+    int alpha;
+    int state;
+
+    boolean animating;
+    boolean targetVisible;
+    int sourceY;
+    int targetY;
+    long targetTime;
+  }
 }

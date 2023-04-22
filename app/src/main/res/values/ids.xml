@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2008 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2008 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,88 +13,88 @@
      limitations under the License.
 -->
 <resources>
-    <!-- The EditText for entries in the ContactEditFragment -->
-    <item type="id" name="data"/>
-    <item type="id" name="header_phones"/>
-    <item type="id" name="dialog_sync_add"/>
+  <!-- The EditText for entries in the ContactEditFragment -->
+  <item name="data" type="id" />
+  <item name="header_phones" type="id" />
+  <item name="dialog_sync_add" type="id" />
 
-    <!-- For ContactDeletionInteraction -->
-    <item type="id" name="dialog_delete_contact_loader_id" />
+  <!-- For ContactDeletionInteraction -->
+  <item name="dialog_delete_contact_loader_id" type="id" />
 
-    <!-- For ContactMultiDeletionInteraction -->
-    <item type="id" name="dialog_delete_multiple_contact_loader_id" />
+  <!-- For ContactMultiDeletionInteraction -->
+  <item name="dialog_delete_multiple_contact_loader_id" type="id" />
 
-    <!-- For PhoneNumberInteraction -->
-    <item type="id" name="dialog_phone_number_call_disambiguation"/>
+  <!-- For PhoneNumberInteraction -->
+  <item name="dialog_phone_number_call_disambiguation" type="id" />
 
-    <!-- For PhoneNumberMessageSendInteraction -->
-    <item type="id" name="dialog_phone_number_message_disambiguation"/>
+  <!-- For PhoneNumberMessageSendInteraction -->
+  <item name="dialog_phone_number_message_disambiguation" type="id" />
 
-    <!-- Dialog Manager Ids -->
-    <item type="id" name="dialog_manager_id_1"/>
-    <item type="id" name="dialog_manager_id_2"/>
+  <!-- Dialog Manager Ids -->
+  <item name="dialog_manager_id_1" type="id" />
+  <item name="dialog_manager_id_2" type="id" />
 
-    <!-- Loader ID for contact filters -->
-    <item type="id" name="contact_list_filter_loader" />
+  <!-- Loader ID for contact filters -->
+  <item name="contact_list_filter_loader" type="id" />
 
-    <!-- Dialog ID for the date picker in event (birthday) editors -->
-    <item type="id" name="dialog_event_date_picker" />
+  <!-- Dialog ID for the date picker in event (birthday) editors -->
+  <item name="dialog_event_date_picker" type="id" />
 
-    <!-- An ID to be used for contents of a custom dialog so that its state be preserved -->
-    <item type="id" name="custom_dialog_content" />
+  <!-- An ID to be used for contents of a custom dialog so that its state be preserved -->
+  <item name="custom_dialog_content" type="id" />
 
-    <!-- Menu group ID for settings and help & feedback  -->
-    <item type="id" name="nav_misc" />
+  <!-- Menu group ID for settings and help & feedback  -->
+  <item name="nav_misc" type="id" />
 
-    <!-- Menu ID for Contacts menu -->
-    <item type="id" name="nav_all_contacts" />
+  <!-- Menu ID for Contacts menu -->
+  <item name="nav_all_contacts" type="id" />
 
-    <!-- Menu ID for Suggestions menu -->
-    <item type="id" name="nav_assistant" />
+  <!-- Menu ID for Suggestions menu -->
+  <item name="nav_assistant" type="id" />
 
-    <!-- Menu ID for group header -->
-    <item type="id" name="nav_groups" />
+  <!-- Menu ID for group header -->
+  <item name="nav_groups" type="id" />
 
-    <!-- Menu ID for each group menu item -->
-    <item type="id" name="nav_group" />
+  <!-- Menu ID for each group menu item -->
+  <item name="nav_group" type="id" />
 
-    <!-- Menu ID for create label menu item -->
-    <item type="id" name="nav_create_label" />
+  <!-- Menu ID for create label menu item -->
+  <item name="nav_create_label" type="id" />
 
-    <!-- Menu ID for filter header -->
-    <item type="id" name="nav_filters" />
+  <!-- Menu ID for filter header -->
+  <item name="nav_filters" type="id" />
 
-    <!-- Menu ID for each filter menu item -->
-    <item type="id" name="nav_filter" />
+  <!-- Menu ID for each filter menu item -->
+  <item name="nav_filter" type="id" />
 
-    <!-- Menu ID for Settings menu -->
-    <item type="id" name="nav_settings" />
+  <!-- Menu ID for Settings menu -->
+  <item name="nav_settings" type="id" />
 
-    <!-- Menu ID for help & feedback  menu -->
-    <item type="id" name="nav_help" />
+  <!-- Menu ID for help & feedback  menu -->
+  <item name="nav_help" type="id" />
 
-    <!-- For vcard.ImportVCardActivity -->
-    <item type="id" name="dialog_cache_vcard"/>
-    <item type="id" name="dialog_error_with_message"/>
+  <!-- For vcard.ImportVCardActivity -->
+  <item name="dialog_cache_vcard" type="id" />
+  <item name="dialog_error_with_message" type="id" />
 
-    <!-- For vcard.CancelActivity -->
-    <item type="id" name="dialog_cancel_confirmation"/>
-    <item type="id" name="dialog_cancel_failed"/>
+  <!-- For vcard.CancelActivity -->
+  <item name="dialog_cancel_confirmation" type="id" />
+  <item name="dialog_cancel_failed" type="id" />
 
-    <!-- For ExportVCardActivity -->
-    <item type="id" name="dialog_exporting_vcard"/>
-    <item type="id" name="dialog_fail_to_export_with_reason"/>
+  <!-- For ExportVCardActivity -->
+  <item name="dialog_exporting_vcard" type="id" />
+  <item name="dialog_fail_to_export_with_reason" type="id" />
 
-    <!-- For Debug Purpose -->
-    <item type="id" name="cliv_name_textview"/>
-    <item type="id" name="cliv_phoneticname_textview"/>
-    <item type="id" name="cliv_label_textview"/>
-    <item type="id" name="cliv_data_view"/>
+  <!-- For Debug Purpose -->
+  <item name="cliv_name_textview" type="id" />
+  <item name="cliv_phoneticname_textview" type="id" />
+  <item name="cliv_label_textview" type="id" />
+  <item name="cliv_data_view" type="id" />
 
-    <!-- For tag ids used by ContactPhotoManager to tag views with contact details -->
-    <item type="id" name="tag_display_name"/>
-    <item type="id" name="tag_identifier"/>
-    <item type="id" name="tag_contact_type"/>
+  <!-- For tag ids used by ContactPhotoManager to tag views with contact details -->
+  <item name="tag_display_name" type="id" />
+  <item name="tag_identifier" type="id" />
+  <item name="tag_contact_type" type="id" />
 
-    <item type="id" name="menu_save"/>
+  <item name="menu_save" type="id" />
 </resources>

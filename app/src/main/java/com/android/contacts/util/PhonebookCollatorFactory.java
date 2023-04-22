@@ -24,7 +24,7 @@ import java.util.Locale;
  * collator is the same as the one that is used in sqlite.
  */
 public final class PhonebookCollatorFactory {
-    public static final Collator getCollator() {
-        return Collator.getInstance(Locale.getDefault());
-    }
+  public static final Collator getCollator() {
+    return Collator.getInstance(Locale.getDefault());
+  }
 }

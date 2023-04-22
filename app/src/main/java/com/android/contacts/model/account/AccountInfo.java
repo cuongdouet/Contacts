@@ -31,126 +31,125 @@ import java.util.Objects;
  */
 public class AccountInfo {
 
-    private final AccountDisplayInfo mDisplayInfo;
-    private final AccountType mType;
+  public static final Function<AccountInfo, AccountWithDataSet> ACCOUNT_EXTRACTOR =
+    new Function<AccountInfo, AccountWithDataSet>() {
+      @Override
+      public AccountWithDataSet apply(AccountInfo from) {
+        return from.getAccount();
+      }
+    };
+  private final AccountDisplayInfo mDisplayInfo;
+  private final AccountType mType;
 
-    public AccountInfo(AccountDisplayInfo displayInfo, AccountType type) {
-        this.mDisplayInfo = displayInfo;
-        this.mType = type;
+  public AccountInfo(AccountDisplayInfo displayInfo, AccountType type) {
+    this.mDisplayInfo = displayInfo;
+    this.mType = type;
+  }
+
+  /**
+   * Returns whether accounts contains an account that is the same as account
+   *
+   * <p>This does not use equality rather checks whether the source account ({@link #getAccount()}
+   * is the same</p>
+   */
+  public static boolean contains(List<AccountInfo> accounts, AccountInfo account) {
+    return contains(accounts, account.getAccount());
+  }
+
+  /**
+   * Returns whether accounts contains an account that is the same as account
+   *
+   * <p>This does not use equality rather checks whether the source account ({@link #getAccount()}
+   * is the same</p>
+   */
+  public static boolean contains(List<AccountInfo> accounts, AccountWithDataSet account) {
+    return getAccount(accounts, account) != null;
+  }
+
+  /**
+   * Returns the AccountInfo from the list that has the specified account as it's source account
+   */
+  public static AccountInfo getAccount(List<AccountInfo> accounts, AccountWithDataSet account) {
+    Preconditions.checkNotNull(accounts);
+
+    for (AccountInfo info : accounts) {
+      if (info.sameAccount(account)) {
+        return info;
+      }
     }
+    return null;
+  }
 
-    public AccountType getType() {
-        return mType;
-    }
+  /**
+   * Sorts the accounts using the same ordering as {@link AccountComparator}
+   */
+  public static void sortAccounts(AccountWithDataSet defaultAccount, List<AccountInfo> accounts) {
+    Collections.sort(accounts, sourceComparator(defaultAccount));
+  }
 
-    public AccountWithDataSet getAccount() {
-        return mDisplayInfo.getSource();
-    }
+  /**
+   * Gets a list of the AccountWithDataSet for accounts
+   */
+  public static List<AccountWithDataSet> extractAccounts(List<AccountInfo> accounts) {
+    return Lists.transform(accounts, ACCOUNT_EXTRACTOR);
+  }
 
-    /**
-     * Returns the displayable account name label for the account
-     */
-    public CharSequence getNameLabel() {
-        return mDisplayInfo.getNameLabel();
-    }
+  private static Comparator<AccountInfo> sourceComparator(AccountWithDataSet defaultAccount) {
+    final AccountComparator accountComparator = new AccountComparator(defaultAccount);
+    return new Comparator<AccountInfo>() {
+      @Override
+      public int compare(AccountInfo o1, AccountInfo o2) {
+        return accountComparator.compare(o1.getAccount(), o2.getAccount());
+      }
+    };
+  }
 
-    /**
-     * Returns the displayable account type label for the account
-     */
-    public CharSequence getTypeLabel() {
-        return mDisplayInfo.getTypeLabel();
-    }
+  public AccountType getType() {
+    return mType;
+  }
 
-    /**
-     * Returns the icon for the account type
-     */
-    public Drawable getIcon() {
-        return mDisplayInfo.getIcon();
-    }
+  public AccountWithDataSet getAccount() {
+    return mDisplayInfo.getSource();
+  }
 
-    public boolean hasDistinctName() {
-        return mDisplayInfo.hasDistinctName();
-    }
+  /**
+   * Returns the displayable account name label for the account
+   */
+  public CharSequence getNameLabel() {
+    return mDisplayInfo.getNameLabel();
+  }
 
-    public boolean isDeviceAccount() {
-        return mDisplayInfo.isDeviceAccount();
-    }
+  /**
+   * Returns the displayable account type label for the account
+   */
+  public CharSequence getTypeLabel() {
+    return mDisplayInfo.getTypeLabel();
+  }
 
-    public boolean hasGoogleAccountType() {
-        return mDisplayInfo.hasGoogleAccountType();
-    }
+  /**
+   * Returns the icon for the account type
+   */
+  public Drawable getIcon() {
+    return mDisplayInfo.getIcon();
+  }
 
-    public boolean sameAccount(AccountInfo other) {
-        return sameAccount(other.getAccount());
-    }
+  public boolean hasDistinctName() {
+    return mDisplayInfo.hasDistinctName();
+  }
 
-    public boolean sameAccount(AccountWithDataSet other) {
-        return Objects.equals(getAccount(), other);
-    }
+  public boolean isDeviceAccount() {
+    return mDisplayInfo.isDeviceAccount();
+  }
 
-    /**
-     * Returns whether accounts contains an account that is the same as account
-     *
-     * <p>This does not use equality rather checks whether the source account ({@link #getAccount()}
-     * is the same</p>
-     */
-    public static boolean contains(List<AccountInfo> accounts, AccountInfo account) {
-        return contains(accounts, account.getAccount());
-    }
+  public boolean hasGoogleAccountType() {
+    return mDisplayInfo.hasGoogleAccountType();
+  }
 
-    /**
-     * Returns whether accounts contains an account that is the same as account
-     *
-     * <p>This does not use equality rather checks whether the source account ({@link #getAccount()}
-     * is the same</p>
-     */
-    public static boolean contains(List<AccountInfo> accounts, AccountWithDataSet account) {
-        return getAccount(accounts, account) != null;
-    }
+  public boolean sameAccount(AccountInfo other) {
+    return sameAccount(other.getAccount());
+  }
 
-    /**
-     * Returns the AccountInfo from the list that has the specified account as it's source account
-     */
-    public static AccountInfo getAccount(List<AccountInfo> accounts, AccountWithDataSet account) {
-        Preconditions.checkNotNull(accounts);
-
-        for (AccountInfo info : accounts) {
-            if (info.sameAccount(account)) {
-                return info;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Sorts the accounts using the same ordering as {@link AccountComparator}
-     */
-    public static void sortAccounts(AccountWithDataSet defaultAccount, List<AccountInfo> accounts) {
-        Collections.sort(accounts, sourceComparator(defaultAccount));
-    }
-
-    /**
-     * Gets a list of the AccountWithDataSet for accounts
-     */
-    public static List<AccountWithDataSet> extractAccounts(List<AccountInfo> accounts) {
-        return Lists.transform(accounts, ACCOUNT_EXTRACTOR);
-    }
-
-    private static Comparator<AccountInfo> sourceComparator(AccountWithDataSet defaultAccount) {
-        final AccountComparator accountComparator = new AccountComparator(defaultAccount);
-        return new Comparator<AccountInfo>() {
-            @Override
-            public int compare(AccountInfo o1, AccountInfo o2) {
-                return accountComparator.compare(o1.getAccount(), o2.getAccount());
-            }
-        };
-    }
-
-    public static final Function<AccountInfo, AccountWithDataSet> ACCOUNT_EXTRACTOR =
-            new Function<AccountInfo, AccountWithDataSet>() {
-                @Override
-                public AccountWithDataSet apply(AccountInfo from) {
-                    return from.getAccount();
-                }
-            };
+  public boolean sameAccount(AccountWithDataSet other) {
+    return Objects.equals(getAccount(), other);
+  }
 }

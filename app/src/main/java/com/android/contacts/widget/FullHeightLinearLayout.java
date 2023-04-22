@@ -28,24 +28,24 @@ import android.widget.LinearLayout;
  */
 public final class FullHeightLinearLayout extends LinearLayout {
 
-    public FullHeightLinearLayout(Context context) {
-        super(context);
-    }
+  public FullHeightLinearLayout(Context context) {
+    super(context);
+  }
 
-    public FullHeightLinearLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
+  public FullHeightLinearLayout(Context context, AttributeSet attrs) {
+    super(context, attrs);
+  }
 
-    public FullHeightLinearLayout(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-    }
+  public FullHeightLinearLayout(Context context, AttributeSet attrs, int defStyle) {
+    super(context, attrs, defStyle);
+  }
 
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        if (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.AT_MOST) {
-            heightMeasureSpec = MeasureSpec.makeMeasureSpec(
-                    MeasureSpec.getSize(heightMeasureSpec), MeasureSpec.EXACTLY);
-        }
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+  @Override
+  protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+    if (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.AT_MOST) {
+      heightMeasureSpec = MeasureSpec.makeMeasureSpec(
+        MeasureSpec.getSize(heightMeasureSpec), MeasureSpec.EXACTLY);
     }
+    super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+  }
 }

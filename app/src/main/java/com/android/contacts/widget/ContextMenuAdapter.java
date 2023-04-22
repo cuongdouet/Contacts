@@ -23,8 +23,8 @@ import android.view.View;
  */
 public interface ContextMenuAdapter extends View.OnCreateContextMenuListener {
 
-    /**
-     * See {@link android.app.Activity#onContextItemSelected}.
-     */
-    boolean onContextItemSelected(MenuItem item);
+  /**
+   * See {@link android.app.Activity#onContextItemSelected}.
+   */
+  boolean onContextItemSelected(MenuItem item);
 }

@@ -25,19 +25,19 @@ import com.android.contacts.util.DeviceLocalAccountTypeFactory;
  */
 public class ObjectFactory {
 
-    public static Logger getLogger() {
-        return null;
-    }
+  public static Logger getLogger() {
+    return null;
+  }
 
-    public static DeviceLocalAccountTypeFactory getDeviceLocalAccountTypeFactory(Context context) {
-        return new DeviceLocalAccountTypeFactory.Default(context);
-    }
+  public static DeviceLocalAccountTypeFactory getDeviceLocalAccountTypeFactory(Context context) {
+    return new DeviceLocalAccountTypeFactory.Default(context);
+  }
 
-    public static Fragment getAssistantFragment() {
-        return null;
-    }
+  public static Fragment getAssistantFragment() {
+    return null;
+  }
 
-    public static Uri getWelcomeUri() {
-        return null;
-    }
+  public static Uri getWelcomeUri() {
+    return null;
+  }
 }

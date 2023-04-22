@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2015 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2015 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,51 +13,51 @@
      limitations under the License.
 -->
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
-    style="@style/ExpandingEntryCardStyle"
-    android:layout_height="@dimen/quickcontact_collapse_view_height"
+  android:id="@+id/collapsed_suggestion_card"
+  style="@style/ExpandingEntryCardStyle"
+  android:layout_width="match_parent"
+  android:layout_height="@dimen/quickcontact_collapse_view_height"
+  android:visibility="gone">
+
+  <LinearLayout
+    android:id="@+id/collapsed_suggestion_header"
     android:layout_width="match_parent"
-    android:visibility="gone"
-    android:id="@+id/collapsed_suggestion_card">
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:orientation="horizontal">
 
-    <LinearLayout
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:orientation="horizontal"
-        android:clickable="true"
-        android:id="@+id/collapsed_suggestion_header">
+    <ImageView
+      android:layout_width="@dimen/quickcontact_collapse_icon_size"
+      android:layout_height="@dimen/quickcontact_collapse_icon_size"
+      android:layout_gravity="center_vertical"
+      android:layout_margin="@dimen/quickcontact_collapse_image_padding"
+      android:src="@drawable/quantum_ic_assistant_vd_theme_24"
+      android:tint="@color/editor_icon_color" />
 
-        <ImageView
-                android:src="@drawable/quantum_ic_assistant_vd_theme_24"
-                android:tint="@color/editor_icon_color"
-                android:layout_width="@dimen/quickcontact_collapse_icon_size"
-                android:layout_height="@dimen/quickcontact_collapse_icon_size"
-                android:layout_margin="@dimen/quickcontact_collapse_image_padding"
-                android:layout_gravity="center_vertical"/>
+    <TextView
+      android:id="@+id/collapsed_suggestion_card_title"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginLeft="8dp"
+      android:layout_weight="1"
+      android:ellipsize="end"
+      android:paddingTop="@dimen/quickcontact_collapse_text_padding"
+      android:singleLine="true"
+      android:textAlignment="viewStart"
+      android:textColor="@color/quickcontact_entry_header_text_color"
+      android:textSize="@dimen/expanding_entry_card_title_text_size" />
 
-        <TextView
-                android:id="@+id/collapsed_suggestion_card_title"
-                android:textSize="@dimen/expanding_entry_card_title_text_size"
-                android:layout_marginLeft="8dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textColor="@color/quickcontact_entry_header_text_color"
-                android:singleLine="true"
-                android:ellipsize="end"
-                android:textAlignment="viewStart"
-                android:paddingTop="@dimen/quickcontact_collapse_text_padding"/>
-
-        <ImageView
-                android:src="@drawable/quantum_ic_expand_more_vd_theme_24"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|end"
-                android:layout_alignParentEnd="true"
-                android:paddingStart="@dimen/editor_round_button_padding_left"
-                android:paddingEnd="@dimen/editor_round_button_padding_right"
-                android:paddingTop="@dimen/editor_round_button_padding_top"
-                android:paddingBottom="@dimen/editor_round_button_padding_bottom"/>
-    </LinearLayout>>
+    <ImageView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentEnd="true"
+      android:layout_gravity="center_vertical|end"
+      android:paddingStart="@dimen/editor_round_button_padding_left"
+      android:paddingTop="@dimen/editor_round_button_padding_top"
+      android:paddingEnd="@dimen/editor_round_button_padding_right"
+      android:paddingBottom="@dimen/editor_round_button_padding_bottom"
+      android:src="@drawable/quantum_ic_expand_more_vd_theme_24" />
+  </LinearLayout>
+  >
 
 </androidx.cardview.widget.CardView>

@@ -29,26 +29,26 @@ import android.widget.ListView;
  */
 /* package */ class ActionsViewContainer extends LinearLayout {
 
-    private ContextMenuInfo mContextMenuInfo;
+  private ContextMenuInfo mContextMenuInfo;
 
-    public ActionsViewContainer(Context context) {
-        super(context);
-    }
+  public ActionsViewContainer(Context context) {
+    super(context);
+  }
 
-    public ActionsViewContainer(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
-    }
+  public ActionsViewContainer(Context context, AttributeSet attrs) {
+    this(context, attrs, 0);
+  }
 
-    public ActionsViewContainer(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-    }
+  public ActionsViewContainer(Context context, AttributeSet attrs, int defStyle) {
+    super(context, attrs, defStyle);
+  }
 
-    public void setPosition(int position) {
-        mContextMenuInfo = new AdapterView.AdapterContextMenuInfo(this, position, -1);
-    }
+  public void setPosition(int position) {
+    mContextMenuInfo = new AdapterView.AdapterContextMenuInfo(this, position, -1);
+  }
 
-    @Override
-    public ContextMenuInfo getContextMenuInfo() {
-        return mContextMenuInfo;
-    }
+  @Override
+  public ContextMenuInfo getContextMenuInfo() {
+    return mContextMenuInfo;
+  }
 }

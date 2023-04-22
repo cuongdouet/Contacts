@@ -25,23 +25,23 @@ import android.provider.ContactsContract.StatusUpdates;
  */
 public class ContactStatusUtil {
 
-    private static final String TAG = "ContactStatusUtil";
+  private static final String TAG = "ContactStatusUtil";
 
-    public static String getStatusString(Context context, int presence) {
-        Resources resources = context.getResources();
-        switch (presence) {
-            case StatusUpdates.AVAILABLE:
-                return resources.getString(R.string.status_available);
-            case StatusUpdates.IDLE:
-            case StatusUpdates.AWAY:
-                return resources.getString(R.string.status_away);
-            case StatusUpdates.DO_NOT_DISTURB:
-                return resources.getString(R.string.status_busy);
-            case StatusUpdates.OFFLINE:
-            case StatusUpdates.INVISIBLE:
-            default:
-                return null;
-        }
+  public static String getStatusString(Context context, int presence) {
+    Resources resources = context.getResources();
+    switch (presence) {
+      case StatusUpdates.AVAILABLE:
+        return resources.getString(R.string.status_available);
+      case StatusUpdates.IDLE:
+      case StatusUpdates.AWAY:
+        return resources.getString(R.string.status_away);
+      case StatusUpdates.DO_NOT_DISTURB:
+        return resources.getString(R.string.status_busy);
+      case StatusUpdates.OFFLINE:
+      case StatusUpdates.INVISIBLE:
+      default:
+        return null;
     }
+  }
 
 }

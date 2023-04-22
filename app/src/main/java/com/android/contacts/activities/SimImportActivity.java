@@ -26,24 +26,24 @@ import com.android.contacts.model.SimCard;
 
 /**
  * Host activity for SimImportFragment
- *
+ * <p>
  * Initially SimImportFragment was a DialogFragment but there were accessibility issues with
  * that so it was changed to an activity
  */
 public class SimImportActivity extends AppCompatContactsActivity {
 
-    public static final String EXTRA_SUBSCRIPTION_ID = "extraSubscriptionId";
+  public static final String EXTRA_SUBSCRIPTION_ID = "extraSubscriptionId";
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.sim_import_activity);
-        final FragmentManager fragmentManager = getFragmentManager();
-        Fragment fragment = fragmentManager.findFragmentByTag("SimImport");
-        if (fragment == null) {
-            fragment = SimImportFragment.newInstance(getIntent().getIntExtra(EXTRA_SUBSCRIPTION_ID,
-                    SimCard.NO_SUBSCRIPTION_ID));
-            fragmentManager.beginTransaction().add(R.id.root, fragment, "SimImport").commit();
-        }
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.sim_import_activity);
+    final FragmentManager fragmentManager = getFragmentManager();
+    Fragment fragment = fragmentManager.findFragmentByTag("SimImport");
+    if (fragment == null) {
+      fragment = SimImportFragment.newInstance(getIntent().getIntExtra(EXTRA_SUBSCRIPTION_ID,
+        SimCard.NO_SUBSCRIPTION_ID));
+      fragmentManager.beginTransaction().add(R.id.root, fragment, "SimImport").commit();
     }
+  }
 }

@@ -32,94 +32,106 @@ import java.util.List;
  */
 public final class KindSectionData {
 
-    private final AccountType mAccountType;
-    private final DataKind mDataKind;
-    private final RawContactDelta mRawContactDelta;
+  private final AccountType mAccountType;
+  private final DataKind mDataKind;
+  private final RawContactDelta mRawContactDelta;
 
-    public KindSectionData(AccountType accountType, DataKind dataKind,
-            RawContactDelta rawContactDelta) {
-        mAccountType = accountType;
-        mDataKind = dataKind;
-        mRawContactDelta = rawContactDelta;
-    }
+  public KindSectionData(AccountType accountType, DataKind dataKind,
+                         RawContactDelta rawContactDelta) {
+    mAccountType = accountType;
+    mDataKind = dataKind;
+    mRawContactDelta = rawContactDelta;
+  }
 
-    public AccountType getAccountType() {
-        return mAccountType;
-    }
+  public AccountType getAccountType() {
+    return mAccountType;
+  }
 
-    /** Returns all ValuesDeltas for the data kind this section represents.*/
-    public List<ValuesDelta> getValuesDeltas() {
-        final List<ValuesDelta> valuesDeltas = mRawContactDelta.getMimeEntries(mDataKind.mimeType);
-        return valuesDeltas == null ? new ArrayList<ValuesDelta>() : valuesDeltas;
-    }
+  /**
+   * Returns all ValuesDeltas for the data kind this section represents.
+   */
+  public List<ValuesDelta> getValuesDeltas() {
+    final List<ValuesDelta> valuesDeltas = mRawContactDelta.getMimeEntries(mDataKind.mimeType);
+    return valuesDeltas == null ? new ArrayList<ValuesDelta>() : valuesDeltas;
+  }
 
-    /** Returns visible and non deleted ValuesDeltas for the data kind this section represents. */
-    public List<ValuesDelta> getVisibleValuesDeltas() {
-        final ArrayList<ValuesDelta> valuesDeltas = new ArrayList<> ();
-        for (ValuesDelta valuesDelta : getValuesDeltas()) {
-            // Same conditions as KindSectionView#rebuildFromState
-            if (valuesDelta.isVisible() && !valuesDelta.isDelete()) {
-                valuesDeltas.add(valuesDelta);
-            }
-        }
-        return valuesDeltas;
+  /**
+   * Returns visible and non deleted ValuesDeltas for the data kind this section represents.
+   */
+  public List<ValuesDelta> getVisibleValuesDeltas() {
+    final ArrayList<ValuesDelta> valuesDeltas = new ArrayList<>();
+    for (ValuesDelta valuesDelta : getValuesDeltas()) {
+      // Same conditions as KindSectionView#rebuildFromState
+      if (valuesDelta.isVisible() && !valuesDelta.isDelete()) {
+        valuesDeltas.add(valuesDelta);
+      }
     }
+    return valuesDeltas;
+  }
 
-    /** Returns non-empty ValuesDeltas for the data kind this section represents. */
-    public List<ValuesDelta> getNonEmptyValuesDeltas() {
-        final ArrayList<ValuesDelta> valuesDeltas = new ArrayList<> ();
-        for (ValuesDelta valuesDelta : getValuesDeltas()) {
-            if (!isEmpty(valuesDelta)) {
-                valuesDeltas.add(valuesDelta);
-            }
-        }
-        return valuesDeltas;
+  /**
+   * Returns non-empty ValuesDeltas for the data kind this section represents.
+   */
+  public List<ValuesDelta> getNonEmptyValuesDeltas() {
+    final ArrayList<ValuesDelta> valuesDeltas = new ArrayList<>();
+    for (ValuesDelta valuesDelta : getValuesDeltas()) {
+      if (!isEmpty(valuesDelta)) {
+        valuesDeltas.add(valuesDelta);
+      }
     }
+    return valuesDeltas;
+  }
 
-    /** Returns the super primary ValuesDelta for the data kind this section represents. */
-    public ValuesDelta getSuperPrimaryValuesDelta() {
-        for (ValuesDelta valuesDelta : getValuesDeltas()) {
-            if (valuesDelta.isSuperPrimary()) return valuesDelta;
-        }
-        return null;
+  /**
+   * Returns the super primary ValuesDelta for the data kind this section represents.
+   */
+  public ValuesDelta getSuperPrimaryValuesDelta() {
+    for (ValuesDelta valuesDelta : getValuesDeltas()) {
+      if (valuesDelta.isSuperPrimary()) return valuesDelta;
     }
+    return null;
+  }
 
-    /** Returns the ValuesDelta with the given ID. */
-    public ValuesDelta getValuesDeltaById(Long id) {
-        for (ValuesDelta valuesDelta : getValuesDeltas()) {
-            if (valuesDelta.getId().equals(id)) return valuesDelta;
-        }
-        return null;
+  /**
+   * Returns the ValuesDelta with the given ID.
+   */
+  public ValuesDelta getValuesDeltaById(Long id) {
+    for (ValuesDelta valuesDelta : getValuesDeltas()) {
+      if (valuesDelta.getId().equals(id)) return valuesDelta;
     }
+    return null;
+  }
 
-    /** Returns the first non empty ValuesDelta for the data kind this section represents. */
-    public ValuesDelta getFirstNonEmptyValuesDelta() {
-        for (ValuesDelta valuesDelta : getValuesDeltas()) {
-            if (!isEmpty(valuesDelta)) return valuesDelta;
-        }
-        return null;
+  /**
+   * Returns the first non empty ValuesDelta for the data kind this section represents.
+   */
+  public ValuesDelta getFirstNonEmptyValuesDelta() {
+    for (ValuesDelta valuesDelta : getValuesDeltas()) {
+      if (!isEmpty(valuesDelta)) return valuesDelta;
     }
+    return null;
+  }
 
-    private boolean isEmpty(ValuesDelta valuesDelta) {
-        if (mDataKind.fieldList != null) {
-            for (EditField editField : mDataKind.fieldList) {
-                final String column = editField.column;
-                final String value = valuesDelta.getAsString(column);
-                if (!TextUtils.isEmpty(value)) return false;
-            }
-        }
-        return true;
+  private boolean isEmpty(ValuesDelta valuesDelta) {
+    if (mDataKind.fieldList != null) {
+      for (EditField editField : mDataKind.fieldList) {
+        final String column = editField.column;
+        final String value = valuesDelta.getAsString(column);
+        if (!TextUtils.isEmpty(value)) return false;
+      }
     }
+    return true;
+  }
 
-    public DataKind getDataKind() {
-        return mDataKind;
-    }
+  public DataKind getDataKind() {
+    return mDataKind;
+  }
 
-    public RawContactDelta getRawContactDelta() {
-        return mRawContactDelta;
-    }
+  public RawContactDelta getRawContactDelta() {
+    return mRawContactDelta;
+  }
 
-    public String getMimeType() {
-        return mDataKind.mimeType;
-    }
+  public String getMimeType() {
+    return mDataKind.mimeType;
+  }
 }

@@ -29,58 +29,57 @@ import com.android.contacts.R;
  */
 public class JoinContactConfirmationDialogFragment extends DialogFragment {
 
-    private static final String ARG_JOIN_CONTACT_ID = "joinContactId";
+  private static final String ARG_JOIN_CONTACT_ID = "joinContactId";
+  private long mContactId;
+
+  /**
+   * @param joinContactId The raw contact ID of the contact to join to after confirmation.
+   */
+  public static void show(ContactEditorFragment fragment, long joinContactId) {
+    final Bundle args = new Bundle();
+    args.putLong(ARG_JOIN_CONTACT_ID, joinContactId);
+
+    final JoinContactConfirmationDialogFragment dialog = new
+      JoinContactConfirmationDialogFragment();
+    dialog.setTargetFragment(fragment, 0);
+    dialog.setArguments(args);
+    dialog.show(fragment.getFragmentManager(), "joinContactConfirmationDialog");
+  }
+
+  @Override
+  public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    mContactId = getArguments().getLong(ARG_JOIN_CONTACT_ID);
+  }
+
+  @Override
+  public Dialog onCreateDialog(Bundle savedInstanceState) {
+    final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+    builder.setMessage(R.string.joinConfirmation);
+    builder.setPositiveButton(R.string.joinConfirmation_positive_button,
+      new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          final Listener targetListener = (Listener) getTargetFragment();
+          targetListener.onJoinContactConfirmed(mContactId);
+        }
+      });
+    builder.setNegativeButton(android.R.string.cancel, null);
+    builder.setCancelable(false);
+    return builder.create();
+  }
+
+  /**
+   * Callbacks for the host of this dialog fragment.
+   */
+  public interface Listener {
 
     /**
-     * Callbacks for the host of this dialog fragment.
+     * Invoked after the user confirms they want to save pending changes before
+     * joining the contact.
+     *
+     * @param joinContactId The raw contact ID of the contact to join to.
      */
-    public interface Listener {
-
-        /**
-         * Invoked after the user confirms they want to save pending changes before
-         * joining the contact.
-         *
-         * @param joinContactId The raw contact ID of the contact to join to.
-         */
-        void onJoinContactConfirmed(long joinContactId);
-    }
-
-    /**
-     * @param joinContactId The raw contact ID of the contact to join to after confirmation.
-     */
-    public static void show(ContactEditorFragment fragment, long joinContactId) {
-        final Bundle args = new Bundle();
-        args.putLong(ARG_JOIN_CONTACT_ID, joinContactId);
-
-        final JoinContactConfirmationDialogFragment dialog = new
-                JoinContactConfirmationDialogFragment();
-        dialog.setTargetFragment(fragment, 0);
-        dialog.setArguments(args);
-        dialog.show(fragment.getFragmentManager(), "joinContactConfirmationDialog");
-    }
-
-    private long mContactId;
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mContactId = getArguments().getLong(ARG_JOIN_CONTACT_ID);
-    }
-
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage(R.string.joinConfirmation);
-        builder.setPositiveButton(R.string.joinConfirmation_positive_button,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        final Listener targetListener = (Listener) getTargetFragment();
-                        targetListener.onJoinContactConfirmed(mContactId);
-                    }
-                });
-        builder.setNegativeButton(android.R.string.cancel, null);
-        builder.setCancelable(false);
-        return builder.create();
-    }
+    void onJoinContactConfirmed(long joinContactId);
+  }
 }

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2011 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2011 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -15,17 +14,17 @@
 -->
 
 <!-- Layout used for "Join contacts" screen's section headers. -->
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
-    <TextView
-        android:id="@+id/text"
-        style="@style/ContactListSeparatorTextViewStyle"
-        android:textAlignment="viewStart"
-        android:paddingLeft="24dip"
-        android:paddingRight="24dip"
-        android:paddingStart="24dip"
-        android:paddingEnd="24dip"/>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:orientation="vertical">
+
+  <TextView
+    android:id="@+id/text"
+    style="@style/ContactListSeparatorTextViewStyle"
+    android:paddingStart="24dip"
+    android:paddingLeft="24dip"
+    android:paddingEnd="24dip"
+    android:paddingRight="24dip"
+    android:textAlignment="viewStart" />
 </LinearLayout>

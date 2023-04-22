@@ -28,63 +28,63 @@ import com.android.contacts.R;
  */
 public final class DisplayOrderPreference extends ListPreference {
 
-    private ContactsPreferences mPreferences;
-    private Context mContext;
+  private ContactsPreferences mPreferences;
+  private Context mContext;
 
-    public DisplayOrderPreference(Context context) {
-        super(context);
-        prepare();
-    }
+  public DisplayOrderPreference(Context context) {
+    super(context);
+    prepare();
+  }
 
-    public DisplayOrderPreference(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        prepare();
-    }
+  public DisplayOrderPreference(Context context, AttributeSet attrs) {
+    super(context, attrs);
+    prepare();
+  }
 
-    private void prepare() {
-        mContext = getContext();
-        mPreferences = new ContactsPreferences(mContext);
-        setEntries(new String[]{
-                mContext.getString(R.string.display_options_view_given_name_first),
-                mContext.getString(R.string.display_options_view_family_name_first),
-        });
-        setEntryValues(new String[]{
-                String.valueOf(ContactsPreferences.DISPLAY_ORDER_PRIMARY),
-                String.valueOf(ContactsPreferences.DISPLAY_ORDER_ALTERNATIVE),
-        });
-        setValue(String.valueOf(mPreferences.getDisplayOrder()));
-    }
+  private void prepare() {
+    mContext = getContext();
+    mPreferences = new ContactsPreferences(mContext);
+    setEntries(new String[]{
+      mContext.getString(R.string.display_options_view_given_name_first),
+      mContext.getString(R.string.display_options_view_family_name_first),
+    });
+    setEntryValues(new String[]{
+      String.valueOf(ContactsPreferences.DISPLAY_ORDER_PRIMARY),
+      String.valueOf(ContactsPreferences.DISPLAY_ORDER_ALTERNATIVE),
+    });
+    setValue(String.valueOf(mPreferences.getDisplayOrder()));
+  }
 
-    @Override
-    protected boolean shouldPersist() {
-        return false;   // This preference takes care of its own storage
-    }
+  @Override
+  protected boolean shouldPersist() {
+    return false;   // This preference takes care of its own storage
+  }
 
-    @Override
-    public CharSequence getSummary() {
-        switch (mPreferences.getDisplayOrder()) {
-            case ContactsPreferences.DISPLAY_ORDER_PRIMARY:
-                return mContext.getString(R.string.display_options_view_given_name_first);
-            case ContactsPreferences.DISPLAY_ORDER_ALTERNATIVE:
-                return mContext.getString(R.string.display_options_view_family_name_first);
-        }
-        return null;
+  @Override
+  public CharSequence getSummary() {
+    switch (mPreferences.getDisplayOrder()) {
+      case ContactsPreferences.DISPLAY_ORDER_PRIMARY:
+        return mContext.getString(R.string.display_options_view_given_name_first);
+      case ContactsPreferences.DISPLAY_ORDER_ALTERNATIVE:
+        return mContext.getString(R.string.display_options_view_family_name_first);
     }
+    return null;
+  }
 
-    @Override
-    protected boolean persistString(String value) {
-        int newValue = Integer.parseInt(value);
-        if (newValue != mPreferences.getDisplayOrder()) {
-            mPreferences.setDisplayOrder(newValue);
-            notifyChanged();
-        }
-        return true;
+  @Override
+  protected boolean persistString(String value) {
+    int newValue = Integer.parseInt(value);
+    if (newValue != mPreferences.getDisplayOrder()) {
+      mPreferences.setDisplayOrder(newValue);
+      notifyChanged();
     }
+    return true;
+  }
 
-    @Override
-    // UX recommendation is not to show cancel button on such lists.
-    protected void onPrepareDialogBuilder(Builder builder) {
-        super.onPrepareDialogBuilder(builder);
-        builder.setNegativeButton(null, null);
-    }
+  @Override
+  // UX recommendation is not to show cancel button on such lists.
+  protected void onPrepareDialogBuilder(Builder builder) {
+    super.onPrepareDialogBuilder(builder);
+    builder.setNegativeButton(null, null);
+  }
 }

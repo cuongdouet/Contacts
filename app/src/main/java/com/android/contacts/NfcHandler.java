@@ -33,70 +33,70 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
-  * This class implements sharing the currently displayed
-  * contact to another device using NFC. NFC sharing is only
-  * enabled when the activity is in the foreground and resumed.
-  * When an NFC link is established, {@link #createMessage}
-  * will be called to create the data to be sent over the link,
-  * which is a vCard in this case.
-  */
+ * This class implements sharing the currently displayed
+ * contact to another device using NFC. NFC sharing is only
+ * enabled when the activity is in the foreground and resumed.
+ * When an NFC link is established, {@link #createMessage}
+ * will be called to create the data to be sent over the link,
+ * which is a vCard in this case.
+ */
 public class NfcHandler implements NfcAdapter.CreateNdefMessageCallback {
 
-    private static final String TAG = "ContactNfcHandler";
-    private static final String PROFILE_LOOKUP_KEY = "profile";
-    private final Context mContext;
-    private final Uri mContactUri;
+  private static final String TAG = "ContactNfcHandler";
+  private static final String PROFILE_LOOKUP_KEY = "profile";
+  private final Context mContext;
+  private final Uri mContactUri;
 
-    /* Register NFC handler. This should be called in activities' onCreate(), or similar methods */
-    public static void register(Activity activity, Uri contactUri) {
-        NfcAdapter adapter = NfcAdapter.getDefaultAdapter(activity.getApplicationContext());
-        if (adapter == null) {
-            return;  // NFC not available on this device
+  public NfcHandler(Context context, Uri contactUri) {
+    mContext = context;
+    mContactUri = contactUri;
+  }
+
+  /* Register NFC handler. This should be called in activities' onCreate(), or similar methods */
+  public static void register(Activity activity, Uri contactUri) {
+    NfcAdapter adapter = NfcAdapter.getDefaultAdapter(activity.getApplicationContext());
+    if (adapter == null) {
+      return;  // NFC not available on this device
+    }
+    adapter.setNdefPushMessageCallback(new NfcHandler(activity, contactUri), activity);
+  }
+
+  @Override
+  public NdefMessage createNdefMessage(NfcEvent event) {
+    ContentResolver resolver = mContext.getContentResolver();
+    if (mContactUri != null) {
+      final String lookupKey = Uri.encode(mContactUri.getPathSegments().get(2));
+      final Uri shareUri;
+      // TODO find out where to get this constant from, or find another way
+      // of determining this.
+      if (lookupKey.equals(PROFILE_LOOKUP_KEY)) {
+        shareUri = Profile.CONTENT_VCARD_URI.buildUpon().
+          appendQueryParameter(Contacts.QUERY_PARAMETER_VCARD_NO_PHOTO, "true").
+          build();
+      } else {
+        shareUri = Contacts.CONTENT_VCARD_URI.buildUpon().
+          appendPath(lookupKey).
+          appendQueryParameter(Contacts.QUERY_PARAMETER_VCARD_NO_PHOTO, "true").
+          build();
+      }
+      ByteArrayOutputStream ndefBytes = new ByteArrayOutputStream();
+      byte[] buffer = new byte[1024];
+      int r;
+      try {
+        InputStream vcardInputStream = resolver.openInputStream(shareUri);
+        while ((r = vcardInputStream.read(buffer)) > 0) {
+          ndefBytes.write(buffer, 0, r);
         }
-        adapter.setNdefPushMessageCallback(new NfcHandler(activity, contactUri), activity);
-    }
 
-    public NfcHandler(Context context, Uri contactUri) {
-        mContext = context;
-        mContactUri = contactUri;
+        NdefRecord record = NdefRecord.createMime("text/x-vcard", ndefBytes.toByteArray());
+        return new NdefMessage(record);
+      } catch (IOException e) {
+        Log.e(TAG, "IOException creating vcard.");
+        return null;
+      }
+    } else {
+      Log.w(TAG, "No contact URI to share.");
+      return null;
     }
-
-    @Override
-    public NdefMessage createNdefMessage(NfcEvent event) {
-        ContentResolver resolver = mContext.getContentResolver();
-        if (mContactUri != null) {
-            final String lookupKey = Uri.encode(mContactUri.getPathSegments().get(2));
-            final Uri shareUri;
-            // TODO find out where to get this constant from, or find another way
-            // of determining this.
-            if (lookupKey.equals(PROFILE_LOOKUP_KEY)) {
-                shareUri = Profile.CONTENT_VCARD_URI.buildUpon().
-                appendQueryParameter(Contacts.QUERY_PARAMETER_VCARD_NO_PHOTO, "true").
-                build();
-            } else {
-                shareUri = Contacts.CONTENT_VCARD_URI.buildUpon().
-                appendPath(lookupKey).
-                appendQueryParameter(Contacts.QUERY_PARAMETER_VCARD_NO_PHOTO, "true").
-                build();
-            }
-            ByteArrayOutputStream ndefBytes = new ByteArrayOutputStream();
-            byte[] buffer = new byte[1024];
-            int r;
-            try {
-                InputStream vcardInputStream = resolver.openInputStream(shareUri);
-                while ((r = vcardInputStream.read(buffer)) > 0) {
-                    ndefBytes.write(buffer, 0, r);
-                }
-
-                NdefRecord record = NdefRecord.createMime("text/x-vcard", ndefBytes.toByteArray());
-                return new NdefMessage(record);
-            } catch (IOException e) {
-                Log.e(TAG, "IOException creating vcard.");
-                return null;
-            }
-        } else {
-            Log.w(TAG, "No contact URI to share.");
-            return null;
-        }
-    }
+  }
 }

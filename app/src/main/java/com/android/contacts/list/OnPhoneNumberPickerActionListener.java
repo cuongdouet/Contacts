@@ -22,27 +22,27 @@ import android.net.Uri;
 /**
  * Action callbacks that can be sent by a phone number picker.
  */
-public interface OnPhoneNumberPickerActionListener  {
-    public static final int CALL_INITIATION_UNKNOWN = 0;
+public interface OnPhoneNumberPickerActionListener {
+  public static final int CALL_INITIATION_UNKNOWN = 0;
 
-    /**
-     * Returns the selected phone number uri to the requester.
-     */
-    void onPickDataUri(Uri dataUri, boolean isVideoCall, int callInitiationType);
+  /**
+   * Returns the selected phone number uri to the requester.
+   */
+  void onPickDataUri(Uri dataUri, boolean isVideoCall, int callInitiationType);
 
-    /**
-     * Returns the specified phone number to the requester.
-     * May call the specified phone number, either as an audio or video call.
-     */
-    void onPickPhoneNumber(String phoneNumber, boolean isVideoCall, int callInitiationType);
+  /**
+   * Returns the specified phone number to the requester.
+   * May call the specified phone number, either as an audio or video call.
+   */
+  void onPickPhoneNumber(String phoneNumber, boolean isVideoCall, int callInitiationType);
 
-    /**
-     * Returns the selected number as a shortcut intent.
-     */
-    void onShortcutIntentCreated(Intent intent);
+  /**
+   * Returns the selected number as a shortcut intent.
+   */
+  void onShortcutIntentCreated(Intent intent);
 
-    /**
-     * Called when home menu in {@link ActionBar} is clicked by the user.
-     */
-    void onHomeInActionBarSelected();
+  /**
+   * Called when home menu in {@link ActionBar} is clicked by the user.
+   */
+  void onHomeInActionBarSelected();
 }

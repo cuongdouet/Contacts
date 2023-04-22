@@ -25,34 +25,34 @@ import android.text.TextUtils;
  * Compatibility class for {@link Event}
  */
 public class EventCompat {
-    /**
-     * Not instantiable.
-     */
-    private EventCompat() {
-    }
+  /**
+   * Not instantiable.
+   */
+  private EventCompat() {
+  }
 
-    /**
-     * Return a {@link CharSequence} that best describes the given type, possibly substituting
-     * the given label value for TYPE_CUSTOM.
-     */
-    public static CharSequence getTypeLabel(Resources res, int type, CharSequence label) {
-        if (CompatUtils.isLollipopCompatible()) {
-            return Event.getTypeLabel(res, type, label);
-        } else {
-            return getTypeLabelInternal(res, type, label);
-        }
+  /**
+   * Return a {@link CharSequence} that best describes the given type, possibly substituting
+   * the given label value for TYPE_CUSTOM.
+   */
+  public static CharSequence getTypeLabel(Resources res, int type, CharSequence label) {
+    if (CompatUtils.isLollipopCompatible()) {
+      return Event.getTypeLabel(res, type, label);
+    } else {
+      return getTypeLabelInternal(res, type, label);
     }
+  }
 
-    /**
-     * The method was added in API level 21, and below is the implementation copied from
-     * {@link Event#getTypeLabel(Resources, int, CharSequence)}
-     */
-    private static CharSequence getTypeLabelInternal(Resources res, int type, CharSequence label) {
-        if (type == BaseTypes.TYPE_CUSTOM && !TextUtils.isEmpty(label)) {
-            return label;
-        } else {
-            return res.getText(Event.getTypeResource(type));
-        }
+  /**
+   * The method was added in API level 21, and below is the implementation copied from
+   * {@link Event#getTypeLabel(Resources, int, CharSequence)}
+   */
+  private static CharSequence getTypeLabelInternal(Resources res, int type, CharSequence label) {
+    if (type == BaseTypes.TYPE_CUSTOM && !TextUtils.isEmpty(label)) {
+      return label;
+    } else {
+      return res.getText(Event.getTypeResource(type));
     }
+  }
 
 }

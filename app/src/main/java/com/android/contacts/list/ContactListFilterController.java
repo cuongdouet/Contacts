@@ -31,56 +31,60 @@ import java.util.List;
  */
 public abstract class ContactListFilterController {
 
-    // singleton to cache the filter controller
-    private static ContactListFilterControllerImpl sFilterController = null;
+  // singleton to cache the filter controller
+  private static ContactListFilterControllerImpl sFilterController = null;
 
-    public interface ContactListFilterListener {
-        void onContactListFilterChanged();
+  public static ContactListFilterController getInstance(Context context) {
+    // We may need to synchronize this in the future if background task will call this.
+    if (sFilterController == null) {
+      sFilterController = new ContactListFilterControllerImpl(context);
     }
+    return sFilterController;
+  }
 
-    public static ContactListFilterController getInstance(Context context) {
-        // We may need to synchronize this in the future if background task will call this.
-        if (sFilterController == null) {
-            sFilterController = new ContactListFilterControllerImpl(context);
-        }
-        return sFilterController;
-    }
+  public abstract void addListener(ContactListFilterListener listener);
 
-    public abstract void addListener(ContactListFilterListener listener);
+  public abstract void removeListener(ContactListFilterListener listener);
 
-    public abstract void removeListener(ContactListFilterListener listener);
+  /**
+   * Return the currently-active filter.
+   */
+  public abstract ContactListFilter getFilter();
 
-    /**
-     * Return the currently-active filter.
-     */
-    public abstract ContactListFilter getFilter();
+  public abstract int getFilterListType();
 
-    public abstract int getFilterListType();
+  /**
+   * Whether the persisted filter is a custom filter.
+   */
+  public abstract boolean isCustomFilterPersisted();
 
-    /** Whether the persisted filter is a custom filter. */
-    public abstract boolean isCustomFilterPersisted();
+  /**
+   * Returns the persisted filter.
+   */
+  public abstract ContactListFilter getPersistedFilter();
 
-    /** Returns the persisted filter. */
-    public abstract ContactListFilter getPersistedFilter();
+  /**
+   * @param filter     the filter
+   * @param persistent True when the given filter should be saved soon. False when the filter
+   *                   should not be saved. The latter case may happen when some Intent requires a certain type of
+   *                   UI (e.g. single contact) temporarily.
+   */
+  public abstract void setContactListFilter(ContactListFilter filter, boolean persistent);
 
-    /**
-     * @param filter the filter
-     * @param persistent True when the given filter should be saved soon. False when the filter
-     * should not be saved. The latter case may happen when some Intent requires a certain type of
-     * UI (e.g. single contact) temporarily.
-     */
-    public abstract void setContactListFilter(ContactListFilter filter, boolean persistent);
+  public abstract void selectCustomFilter();
 
-    public abstract void selectCustomFilter();
+  /**
+   * Checks if the current filter is valid and reset the filter if not. It may happen when
+   * an account is removed while the filter points to the account with
+   * {@link ContactListFilter#FILTER_TYPE_ACCOUNT} type, for example. It may also happen if
+   * the current filter is {@link ContactListFilter#FILTER_TYPE_SINGLE_CONTACT}, in
+   * which case, we should switch to the last saved filter in {@link SharedPreferences}.
+   */
+  public abstract void checkFilterValidity(boolean notifyListeners);
 
-    /**
-     * Checks if the current filter is valid and reset the filter if not. It may happen when
-     * an account is removed while the filter points to the account with
-     * {@link ContactListFilter#FILTER_TYPE_ACCOUNT} type, for example. It may also happen if
-     * the current filter is {@link ContactListFilter#FILTER_TYPE_SINGLE_CONTACT}, in
-     * which case, we should switch to the last saved filter in {@link SharedPreferences}.
-     */
-    public abstract void checkFilterValidity(boolean notifyListeners);
+  public interface ContactListFilterListener {
+    void onContactListFilterChanged();
+  }
 }
 
 /**
@@ -88,112 +92,112 @@ public abstract class ContactListFilterController {
  * {@link SharedPreferences} if necessary.
  */
 class ContactListFilterControllerImpl extends ContactListFilterController {
-    private final Context mContext;
-    private final List<ContactListFilterListener> mListeners =
-            new ArrayList<ContactListFilterListener>();
-    private ContactListFilter mFilter;
+  private final Context mContext;
+  private final List<ContactListFilterListener> mListeners =
+    new ArrayList<ContactListFilterListener>();
+  private ContactListFilter mFilter;
 
-    public ContactListFilterControllerImpl(Context context) {
-        mContext = context.getApplicationContext();
-        mFilter = ContactListFilter.restoreDefaultPreferences(getSharedPreferences());
-        checkFilterValidity(true /* notify listeners */);
+  public ContactListFilterControllerImpl(Context context) {
+    mContext = context.getApplicationContext();
+    mFilter = ContactListFilter.restoreDefaultPreferences(getSharedPreferences());
+    checkFilterValidity(true /* notify listeners */);
+  }
+
+  @Override
+  public void addListener(ContactListFilterListener listener) {
+    mListeners.add(listener);
+  }
+
+  @Override
+  public void removeListener(ContactListFilterListener listener) {
+    mListeners.remove(listener);
+  }
+
+  @Override
+  public ContactListFilter getFilter() {
+    return mFilter;
+  }
+
+  @Override
+  public int getFilterListType() {
+    return mFilter == null ? ListEvent.ListType.UNKNOWN_LIST : mFilter.toListType();
+  }
+
+  @Override
+  public boolean isCustomFilterPersisted() {
+    final ContactListFilter filter = getPersistedFilter();
+    return filter != null && filter.filterType == ContactListFilter.FILTER_TYPE_CUSTOM;
+  }
+
+  @Override
+  public ContactListFilter getPersistedFilter() {
+    return ContactListFilter.restoreDefaultPreferences(getSharedPreferences());
+  }
+
+  private SharedPreferences getSharedPreferences() {
+    return PreferenceManager.getDefaultSharedPreferences(mContext);
+  }
+
+  @Override
+  public void setContactListFilter(ContactListFilter filter, boolean persistent) {
+    setContactListFilter(filter, persistent, /* notifyListeners */ true);
+  }
+
+  private void setContactListFilter(ContactListFilter filter, boolean persistent,
+                                    boolean notifyListeners) {
+    if (!filter.equals(mFilter)) {
+      mFilter = filter;
+      if (persistent) {
+        ContactListFilter.storeToPreferences(getSharedPreferences(), mFilter);
+      }
+      if (notifyListeners && !mListeners.isEmpty()) {
+        notifyContactListFilterChanged();
+      }
+    }
+  }
+
+  @Override
+  public void selectCustomFilter() {
+    setContactListFilter(ContactListFilter.createFilterWithType(
+      ContactListFilter.FILTER_TYPE_CUSTOM), /* persistent */ true);
+  }
+
+  private void notifyContactListFilterChanged() {
+    for (ContactListFilterListener listener : mListeners) {
+      listener.onContactListFilterChanged();
+    }
+  }
+
+  @Override
+  public void checkFilterValidity(boolean notifyListeners) {
+    if (mFilter == null) {
+      return;
     }
 
-    @Override
-    public void addListener(ContactListFilterListener listener) {
-        mListeners.add(listener);
-    }
-
-    @Override
-    public void removeListener(ContactListFilterListener listener) {
-        mListeners.remove(listener);
-    }
-
-    @Override
-    public ContactListFilter getFilter() {
-        return mFilter;
-    }
-
-    @Override
-    public int getFilterListType() {
-        return mFilter == null ? ListEvent.ListType.UNKNOWN_LIST : mFilter.toListType();
-    }
-
-    @Override
-    public boolean isCustomFilterPersisted() {
-        final ContactListFilter filter = getPersistedFilter();
-        return filter != null && filter.filterType == ContactListFilter.FILTER_TYPE_CUSTOM;
-    }
-
-    @Override
-    public ContactListFilter getPersistedFilter() {
-        return ContactListFilter.restoreDefaultPreferences(getSharedPreferences());
-    }
-
-    private SharedPreferences getSharedPreferences() {
-        return PreferenceManager.getDefaultSharedPreferences(mContext);
-    }
-
-    @Override
-    public void setContactListFilter(ContactListFilter filter, boolean persistent) {
-        setContactListFilter(filter, persistent, /* notifyListeners */ true);
-    }
-
-    private void setContactListFilter(ContactListFilter filter, boolean persistent,
-            boolean notifyListeners) {
-        if (!filter.equals(mFilter)) {
-            mFilter = filter;
-            if (persistent) {
-                ContactListFilter.storeToPreferences(getSharedPreferences(), mFilter);
-            }
-            if (notifyListeners && !mListeners.isEmpty()) {
-                notifyContactListFilterChanged();
-            }
+    switch (mFilter.filterType) {
+      case ContactListFilter.FILTER_TYPE_SINGLE_CONTACT:
+        setContactListFilter(
+          ContactListFilter.restoreDefaultPreferences(getSharedPreferences()),
+          false, notifyListeners);
+        break;
+      case ContactListFilter.FILTER_TYPE_ACCOUNT:
+        if (!filterAccountExists()) {
+          // The current account filter points to invalid account. Use "all" filter
+          // instead.
+          setContactListFilter(ContactListFilter.createFilterWithType(
+            ContactListFilter.FILTER_TYPE_ALL_ACCOUNTS), true, notifyListeners);
         }
+        break;
     }
+  }
 
-    @Override
-    public void selectCustomFilter() {
-        setContactListFilter(ContactListFilter.createFilterWithType(
-                ContactListFilter.FILTER_TYPE_CUSTOM), /* persistent */ true);
-    }
-
-    private void notifyContactListFilterChanged() {
-        for (ContactListFilterListener listener : mListeners) {
-            listener.onContactListFilterChanged();
-        }
-    }
-
-    @Override
-    public void checkFilterValidity(boolean notifyListeners) {
-        if (mFilter == null) {
-            return;
-        }
-
-        switch (mFilter.filterType) {
-            case ContactListFilter.FILTER_TYPE_SINGLE_CONTACT:
-                setContactListFilter(
-                        ContactListFilter.restoreDefaultPreferences(getSharedPreferences()),
-                        false, notifyListeners);
-                break;
-            case ContactListFilter.FILTER_TYPE_ACCOUNT:
-                if (!filterAccountExists()) {
-                    // The current account filter points to invalid account. Use "all" filter
-                    // instead.
-                    setContactListFilter(ContactListFilter.createFilterWithType(
-                            ContactListFilter.FILTER_TYPE_ALL_ACCOUNTS), true, notifyListeners);
-                }
-                break;
-        }
-    }
-
-    /**
-     * @return true if the Account for the current filter exists.
-     */
-    private boolean filterAccountExists() {
-        final AccountTypeManager accountTypeManager = AccountTypeManager.getInstance(mContext);
-        final AccountWithDataSet filterAccount = new AccountWithDataSet(
-                mFilter.accountName, mFilter.accountType, mFilter.dataSet);
-        return accountTypeManager.exists(filterAccount);
-    }
+  /**
+   * @return true if the Account for the current filter exists.
+   */
+  private boolean filterAccountExists() {
+    final AccountTypeManager accountTypeManager = AccountTypeManager.getInstance(mContext);
+    final AccountWithDataSet filterAccount = new AccountWithDataSet(
+      mFilter.accountName, mFilter.accountType, mFilter.dataSet);
+    return accountTypeManager.exists(filterAccount);
+  }
 }

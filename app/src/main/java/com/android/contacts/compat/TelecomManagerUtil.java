@@ -22,10 +22,10 @@ import android.telecom.TelecomManager;
  * Utility class for TelecomManager
  */
 public class TelecomManagerUtil {
-    /**
-     * Creates {@link Intent} to launch the activity to manage blocked numbers.
-     */
-    public static Intent createManageBlockedNumbersIntent(TelecomManager tm) {
-        return CompatUtils.isNCompatible() ? tm.createManageBlockedNumbersIntent() : null;
-    }
+  /**
+   * Creates {@link Intent} to launch the activity to manage blocked numbers.
+   */
+  public static Intent createManageBlockedNumbersIntent(TelecomManager tm) {
+    return CompatUtils.isNCompatible() ? tm.createManageBlockedNumbersIntent() : null;
+  }
 }

@@ -30,15 +30,15 @@ import com.android.contacts.interactions.TouchPointManager;
  * before passing them on to the child.
  */
 public class ActivityTouchLinearLayout extends LinearLayout {
-    public ActivityTouchLinearLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
+  public ActivityTouchLinearLayout(Context context, AttributeSet attrs) {
+    super(context, attrs);
+  }
 
-    @Override
-    public boolean onInterceptTouchEvent (MotionEvent ev) {
-        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
-            TouchPointManager.getInstance().setPoint((int) ev.getRawX(), (int) ev.getRawY());
-        }
-        return false;
+  @Override
+  public boolean onInterceptTouchEvent(MotionEvent ev) {
+    if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+      TouchPointManager.getInstance().setPoint((int) ev.getRawX(), (int) ev.getRawY());
     }
+    return false;
+  }
 }

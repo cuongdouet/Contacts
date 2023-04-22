@@ -21,17 +21,15 @@ import android.telecom.PhoneAccount;
 
 public class PhoneAccountSdkCompat {
 
-    private static final String TAG = "PhoneAccountSdkCompat";
+  public static final String EXTRA_CALL_SUBJECT_MAX_LENGTH =
+    PhoneAccount.EXTRA_CALL_SUBJECT_MAX_LENGTH;
+  public static final String EXTRA_CALL_SUBJECT_CHARACTER_ENCODING =
+    PhoneAccount.EXTRA_CALL_SUBJECT_CHARACTER_ENCODING;
+  public static final int CAPABILITY_VIDEO_CALLING_RELIES_ON_PRESENCE =
+    PhoneAccount.CAPABILITY_VIDEO_CALLING_RELIES_ON_PRESENCE;
+  private static final String TAG = "PhoneAccountSdkCompat";
 
-    public static final String EXTRA_CALL_SUBJECT_MAX_LENGTH =
-            PhoneAccount.EXTRA_CALL_SUBJECT_MAX_LENGTH;
-    public static final String EXTRA_CALL_SUBJECT_CHARACTER_ENCODING =
-            PhoneAccount.EXTRA_CALL_SUBJECT_CHARACTER_ENCODING;
-
-    public static final int CAPABILITY_VIDEO_CALLING_RELIES_ON_PRESENCE =
-            PhoneAccount.CAPABILITY_VIDEO_CALLING_RELIES_ON_PRESENCE;
-
-    public static Bundle getExtras(PhoneAccount account) {
-        return CompatUtils.isNCompatible() ? account.getExtras() : null;
-    }
+  public static Bundle getExtras(PhoneAccount account) {
+    return CompatUtils.isNCompatible() ? account.getExtras() : null;
+  }
 }

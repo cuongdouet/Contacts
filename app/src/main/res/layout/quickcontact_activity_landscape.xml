@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2014 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2014 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -15,50 +14,49 @@
 -->
 <!-- This file is in the base layout/ directory so that it can be referenced from multiple config
      folder without duplicating this file. -->
-<com.android.contacts.widget.MultiShrinkScroller
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.android.contacts.widget.MultiShrinkScroller xmlns:android="http://schemas.android.com/apk/res/android"
+  android:id="@+id/multiscroller"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:descendantFocusability="afterDescendants"
+  android:focusable="true"
+  android:focusableInTouchMode="true"
+  android:orientation="vertical">
+
+  <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:id="@+id/multiscroller"
-    android:focusable="true"
-    android:focusableInTouchMode="true"
-    android:descendantFocusability="afterDescendants" >
+    android:orientation="vertical">
+
+    <View
+      android:id="@+id/transparent_view"
+      android:layout_width="match_parent"
+      android:layout_height="@dimen/quickcontact_starting_empty_height"
+      android:contentDescription="@string/quickcontact_transparent_view_description" />
 
     <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:orientation="horizontal">
+
+      <!-- Needs a non null background for elevation to work on this View. This will
+           *not* cause an additional draw since the background is transparent. -->
+      <FrameLayout
+        android:id="@+id/toolbar_parent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:background="#00000000">
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/quickcontact_starting_empty_height"
-            android:contentDescription="@string/quickcontact_transparent_view_description"
-            android:id="@+id/transparent_view" />
+        <include layout="@layout/quickcontact_header" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
+        <include layout="@layout/quickcontact_title_and_phoneticname" />
 
-            <!-- Needs a non null background for elevation to work on this View. This will
-                 *not* cause an additional draw since the background is transparent. -->
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#00000000"
-                android:id="@+id/toolbar_parent">
+      </FrameLayout>
 
-                <include layout="@layout/quickcontact_header" />
-
-                <include layout="@layout/quickcontact_title_and_phoneticname" />
-
-            </FrameLayout>
-
-            <include layout="@layout/quickcontact_content" />
-
-        </LinearLayout>
+      <include layout="@layout/quickcontact_content" />
 
     </LinearLayout>
+
+  </LinearLayout>
 
 </com.android.contacts.widget.MultiShrinkScroller>

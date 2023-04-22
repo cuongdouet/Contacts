@@ -29,72 +29,72 @@ import com.android.contacts.compat.PhoneNumberUtilsCompat;
  */
 public class PhoneDataItem extends DataItem {
 
-    public static final String KEY_FORMATTED_PHONE_NUMBER = "formattedPhoneNumber";
+  public static final String KEY_FORMATTED_PHONE_NUMBER = "formattedPhoneNumber";
 
-    private boolean mTachyonReachable;
-    // Stores the custom reachable data item to provide extra data to the Entry created from this
-    // PhoneDataItem.
-    private DataItem mReachableDataItem;
+  private boolean mTachyonReachable;
+  // Stores the custom reachable data item to provide extra data to the Entry created from this
+  // PhoneDataItem.
+  private DataItem mReachableDataItem;
 
-    /* package */ PhoneDataItem(ContentValues values) {
-        super(values);
+  /* package */ PhoneDataItem(ContentValues values) {
+    super(values);
+  }
+
+  public String getNumber() {
+    return getContentValues().getAsString(Phone.NUMBER);
+  }
+
+  /**
+   * Returns the normalized phone number in E164 format.
+   */
+  public String getNormalizedNumber() {
+    return getContentValues().getAsString(Phone.NORMALIZED_NUMBER);
+  }
+
+  public String getFormattedPhoneNumber() {
+    return getContentValues().getAsString(KEY_FORMATTED_PHONE_NUMBER);
+  }
+
+  public String getLabel() {
+    return getContentValues().getAsString(Phone.LABEL);
+  }
+
+  public boolean isTachyonReachable() {
+    return mTachyonReachable;
+  }
+
+  public void setTachyonReachable(boolean tachyonReachable) {
+    mTachyonReachable = tachyonReachable;
+  }
+
+  public DataItem getReachableDataItem() {
+    return mReachableDataItem;
+  }
+
+  public void setReachableDataItem(DataItem reachableDataItem) {
+    mReachableDataItem = reachableDataItem;
+  }
+
+  public void computeFormattedPhoneNumber(String defaultCountryIso) {
+    final String phoneNumber = getNumber();
+    if (phoneNumber != null) {
+      final String formattedPhoneNumber = PhoneNumberUtilsCompat.formatNumber(phoneNumber,
+        getNormalizedNumber(), defaultCountryIso);
+      getContentValues().put(KEY_FORMATTED_PHONE_NUMBER, formattedPhoneNumber);
     }
+  }
 
-    public String getNumber() {
-        return getContentValues().getAsString(Phone.NUMBER);
+  /**
+   * Returns the formatted phone number (if already computed using {@link
+   * #computeFormattedPhoneNumber}). Otherwise this method returns the unformatted phone number.
+   */
+  @Override
+  public String buildDataStringForDisplay(Context context, DataKind kind) {
+    final String formatted = getFormattedPhoneNumber();
+    if (formatted != null) {
+      return formatted;
+    } else {
+      return getNumber();
     }
-
-    /**
-     * Returns the normalized phone number in E164 format.
-     */
-    public String getNormalizedNumber() {
-        return getContentValues().getAsString(Phone.NORMALIZED_NUMBER);
-    }
-
-    public String getFormattedPhoneNumber() {
-        return getContentValues().getAsString(KEY_FORMATTED_PHONE_NUMBER);
-    }
-
-    public String getLabel() {
-        return getContentValues().getAsString(Phone.LABEL);
-    }
-
-    public void setTachyonReachable(boolean tachyonReachable) {
-        mTachyonReachable = tachyonReachable;
-    }
-
-    public boolean isTachyonReachable() {
-        return mTachyonReachable;
-    }
-
-    public DataItem getReachableDataItem() {
-        return mReachableDataItem;
-    }
-
-    public void setReachableDataItem(DataItem reachableDataItem) {
-        mReachableDataItem = reachableDataItem;
-    }
-
-    public void computeFormattedPhoneNumber(String defaultCountryIso) {
-        final String phoneNumber = getNumber();
-        if (phoneNumber != null) {
-            final String formattedPhoneNumber = PhoneNumberUtilsCompat.formatNumber(phoneNumber,
-                    getNormalizedNumber(), defaultCountryIso);
-            getContentValues().put(KEY_FORMATTED_PHONE_NUMBER, formattedPhoneNumber);
-        }
-    }
-
-    /**
-     * Returns the formatted phone number (if already computed using {@link
-     * #computeFormattedPhoneNumber}). Otherwise this method returns the unformatted phone number.
-     */
-    @Override
-    public String buildDataStringForDisplay(Context context, DataKind kind) {
-        final String formatted = getFormattedPhoneNumber();
-        if (formatted != null) {
-            return formatted;
-        } else {
-            return getNumber();
-        }
-    }
+  }
 }

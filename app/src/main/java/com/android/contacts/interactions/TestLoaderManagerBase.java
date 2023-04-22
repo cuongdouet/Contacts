@@ -76,18 +76,18 @@ import com.google.common.annotations.VisibleForTesting;
 @VisibleForTesting
 abstract class TestLoaderManagerBase extends LoaderManager {
 
-    /**
-     * Waits for the specified loaders to complete loading.
-     */
-    public abstract void waitForLoaders(int... loaderIds);
+  /**
+   * Waits for the specified loaders to complete loading.
+   */
+  public abstract void waitForLoaders(int... loaderIds);
 
-    /**
-     * Sets the object to which we delegate the actual work.
-     * <p>
-     * It can not be set to null. Once set, it cannot be changed (but it allows setting it to the
-     * same value again).
-     */
-    @VisibleForTesting
-    public abstract void setDelegate(LoaderManager delegate);
+  /**
+   * Sets the object to which we delegate the actual work.
+   * <p>
+   * It can not be set to null. Once set, it cannot be changed (but it allows setting it to the
+   * same value again).
+   */
+  @VisibleForTesting
+  public abstract void setDelegate(LoaderManager delegate);
 
 }

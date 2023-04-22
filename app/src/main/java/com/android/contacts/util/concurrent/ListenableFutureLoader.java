@@ -20,8 +20,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.Loader;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.Log;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -38,119 +39,119 @@ import java.util.concurrent.Executor;
  * </p>
  */
 public abstract class ListenableFutureLoader<D> extends Loader<D> {
-    private static final String TAG = "FutureLoader";
+  private static final String TAG = "FutureLoader";
 
-    private final IntentFilter mReloadFilter;
-    private final Executor mUiExecutor;
-    private final LocalBroadcastManager mLocalBroadcastManager;
+  private final IntentFilter mReloadFilter;
+  private final Executor mUiExecutor;
+  private final LocalBroadcastManager mLocalBroadcastManager;
 
-    private ListenableFuture<D> mFuture;
-    private D mLoadedData;
+  private ListenableFuture<D> mFuture;
+  private D mLoadedData;
 
-    private BroadcastReceiver mReceiver;
+  private BroadcastReceiver mReceiver;
 
-    /**
-     * Stores away the application context associated with context.
-     * Since Loaders can be used across multiple activities it's dangerous to
-     * store the context directly; always use {@link #getContext()} to retrieve
-     * the Loader's Context, don't use the constructor argument directly.
-     * The Context returned by {@link #getContext} is safe to use across
-     * Activity instances.
-     *
-     * @param context used to retrieve the application context.
-     */
-    public ListenableFutureLoader(Context context) {
-        this(context, null);
+  /**
+   * Stores away the application context associated with context.
+   * Since Loaders can be used across multiple activities it's dangerous to
+   * store the context directly; always use {@link #getContext()} to retrieve
+   * the Loader's Context, don't use the constructor argument directly.
+   * The Context returned by {@link #getContext} is safe to use across
+   * Activity instances.
+   *
+   * @param context used to retrieve the application context.
+   */
+  public ListenableFutureLoader(Context context) {
+    this(context, null);
+  }
+
+  public ListenableFutureLoader(Context context, IntentFilter reloadBroadcastFilter) {
+    super(context);
+    mUiExecutor = ContactsExecutors.newUiThreadExecutor();
+    mReloadFilter = reloadBroadcastFilter;
+    mLocalBroadcastManager = LocalBroadcastManager.getInstance(context);
+  }
+
+  @Override
+  protected void onStartLoading() {
+    if (mReloadFilter != null && mReceiver == null) {
+      mReceiver = new ForceLoadReceiver();
+      mLocalBroadcastManager.registerReceiver(mReceiver, mReloadFilter);
     }
 
-    public ListenableFutureLoader(Context context, IntentFilter reloadBroadcastFilter) {
-        super(context);
-        mUiExecutor = ContactsExecutors.newUiThreadExecutor();
-        mReloadFilter = reloadBroadcastFilter;
-        mLocalBroadcastManager = LocalBroadcastManager.getInstance(context);
+    if (mLoadedData != null) {
+      deliverResult(mLoadedData);
     }
+    if (mFuture == null) {
+      takeContentChanged();
+      forceLoad();
+    } else if (takeContentChanged()) {
+      forceLoad();
+    }
+  }
 
+  @Override
+  protected void onForceLoad() {
+    mFuture = loadData();
+    Futures.addCallback(mFuture, new FutureCallback<D>() {
+      @Override
+      public void onSuccess(D result) {
+        if (mLoadedData == null || !isSameData(mLoadedData, result)) {
+          deliverResult(result);
+        }
+        mLoadedData = result;
+        commitContentChanged();
+      }
+
+      @Override
+      public void onFailure(Throwable t) {
+        if (t instanceof CancellationException) {
+          Log.i(TAG, "Loading cancelled", t);
+          rollbackContentChanged();
+        } else {
+          Log.e(TAG, "Loading failed", t);
+        }
+      }
+    }, mUiExecutor);
+  }
+
+  @Override
+  protected void onStopLoading() {
+    if (mFuture != null) {
+      mFuture.cancel(false);
+      mFuture = null;
+    }
+  }
+
+  @Override
+  protected void onReset() {
+    mFuture = null;
+    mLoadedData = null;
+    if (mReceiver != null) {
+      mLocalBroadcastManager.unregisterReceiver(mReceiver);
+    }
+  }
+
+  protected abstract ListenableFuture<D> loadData();
+
+  /**
+   * Returns whether the newly loaded data is the same as the cached value
+   *
+   * <p>This allows subclasses to suppress delivering results when the data hasn't
+   * actually changed. By default it will always return false.
+   * </p>
+   */
+  protected boolean isSameData(D previousData, D newData) {
+    return false;
+  }
+
+  public final D getLoadedData() {
+    return mLoadedData;
+  }
+
+  public class ForceLoadReceiver extends BroadcastReceiver {
     @Override
-    protected void onStartLoading() {
-        if (mReloadFilter != null && mReceiver == null) {
-            mReceiver = new ForceLoadReceiver();
-            mLocalBroadcastManager.registerReceiver(mReceiver, mReloadFilter);
-        }
-
-        if (mLoadedData != null) {
-            deliverResult(mLoadedData);
-        }
-        if (mFuture == null) {
-            takeContentChanged();
-            forceLoad();
-        } else if (takeContentChanged()) {
-            forceLoad();
-        }
+    public void onReceive(Context context, Intent intent) {
+      onContentChanged();
     }
-
-    @Override
-    protected void onForceLoad() {
-        mFuture = loadData();
-        Futures.addCallback(mFuture, new FutureCallback<D>() {
-            @Override
-            public void onSuccess(D result) {
-                if (mLoadedData == null || !isSameData(mLoadedData, result)) {
-                    deliverResult(result);
-                }
-                mLoadedData = result;
-                commitContentChanged();
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                if (t instanceof CancellationException) {
-                    Log.i(TAG, "Loading cancelled", t);
-                    rollbackContentChanged();
-                } else {
-                    Log.e(TAG, "Loading failed", t);
-                }
-            }
-        }, mUiExecutor);
-    }
-
-    @Override
-    protected void onStopLoading() {
-        if (mFuture != null) {
-            mFuture.cancel(false);
-            mFuture = null;
-        }
-    }
-
-    @Override
-    protected void onReset() {
-        mFuture = null;
-        mLoadedData = null;
-        if (mReceiver != null) {
-            mLocalBroadcastManager.unregisterReceiver(mReceiver);
-        }
-    }
-
-    protected abstract ListenableFuture<D> loadData();
-
-    /**
-     * Returns whether the newly loaded data is the same as the cached value
-     *
-     * <p>This allows subclasses to suppress delivering results when the data hasn't
-     * actually changed. By default it will always return false.
-     * </p>
-     */
-    protected boolean isSameData(D previousData, D newData) {
-        return false;
-    }
-
-    public final D getLoadedData() {
-        return mLoadedData;
-    }
-
-    public class ForceLoadReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            onContentChanged();
-        }
-    }
+  }
 }

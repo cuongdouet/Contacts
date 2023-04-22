@@ -38,125 +38,126 @@ import java.util.List;
 
 /**
  * Shows a dialog asking the user which account to chose.
- *
+ * <p>
  * The result is passed to {@code targetFragment} passed to {@link #show}.
  */
 public final class SelectAccountDialogFragment extends DialogFragment
-        implements AccountsLoader.AccountsListener {
-    public static final String TAG = "SelectAccountDialog";
+  implements AccountsLoader.AccountsListener {
+  public static final String TAG = "SelectAccountDialog";
 
-    private static final String KEY_TITLE_RES_ID = "title_res_id";
-    private static final String KEY_LIST_FILTER = "list_filter";
-    private static final String KEY_EXTRA_ARGS = "extra_args";
+  private static final String KEY_TITLE_RES_ID = "title_res_id";
+  private static final String KEY_LIST_FILTER = "list_filter";
+  private static final String KEY_EXTRA_ARGS = "extra_args";
 
-    private AccountsListAdapter mAccountsAdapter;
-    private AccountTypeManager.AccountFilter mFilter;
+  private AccountsListAdapter mAccountsAdapter;
+  private AccountTypeManager.AccountFilter mFilter;
 
-    /**
-     * Show the dialog.
-     *
-     * @param fragmentManager {@link FragmentManager}.
-     * @param titleResourceId resource ID to use as the title.
-     * @param extraArgs Extra arguments, which will later be passed to
-     *     {@link Listener#onAccountChosen}.  {@code null} will be converted to
-     *     {@link Bundle#EMPTY}.
-     */
-    public static void show(FragmentManager fragmentManager, int titleResourceId,
-            AccountTypeManager.AccountFilter filter, Bundle extraArgs) {
-        show(fragmentManager, titleResourceId, filter, extraArgs, /* tag */ null);
+  /**
+   * Show the dialog.
+   *
+   * @param fragmentManager {@link FragmentManager}.
+   * @param titleResourceId resource ID to use as the title.
+   * @param extraArgs       Extra arguments, which will later be passed to
+   *                        {@link Listener#onAccountChosen}.  {@code null} will be converted to
+   *                        {@link Bundle#EMPTY}.
+   */
+  public static void show(FragmentManager fragmentManager, int titleResourceId,
+                          AccountTypeManager.AccountFilter filter, Bundle extraArgs) {
+    show(fragmentManager, titleResourceId, filter, extraArgs, /* tag */ null);
+  }
+
+  public static void show(FragmentManager fragmentManager, int titleResourceId,
+                          AccountTypeManager.AccountFilter filter, Bundle extraArgs, String tag) {
+    final Bundle args = new Bundle();
+    args.putInt(KEY_TITLE_RES_ID, titleResourceId);
+    args.putBundle(KEY_EXTRA_ARGS, (extraArgs == null) ? Bundle.EMPTY : extraArgs);
+    args.putSerializable(KEY_LIST_FILTER, filter);
+
+    final SelectAccountDialogFragment instance = new SelectAccountDialogFragment();
+    instance.setArguments(args);
+    instance.show(fragmentManager, tag);
+  }
+
+  @Override
+  public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    final Bundle args = getArguments();
+    mFilter = (AccountTypeManager.AccountFilter) args.getSerializable(KEY_LIST_FILTER);
+    if (mFilter == null) {
+      mFilter = AccountTypeManager.AccountFilter.ALL;
     }
+  }
 
-    public static void show(FragmentManager fragmentManager, int titleResourceId,
-            AccountTypeManager.AccountFilter filter, Bundle extraArgs, String tag) {
-        final Bundle args = new Bundle();
-        args.putInt(KEY_TITLE_RES_ID, titleResourceId);
-        args.putBundle(KEY_EXTRA_ARGS, (extraArgs == null) ? Bundle.EMPTY : extraArgs);
-        args.putSerializable(KEY_LIST_FILTER, filter);
+  @Override
+  public Dialog onCreateDialog(Bundle savedInstanceState) {
+    final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+    final Bundle args = getArguments();
 
-        final SelectAccountDialogFragment instance = new SelectAccountDialogFragment();
-        instance.setArguments(args);
-        instance.show(fragmentManager, tag);
-    }
+    mAccountsAdapter = new AccountsListAdapter(builder.getContext());
+    mAccountsAdapter.setCustomLayout(R.layout.account_selector_list_item_condensed);
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        final Bundle args = getArguments();
-        mFilter = (AccountTypeManager.AccountFilter) args.getSerializable(KEY_LIST_FILTER);
-        if (mFilter == null) {
-            mFilter = AccountTypeManager.AccountFilter.ALL;
+    final DialogInterface.OnClickListener clickListener =
+      new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          dialog.dismiss();
+
+          onAccountSelected(mAccountsAdapter.getItem(which));
         }
+      };
+
+    final TextView title = (TextView) View.inflate(getActivity(), R.layout.dialog_title, null);
+    title.setText(args.getInt(KEY_TITLE_RES_ID));
+    builder.setCustomTitle(title);
+    builder.setSingleChoiceItems(mAccountsAdapter, 0, clickListener);
+    final AlertDialog result = builder.create();
+    return result;
+  }
+
+  @Override
+  public void onActivityCreated(Bundle savedInstanceState) {
+    super.onActivityCreated(savedInstanceState);
+    AccountsLoader.loadAccounts(this, 0, mFilter);
+  }
+
+  @Override
+  public void onCancel(DialogInterface dialog) {
+    super.onCancel(dialog);
+    final Listener listener = getListener();
+    if (listener != null) {
+      listener.onAccountSelectorCancelled();
     }
+  }
 
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        final Bundle args = getArguments();
-
-        mAccountsAdapter = new AccountsListAdapter(builder.getContext());
-        mAccountsAdapter.setCustomLayout(R.layout.account_selector_list_item_condensed);
-
-        final DialogInterface.OnClickListener clickListener =
-                new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-
-                onAccountSelected(mAccountsAdapter.getItem(which));
-            }
-        };
-
-        final TextView title = (TextView) View.inflate(getActivity(), R.layout.dialog_title, null);
-        title.setText(args.getInt(KEY_TITLE_RES_ID));
-        builder.setCustomTitle(title);
-        builder.setSingleChoiceItems(mAccountsAdapter, 0, clickListener);
-        final AlertDialog result = builder.create();
-        return result;
+  /**
+   * Calls {@link Listener#onAccountChosen}.
+   */
+  private void onAccountSelected(AccountWithDataSet account) {
+    final Listener listener = getListener();
+    if (listener != null) {
+      listener.onAccountChosen(account, getArguments().getBundle(KEY_EXTRA_ARGS));
     }
+  }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        AccountsLoader.loadAccounts(this, 0, mFilter);
+  private Listener getListener() {
+    Listener listener = null;
+    final Activity activity = getActivity();
+    if (activity != null && activity instanceof Listener) {
+      listener = (Listener) activity;
     }
+    return listener;
+  }
 
-    @Override
-    public void onCancel(DialogInterface dialog) {
-        super.onCancel(dialog);
-        final Listener listener = getListener();
-        if (listener != null) {
-            listener.onAccountSelectorCancelled();
-        }
-    }
+  @Override
+  public void onAccountsLoaded(List<AccountInfo> accounts) {
+    Preconditions.checkNotNull(mAccountsAdapter,
+      "Accounts adapter should have been initialized");
+    mAccountsAdapter.setAccounts(accounts, null);
+  }
 
-    /**
-     * Calls {@link Listener#onAccountChosen}.
-     */
-    private void onAccountSelected(AccountWithDataSet account) {
-        final Listener listener = getListener();
-        if (listener != null) {
-            listener.onAccountChosen(account, getArguments().getBundle(KEY_EXTRA_ARGS));
-        }
-    }
+  public interface Listener {
+    void onAccountChosen(AccountWithDataSet account, Bundle extraArgs);
 
-    private Listener getListener() {
-        Listener listener = null;
-        final Activity activity = getActivity();
-        if (activity != null && activity instanceof Listener) {
-            listener = (Listener) activity;
-        }
-        return listener;
-    }
-
-    @Override
-    public void onAccountsLoaded(List<AccountInfo> accounts) {
-        Preconditions.checkNotNull(mAccountsAdapter,
-                "Accounts adapter should have been initialized");
-        mAccountsAdapter.setAccounts(accounts, null);
-    }
-
-    public interface Listener {
-        void onAccountChosen(AccountWithDataSet account, Bundle extraArgs);
-        void onAccountSelectorCancelled();
-    }
+    void onAccountSelectorCancelled();
+  }
 }

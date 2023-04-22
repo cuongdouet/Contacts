@@ -27,10 +27,10 @@ import android.widget.FrameLayout;
  * Empty fragment used for testing.
  */
 public class EmptyFragment extends Fragment {
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        // Must return a ViewGroup, FrameLayout will do.
-        return new FrameLayout(getActivity());
-    }
+  @Override
+  public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                           Bundle savedInstanceState) {
+    // Must return a ViewGroup, FrameLayout will do.
+    return new FrameLayout(getActivity());
+  }
 }

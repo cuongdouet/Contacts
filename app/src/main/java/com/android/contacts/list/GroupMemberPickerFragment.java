@@ -42,278 +42,284 @@ import java.util.List;
  * Fragment containing raw contacts for a specified account that are not already in a group.
  */
 public class GroupMemberPickerFragment extends
-        MultiSelectContactsListFragment<DefaultContactListAdapter> {
+  MultiSelectContactsListFragment<DefaultContactListAdapter> {
 
-    public static final String TAG = "GroupMemberPicker";
+  public static final String TAG = "GroupMemberPicker";
 
-    private static final String KEY_ACCOUNT_NAME = "accountName";
-    private static final String KEY_ACCOUNT_TYPE = "accountType";
-    private static final String KEY_ACCOUNT_DATA_SET = "accountDataSet";
-    private static final String KEY_CONTACT_IDS = "contactIds";
+  private static final String KEY_ACCOUNT_NAME = "accountName";
+  private static final String KEY_ACCOUNT_TYPE = "accountType";
+  private static final String KEY_ACCOUNT_DATA_SET = "accountDataSet";
+  private static final String KEY_CONTACT_IDS = "contactIds";
 
-    private static final String ARG_ACCOUNT_NAME = "accountName";
-    private static final String ARG_ACCOUNT_TYPE = "accountType";
-    private static final String ARG_ACCOUNT_DATA_SET = "accountDataSet";
-    private static final String ARG_CONTACT_IDS = "contactIds";
+  private static final String ARG_ACCOUNT_NAME = "accountName";
+  private static final String ARG_ACCOUNT_TYPE = "accountType";
+  private static final String ARG_ACCOUNT_DATA_SET = "accountDataSet";
+  private static final String ARG_CONTACT_IDS = "contactIds";
+  private String mAccountName;
+  private String mAccountType;
+  private String mAccountDataSet;
+  private ArrayList<String> mContactIds;
+  private Listener mListener;
+  public GroupMemberPickerFragment() {
+    setPhotoLoaderEnabled(true);
+    setSectionHeaderDisplayEnabled(true);
+    setHasOptionsMenu(true);
+    setDisplayDirectoryHeader(false);
+  }
 
-    /** Callbacks for host of {@link GroupMemberPickerFragment}. */
-    public interface Listener {
+  public static GroupMemberPickerFragment newInstance(String accountName, String accountType,
+                                                      String accountDataSet, ArrayList<String> contactIds) {
+    final Bundle args = new Bundle();
+    args.putString(ARG_ACCOUNT_NAME, accountName);
+    args.putString(ARG_ACCOUNT_TYPE, accountType);
+    args.putString(ARG_ACCOUNT_DATA_SET, accountDataSet);
+    args.putStringArrayList(ARG_CONTACT_IDS, contactIds);
 
-        /** Invoked when a potential group member is selected. */
-        void onGroupMemberClicked(long contactId);
+    final GroupMemberPickerFragment fragment = new GroupMemberPickerFragment();
+    fragment.setArguments(args);
+    return fragment;
+  }
 
-        /** Invoked when user has initiated multiple selection mode. */
-        void onSelectGroupMembers();
+  private static void setVisible(Menu menu, int id, boolean visible) {
+    final MenuItem menuItem = menu.findItem(id);
+    if (menuItem != null) {
+      menuItem.setVisible(visible);
     }
+  }
 
-    /** Filters out raw contacts that are already in the group. */
-    private class FilterCursorWrapper extends CursorWrapper {
-
-        private int[] mIndex;
-        private int mCount = 0;
-        private int mPos = 0;
-
-        public FilterCursorWrapper(Cursor cursor) {
-            super(cursor);
-
-            mCount = super.getCount();
-            mIndex = new int[mCount];
-
-            final List<Integer> indicesToFilter = new ArrayList<>();
-
-            if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                Log.v(TAG, "RawContacts CursorWrapper start: " + mCount);
-            }
-
-            final Bundle bundle = cursor.getExtras();
-            final String sections[] = bundle.getStringArray(Contacts
-                    .EXTRA_ADDRESS_BOOK_INDEX_TITLES);
-            final int counts[] = bundle.getIntArray(Contacts.EXTRA_ADDRESS_BOOK_INDEX_COUNTS);
-            final ContactsSectionIndexer indexer = (sections == null || counts == null)
-                    ? null : new ContactsSectionIndexer(sections, counts);
-
-            for (int i = 0; i < mCount; i++) {
-                super.moveToPosition(i);
-                final String contactId = getString(ContactQuery.CONTACT_ID);
-                if (!mContactIds.contains(contactId)) {
-                    mIndex[mPos++] = i;
-                } else {
-                    indicesToFilter.add(i);
-                }
-            }
-
-            if (indexer != null && GroupUtil.needTrimming(mCount, counts, indexer.getPositions())) {
-                GroupUtil.updateBundle(bundle, indexer, indicesToFilter, sections, counts);
-            }
-
-            mCount = mPos;
-            mPos = 0;
-            super.moveToFirst();
-
-            if (Log.isLoggable(TAG, Log.VERBOSE)) {
-                Log.v(TAG, "RawContacts CursorWrapper end: " + mCount);
-            }
-        }
-
-        @Override
-        public boolean move(int offset) {
-            return moveToPosition(mPos + offset);
-        }
-
-        @Override
-        public boolean moveToNext() {
-            return moveToPosition(mPos + 1);
-        }
-
-        @Override
-        public boolean moveToPrevious() {
-            return moveToPosition(mPos - 1);
-        }
-
-        @Override
-        public boolean moveToFirst() {
-            return moveToPosition(0);
-        }
-
-        @Override
-        public boolean moveToLast() {
-            return moveToPosition(mCount - 1);
-        }
-
-        @Override
-        public boolean moveToPosition(int position) {
-            if (position >= mCount) {
-                mPos = mCount;
-                return false;
-            } else if (position < 0) {
-                mPos = -1;
-                return false;
-            }
-            mPos = mIndex[position];
-            return super.moveToPosition(mPos);
-        }
-
-        @Override
-        public int getCount() {
-            return mCount;
-        }
-
-        @Override
-        public int getPosition() {
-            return mPos;
-        }
+  @Override
+  public void onCreate(Bundle savedState) {
+    if (savedState == null) {
+      mAccountName = getArguments().getString(ARG_ACCOUNT_NAME);
+      mAccountType = getArguments().getString(ARG_ACCOUNT_TYPE);
+      mAccountDataSet = getArguments().getString(ARG_ACCOUNT_DATA_SET);
+      mContactIds = getArguments().getStringArrayList(ARG_CONTACT_IDS);
+    } else {
+      mAccountName = savedState.getString(KEY_ACCOUNT_NAME);
+      mAccountType = savedState.getString(KEY_ACCOUNT_TYPE);
+      mAccountDataSet = savedState.getString(KEY_ACCOUNT_DATA_SET);
+      mContactIds = savedState.getStringArrayList(KEY_CONTACT_IDS);
     }
+    super.onCreate(savedState);
+  }
 
-    private String mAccountName;
-    private String mAccountType;
-    private String mAccountDataSet;
-    private ArrayList<String> mContactIds;
-    private Listener mListener;
+  @Override
+  public void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+    outState.putString(KEY_ACCOUNT_NAME, mAccountName);
+    outState.putString(KEY_ACCOUNT_TYPE, mAccountType);
+    outState.putString(KEY_ACCOUNT_DATA_SET, mAccountDataSet);
+    outState.putStringArrayList(KEY_CONTACT_IDS, mContactIds);
+  }
 
-    public static GroupMemberPickerFragment newInstance(String accountName, String accountType,
-            String accountDataSet, ArrayList<String> contactIds) {
-        final Bundle args = new Bundle();
-        args.putString(ARG_ACCOUNT_NAME, accountName);
-        args.putString(ARG_ACCOUNT_TYPE, accountType);
-        args.putString(ARG_ACCOUNT_DATA_SET, accountDataSet);
-        args.putStringArrayList(ARG_CONTACT_IDS, contactIds);
+  public void setListener(Listener listener) {
+    mListener = listener;
+  }
 
-        final GroupMemberPickerFragment fragment = new GroupMemberPickerFragment();
-        fragment.setArguments(args);
-        return fragment;
+  @Override
+  protected View inflateView(LayoutInflater inflater, ViewGroup container) {
+    return inflater.inflate(R.layout.contact_list_content, null);
+  }
+
+  @Override
+  public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+    if (data != null) {
+      // Wait until contacts are loaded before showing the scrollbar
+      setVisibleScrollbarEnabled(true);
+
+      final FilterCursorWrapper cursorWrapper = new FilterCursorWrapper(data);
+      final View accountFilterContainer = getView().findViewById(
+        R.id.account_filter_header_container);
+      final AccountWithDataSet accountWithDataSet = new AccountWithDataSet(mAccountName,
+        mAccountType, mAccountDataSet);
+      bindListHeader(getContext(), getListView(), accountFilterContainer,
+        accountWithDataSet, cursorWrapper.getCount());
+
+      super.onLoadFinished(loader, cursorWrapper);
     }
+  }
 
-    public GroupMemberPickerFragment() {
-        setPhotoLoaderEnabled(true);
-        setSectionHeaderDisplayEnabled(true);
-        setHasOptionsMenu(true);
-        setDisplayDirectoryHeader(false);
+  @Override
+  protected DefaultContactListAdapter createListAdapter() {
+    final DefaultContactListAdapter adapter = new DefaultContactListAdapter(getActivity());
+    adapter.setFilter(ContactListFilter.createGroupMembersFilter(
+      mAccountType, mAccountName, mAccountDataSet));
+    adapter.setSectionHeaderDisplayEnabled(true);
+    adapter.setDisplayPhotos(true);
+    return adapter;
+  }
+
+  @Override
+  protected void onItemClick(int position, long id) {
+    if (getAdapter().isDisplayingCheckBoxes()) {
+      super.onItemClick(position, id);
+      return;
     }
+    if (mListener != null) {
+      final long contactId = getAdapter().getContactId(position);
+      if (contactId > 0) {
+        mListener.onGroupMemberClicked(contactId);
+      }
+    }
+  }
 
-    @Override
-    public void onCreate(Bundle savedState) {
-        if (savedState == null) {
-            mAccountName = getArguments().getString(ARG_ACCOUNT_NAME);
-            mAccountType = getArguments().getString(ARG_ACCOUNT_TYPE);
-            mAccountDataSet = getArguments().getString(ARG_ACCOUNT_DATA_SET);
-            mContactIds = getArguments().getStringArrayList(ARG_CONTACT_IDS);
+  @Override
+  public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
+    super.onCreateOptionsMenu(menu, menuInflater);
+    menuInflater.inflate(R.menu.group_member_picker, menu);
+  }
+
+  @Override
+  public void onPrepareOptionsMenu(Menu menu) {
+    final ContactSelectionActivity activity = getContactSelectionActivity();
+    final boolean hasContacts = mContactIds == null ? false : mContactIds.size() > 0;
+    final boolean isSearchMode = activity == null ? false : activity.isSearchMode();
+    final boolean isSelectionMode = activity == null ? false : activity.isSelectionMode();
+
+    // Added in ContactSelectionActivity but we must account for selection mode
+    setVisible(menu, R.id.menu_search, !isSearchMode && !isSelectionMode);
+    setVisible(menu, R.id.menu_select, hasContacts && !isSearchMode && !isSelectionMode);
+  }
+
+  private ContactSelectionActivity getContactSelectionActivity() {
+    final Activity activity = getActivity();
+    if (activity != null && activity instanceof ContactSelectionActivity) {
+      return (ContactSelectionActivity) activity;
+    }
+    return null;
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    final int id = item.getItemId();
+    if (id == android.R.id.home) {
+      final Activity activity = getActivity();
+      if (activity != null) {
+        activity.onBackPressed();
+      }
+      return true;
+    } else if (id == R.id.menu_select) {
+      if (mListener != null) {
+        mListener.onSelectGroupMembers();
+      }
+      return true;
+    }
+    return super.onOptionsItemSelected(item);
+  }
+
+  /**
+   * Callbacks for host of {@link GroupMemberPickerFragment}.
+   */
+  public interface Listener {
+
+    /**
+     * Invoked when a potential group member is selected.
+     */
+    void onGroupMemberClicked(long contactId);
+
+    /**
+     * Invoked when user has initiated multiple selection mode.
+     */
+    void onSelectGroupMembers();
+  }
+
+  /**
+   * Filters out raw contacts that are already in the group.
+   */
+  private class FilterCursorWrapper extends CursorWrapper {
+
+    private int[] mIndex;
+    private int mCount = 0;
+    private int mPos = 0;
+
+    public FilterCursorWrapper(Cursor cursor) {
+      super(cursor);
+
+      mCount = super.getCount();
+      mIndex = new int[mCount];
+
+      final List<Integer> indicesToFilter = new ArrayList<>();
+
+      if (Log.isLoggable(TAG, Log.VERBOSE)) {
+        Log.v(TAG, "RawContacts CursorWrapper start: " + mCount);
+      }
+
+      final Bundle bundle = cursor.getExtras();
+      final String sections[] = bundle.getStringArray(Contacts
+        .EXTRA_ADDRESS_BOOK_INDEX_TITLES);
+      final int counts[] = bundle.getIntArray(Contacts.EXTRA_ADDRESS_BOOK_INDEX_COUNTS);
+      final ContactsSectionIndexer indexer = (sections == null || counts == null)
+        ? null : new ContactsSectionIndexer(sections, counts);
+
+      for (int i = 0; i < mCount; i++) {
+        super.moveToPosition(i);
+        final String contactId = getString(ContactQuery.CONTACT_ID);
+        if (!mContactIds.contains(contactId)) {
+          mIndex[mPos++] = i;
         } else {
-            mAccountName = savedState.getString(KEY_ACCOUNT_NAME);
-            mAccountType = savedState.getString(KEY_ACCOUNT_TYPE);
-            mAccountDataSet = savedState.getString(KEY_ACCOUNT_DATA_SET);
-            mContactIds = savedState.getStringArrayList(KEY_CONTACT_IDS);
+          indicesToFilter.add(i);
         }
-        super.onCreate(savedState);
+      }
+
+      if (indexer != null && GroupUtil.needTrimming(mCount, counts, indexer.getPositions())) {
+        GroupUtil.updateBundle(bundle, indexer, indicesToFilter, sections, counts);
+      }
+
+      mCount = mPos;
+      mPos = 0;
+      super.moveToFirst();
+
+      if (Log.isLoggable(TAG, Log.VERBOSE)) {
+        Log.v(TAG, "RawContacts CursorWrapper end: " + mCount);
+      }
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putString(KEY_ACCOUNT_NAME, mAccountName);
-        outState.putString(KEY_ACCOUNT_TYPE, mAccountType);
-        outState.putString(KEY_ACCOUNT_DATA_SET, mAccountDataSet);
-        outState.putStringArrayList(KEY_CONTACT_IDS, mContactIds);
-    }
-
-    public void setListener(Listener listener) {
-        mListener = listener;
+    public boolean move(int offset) {
+      return moveToPosition(mPos + offset);
     }
 
     @Override
-    protected View inflateView(LayoutInflater inflater, ViewGroup container) {
-        return inflater.inflate(R.layout.contact_list_content, null);
+    public boolean moveToNext() {
+      return moveToPosition(mPos + 1);
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if (data != null) {
-            // Wait until contacts are loaded before showing the scrollbar
-            setVisibleScrollbarEnabled(true);
-
-            final FilterCursorWrapper cursorWrapper = new FilterCursorWrapper(data);
-            final View accountFilterContainer = getView().findViewById(
-                    R.id.account_filter_header_container);
-            final AccountWithDataSet accountWithDataSet = new AccountWithDataSet(mAccountName,
-                    mAccountType, mAccountDataSet);
-            bindListHeader(getContext(), getListView(), accountFilterContainer,
-                    accountWithDataSet, cursorWrapper.getCount());
-
-            super.onLoadFinished(loader, cursorWrapper);
-        }
+    public boolean moveToPrevious() {
+      return moveToPosition(mPos - 1);
     }
 
     @Override
-    protected DefaultContactListAdapter createListAdapter() {
-        final DefaultContactListAdapter adapter = new DefaultContactListAdapter(getActivity());
-        adapter.setFilter(ContactListFilter.createGroupMembersFilter(
-                mAccountType, mAccountName, mAccountDataSet));
-        adapter.setSectionHeaderDisplayEnabled(true);
-        adapter.setDisplayPhotos(true);
-        return adapter;
+    public boolean moveToFirst() {
+      return moveToPosition(0);
     }
 
     @Override
-    protected void onItemClick(int position, long id) {
-        if (getAdapter().isDisplayingCheckBoxes()) {
-            super.onItemClick(position, id);
-            return;
-        }
-        if (mListener != null) {
-            final long contactId = getAdapter().getContactId(position);
-            if (contactId > 0) {
-                mListener.onGroupMemberClicked(contactId);
-            }
-        }
+    public boolean moveToLast() {
+      return moveToPosition(mCount - 1);
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
-        super.onCreateOptionsMenu(menu, menuInflater);
-        menuInflater.inflate(R.menu.group_member_picker, menu);
+    public boolean moveToPosition(int position) {
+      if (position >= mCount) {
+        mPos = mCount;
+        return false;
+      } else if (position < 0) {
+        mPos = -1;
+        return false;
+      }
+      mPos = mIndex[position];
+      return super.moveToPosition(mPos);
     }
 
     @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        final ContactSelectionActivity activity = getContactSelectionActivity();
-        final boolean hasContacts = mContactIds == null ? false : mContactIds.size() > 0;
-        final boolean isSearchMode = activity == null ? false : activity.isSearchMode();
-        final boolean isSelectionMode = activity == null ? false : activity.isSelectionMode();
-
-        // Added in ContactSelectionActivity but we must account for selection mode
-        setVisible(menu, R.id.menu_search, !isSearchMode && !isSelectionMode);
-        setVisible(menu, R.id.menu_select, hasContacts && !isSearchMode && !isSelectionMode);
-    }
-
-    private ContactSelectionActivity getContactSelectionActivity() {
-        final Activity activity = getActivity();
-        if (activity != null && activity instanceof ContactSelectionActivity) {
-            return (ContactSelectionActivity) activity;
-        }
-        return null;
-    }
-
-    private static void setVisible(Menu menu, int id, boolean visible) {
-        final MenuItem menuItem = menu.findItem(id);
-        if (menuItem != null) {
-            menuItem.setVisible(visible);
-        }
+    public int getCount() {
+      return mCount;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        final int id = item.getItemId();
-        if (id == android.R.id.home) {
-            final Activity activity = getActivity();
-            if (activity != null) {
-                activity.onBackPressed();
-            }
-            return true;
-        } else if (id == R.id.menu_select) {
-            if (mListener != null) {
-                mListener.onSelectGroupMembers();
-            }
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+    public int getPosition() {
+      return mPos;
     }
+  }
 }

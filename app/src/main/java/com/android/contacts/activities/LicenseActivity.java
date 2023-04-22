@@ -16,10 +16,11 @@
 package com.android.contacts.activities;
 
 import android.os.Bundle;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.webkit.WebView;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.contacts.R;
 
@@ -27,33 +28,33 @@ import com.android.contacts.R;
  * Displays the licenses for all open source libraries.
  */
 public class LicenseActivity extends AppCompatActivity {
-    private static final String LICENSE_FILE = "file:///android_asset/licenses.html";
-    private WebView mWebView;
+  private static final String LICENSE_FILE = "file:///android_asset/licenses.html";
+  private WebView mWebView;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.licenses);
-        mWebView = (WebView) findViewById(R.id.webview);
-        mWebView.loadUrl(LICENSE_FILE);
-        final ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP, ActionBar.DISPLAY_HOME_AS_UP);
-        }
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.licenses);
+    mWebView = (WebView) findViewById(R.id.webview);
+    mWebView.loadUrl(LICENSE_FILE);
+    final ActionBar actionBar = getSupportActionBar();
+    if (actionBar != null) {
+      actionBar.setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP, ActionBar.DISPLAY_HOME_AS_UP);
     }
+  }
 
-    @Override
-    protected void onDestroy() {
-        mWebView.destroy();
-        super.onDestroy();
-    }
+  @Override
+  protected void onDestroy() {
+    mWebView.destroy();
+    super.onDestroy();
+  }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    if (item.getItemId() == android.R.id.home) {
+      finish();
+      return true;
     }
+    return super.onOptionsItemSelected(item);
+  }
 }

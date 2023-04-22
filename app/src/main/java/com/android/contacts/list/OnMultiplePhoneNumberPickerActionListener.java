@@ -22,13 +22,13 @@ import android.net.Uri;
  */
 public interface OnMultiplePhoneNumberPickerActionListener {
 
-    /**
-     * Returns the selected phone numbers to the requester.
-     */
-    void onPhoneNumbersSelectedAction(Uri[] dataUris);
+  /**
+   * Returns the selected phone numbers to the requester.
+   */
+  void onPhoneNumbersSelectedAction(Uri[] dataUris);
 
-    /**
-     * Closes the picker without changing the selection.
-     */
-    void onFinishAction();
+  /**
+   * Closes the picker without changing the selection.
+   */
+  void onFinishAction();
 }

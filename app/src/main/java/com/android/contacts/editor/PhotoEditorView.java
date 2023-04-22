@@ -38,183 +38,180 @@ import com.android.contacts.widget.QuickContactImageView;
  */
 public class PhotoEditorView extends RelativeLayout implements View.OnClickListener {
 
-    /**
-     * Callbacks for the host of this view.
-     */
-    public interface Listener {
+  private final float mLandscapePhotoRatio;
+  private final float mPortraitPhotoRatio;
+  private final boolean mIsTwoPanel;
+  private Listener mListener;
+  private QuickContactImageView mPhotoImageView;
+  private View mPhotoIcon;
+  private View mPhotoIconOverlay;
+  private View mPhotoTouchInterceptOverlay;
+  private MaterialPalette mMaterialPalette;
+  private boolean mReadOnly;
+  private boolean mIsNonDefaultPhotoBound;
+  public PhotoEditorView(Context context) {
+    this(context, null);
+  }
 
-        /**
-         * Invoked when the user wants to change their photo.
-         */
-        void onPhotoEditorViewClicked();
+  public PhotoEditorView(Context context, AttributeSet attrs) {
+    super(context, attrs);
+
+    mLandscapePhotoRatio = getTypedFloat(R.dimen.quickcontact_landscape_photo_ratio);
+    mPortraitPhotoRatio = getTypedFloat(R.dimen.editor_portrait_photo_ratio);
+    mIsTwoPanel = getResources().getBoolean(R.bool.contacteditor_two_panel);
+  }
+
+  private float getTypedFloat(int resourceId) {
+    final TypedValue typedValue = new TypedValue();
+    getResources().getValue(resourceId, typedValue, /* resolveRefs =*/ true);
+    return typedValue.getFloat();
+  }
+
+  @Override
+  protected void onFinishInflate() {
+    super.onFinishInflate();
+    mPhotoImageView = (QuickContactImageView) findViewById(R.id.photo);
+    mPhotoIcon = findViewById(R.id.photo_icon);
+    mPhotoIconOverlay = findViewById(R.id.photo_icon_overlay);
+    mPhotoTouchInterceptOverlay = findViewById(R.id.photo_touch_intercept_overlay);
+
+  }
+
+  public void setListener(Listener listener) {
+    mListener = listener;
+  }
+
+  public void setReadOnly(boolean readOnly) {
+    mReadOnly = readOnly;
+    if (mReadOnly) {
+      mPhotoIcon.setVisibility(View.GONE);
+      mPhotoIconOverlay.setVisibility(View.GONE);
+      mPhotoTouchInterceptOverlay.setClickable(false);
+      mPhotoTouchInterceptOverlay.setContentDescription(getContext().getString(
+        R.string.editor_contact_photo_content_description));
+    } else {
+      mPhotoIcon.setVisibility(View.VISIBLE);
+      mPhotoIconOverlay.setVisibility(View.VISIBLE);
+      mPhotoTouchInterceptOverlay.setOnClickListener(this);
+      updatePhotoDescription();
+    }
+  }
+
+  public void setPalette(MaterialPalette palette) {
+    mMaterialPalette = palette;
+  }
+
+  /**
+   * Tries to bind a full size photo or a bitmap loaded from the given ValuesDelta,
+   * and falls back to the default avatar, tinted using the given MaterialPalette (if it's not
+   * null);
+   */
+  public void setPhoto(ValuesDelta valuesDelta) {
+    // Check if we can update to the full size photo immediately
+    final Long photoFileId = EditorUiUtils.getPhotoFileId(valuesDelta);
+    if (photoFileId != null) {
+      final Uri photoUri = ContactsContract.DisplayPhoto.CONTENT_URI.buildUpon()
+        .appendPath(photoFileId.toString()).build();
+      setFullSizedPhoto(photoUri);
+      adjustDimensions();
+      return;
     }
 
-    private Listener mListener;
-
-    private final float mLandscapePhotoRatio;
-    private final float mPortraitPhotoRatio;
-    private final boolean mIsTwoPanel;
-
-    private QuickContactImageView mPhotoImageView;
-    private View mPhotoIcon;
-    private View mPhotoIconOverlay;
-    private View mPhotoTouchInterceptOverlay;
-    private MaterialPalette mMaterialPalette;
-
-    private boolean mReadOnly;
-    private boolean mIsNonDefaultPhotoBound;
-
-    public PhotoEditorView(Context context) {
-        this(context, null);
+    // Use the bitmap image from the values delta
+    final Bitmap bitmap = EditorUiUtils.getPhotoBitmap(valuesDelta);
+    if (bitmap != null) {
+      setPhoto(bitmap);
+      adjustDimensions();
+      return;
     }
 
-    public PhotoEditorView(Context context, AttributeSet attrs) {
-        super(context, attrs);
+    setDefaultPhoto(mMaterialPalette);
+    adjustDimensions();
+  }
 
-        mLandscapePhotoRatio = getTypedFloat(R.dimen.quickcontact_landscape_photo_ratio);
-        mPortraitPhotoRatio = getTypedFloat(R.dimen.editor_portrait_photo_ratio);
-        mIsTwoPanel = getResources().getBoolean(R.bool.contacteditor_two_panel);
-    }
-
-    private float getTypedFloat(int resourceId) {
-        final TypedValue typedValue = new TypedValue();
-        getResources().getValue(resourceId, typedValue, /* resolveRefs =*/ true);
-        return typedValue.getFloat();
-    }
-
-    @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
-        mPhotoImageView = (QuickContactImageView) findViewById(R.id.photo);
-        mPhotoIcon = findViewById(R.id.photo_icon);
-        mPhotoIconOverlay = findViewById(R.id.photo_icon_overlay);
-        mPhotoTouchInterceptOverlay = findViewById(R.id.photo_touch_intercept_overlay);
-
-    }
-
-    public void setListener(Listener listener) {
-        mListener = listener;
-    }
-
-    public void setReadOnly(boolean readOnly) {
-        mReadOnly = readOnly;
-        if (mReadOnly) {
-            mPhotoIcon.setVisibility(View.GONE);
-            mPhotoIconOverlay.setVisibility(View.GONE);
-            mPhotoTouchInterceptOverlay.setClickable(false);
-            mPhotoTouchInterceptOverlay.setContentDescription(getContext().getString(
-                    R.string.editor_contact_photo_content_description));
+  private void adjustDimensions() {
+    // Follow the same logic as MultiShrinkScroll.initialize
+    SchedulingUtils.doOnPreDraw(this, /* drawNextFrame =*/ false, new Runnable() {
+      @Override
+      public void run() {
+        final int photoHeight, photoWidth;
+        if (mIsTwoPanel) {
+          photoHeight = getHeight();
+          photoWidth = (int) (photoHeight * mLandscapePhotoRatio);
         } else {
-            mPhotoIcon.setVisibility(View.VISIBLE);
-            mPhotoIconOverlay.setVisibility(View.VISIBLE);
-            mPhotoTouchInterceptOverlay.setOnClickListener(this);
-            updatePhotoDescription();
+          // Make the photo slightly shorter that it is wide
+          photoWidth = getWidth();
+          photoHeight = (int) (photoWidth / mPortraitPhotoRatio);
         }
-    }
+        final ViewGroup.LayoutParams layoutParams = getLayoutParams();
+        layoutParams.height = photoHeight;
+        layoutParams.width = photoWidth;
+        setLayoutParams(layoutParams);
+      }
+    });
+  }
 
-    public void setPalette(MaterialPalette palette) {
-        mMaterialPalette = palette;
-    }
+  /**
+   * Whether a removable, non-default photo is bound to this view.
+   */
+  public boolean isWritablePhotoSet() {
+    return !mReadOnly && mIsNonDefaultPhotoBound;
+  }
 
-    /**
-     * Tries to bind a full size photo or a bitmap loaded from the given ValuesDelta,
-     * and falls back to the default avatar, tinted using the given MaterialPalette (if it's not
-     * null);
-     */
-    public void setPhoto(ValuesDelta valuesDelta) {
-        // Check if we can update to the full size photo immediately
-        final Long photoFileId = EditorUiUtils.getPhotoFileId(valuesDelta);
-        if (photoFileId != null) {
-            final Uri photoUri = ContactsContract.DisplayPhoto.CONTENT_URI.buildUpon()
-                    .appendPath(photoFileId.toString()).build();
-            setFullSizedPhoto(photoUri);
-            adjustDimensions();
-            return;
-        }
+  /**
+   * Binds the given bitmap.
+   */
+  private void setPhoto(Bitmap bitmap) {
+    mPhotoImageView.setImageBitmap(bitmap);
+    mIsNonDefaultPhotoBound = true;
+    updatePhotoDescription();
+  }
 
-        // Use the bitmap image from the values delta
-        final Bitmap bitmap = EditorUiUtils.getPhotoBitmap(valuesDelta);
-        if (bitmap != null) {
-            setPhoto(bitmap);
-            adjustDimensions();
-            return;
-        }
+  private void setDefaultPhoto(MaterialPalette materialPalette) {
+    mIsNonDefaultPhotoBound = false;
+    updatePhotoDescription();
+    EditorUiUtils.setDefaultPhoto(mPhotoImageView, getResources(), materialPalette);
+  }
 
-        setDefaultPhoto(mMaterialPalette);
-        adjustDimensions();
-    }
+  private void updatePhotoDescription() {
+    mPhotoTouchInterceptOverlay.setContentDescription(getContext().getString(
+      mIsNonDefaultPhotoBound
+        ? R.string.editor_change_photo_content_description
+        : R.string.editor_add_photo_content_description));
+  }
 
-    private void adjustDimensions() {
-        // Follow the same logic as MultiShrinkScroll.initialize
-        SchedulingUtils.doOnPreDraw(this, /* drawNextFrame =*/ false, new Runnable() {
-            @Override
-            public void run() {
-                final int photoHeight, photoWidth;
-                if (mIsTwoPanel) {
-                    photoHeight = getHeight();
-                    photoWidth = (int) (photoHeight * mLandscapePhotoRatio);
-                } else {
-                    // Make the photo slightly shorter that it is wide
-                    photoWidth = getWidth();
-                    photoHeight = (int) (photoWidth / mPortraitPhotoRatio);
-                }
-                final ViewGroup.LayoutParams layoutParams = getLayoutParams();
-                layoutParams.height = photoHeight;
-                layoutParams.width = photoWidth;
-                setLayoutParams(layoutParams);
-            }
-        });
-    }
+  /**
+   * Binds a full size photo loaded from the given Uri.
+   */
+  public void setFullSizedPhoto(Uri photoUri) {
+    EditorUiUtils.loadPhoto(ContactPhotoManager.getInstance(getContext()),
+      mPhotoImageView, photoUri);
+    mIsNonDefaultPhotoBound = true;
+    updatePhotoDescription();
+  }
 
-    /**
-     * Whether a removable, non-default photo is bound to this view.
-     */
-    public boolean isWritablePhotoSet() {
-        return !mReadOnly && mIsNonDefaultPhotoBound;
-    }
+  /**
+   * Removes the current bound photo bitmap.
+   */
+  public void removePhoto() {
+    setDefaultPhoto(mMaterialPalette);
+  }
 
-    /**
-     * Binds the given bitmap.
-     */
-    private void setPhoto(Bitmap bitmap) {
-        mPhotoImageView.setImageBitmap(bitmap);
-        mIsNonDefaultPhotoBound = true;
-        updatePhotoDescription();
+  @Override
+  public void onClick(View view) {
+    if (mListener != null) {
+      mListener.onPhotoEditorViewClicked();
     }
+  }
 
-    private void setDefaultPhoto(MaterialPalette materialPalette) {
-        mIsNonDefaultPhotoBound = false;
-        updatePhotoDescription();
-        EditorUiUtils.setDefaultPhoto(mPhotoImageView, getResources(), materialPalette);
-    }
-
-    private void updatePhotoDescription() {
-        mPhotoTouchInterceptOverlay.setContentDescription(getContext().getString(
-                mIsNonDefaultPhotoBound
-                        ? R.string.editor_change_photo_content_description
-                        : R.string.editor_add_photo_content_description));
-    }
-    /**
-     * Binds a full size photo loaded from the given Uri.
-     */
-    public void setFullSizedPhoto(Uri photoUri) {
-        EditorUiUtils.loadPhoto(ContactPhotoManager.getInstance(getContext()),
-                mPhotoImageView, photoUri);
-        mIsNonDefaultPhotoBound = true;
-        updatePhotoDescription();
-    }
+  /**
+   * Callbacks for the host of this view.
+   */
+  public interface Listener {
 
     /**
-     * Removes the current bound photo bitmap.
+     * Invoked when the user wants to change their photo.
      */
-    public void removePhoto() {
-        setDefaultPhoto(mMaterialPalette);
-    }
-
-    @Override
-    public void onClick(View view) {
-        if (mListener != null) {
-            mListener.onPhotoEditorViewClicked();
-        }
-    }
+    void onPhotoEditorViewClicked();
+  }
 }

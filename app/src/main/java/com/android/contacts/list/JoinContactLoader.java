@@ -24,82 +24,82 @@ import android.net.Uri;
 /**
  * A specialized loader for the Join Contacts UI.  It executes two queries:
  * join suggestions and (optionally) the full contact list.
- *
+ * <p>
  * This loader also loads the "suggestion" cursor, which can be accessed with:
  * {@code ((JoinContactLoaderResult) result).suggestionCursor }
  */
 public class JoinContactLoader extends CursorLoader {
 
-    private String[] mProjection;
-    private Uri mSuggestionUri;
+  private String[] mProjection;
+  private Uri mSuggestionUri;
 
-    /**
-     * Actual returned class.  It's guaranteed that this loader always returns an instance of this
-     * class.  This class is needed to tie the lifecycle of the second cursor to that of the
-     * primary one.
-     *
-     * Note we can't change the result type of this loader itself, because CursorLoader
-     * extends AsyncTaskLoader<Cursor>, not AsyncTaskLoader<? extends Cursor>
-     */
-    public static class JoinContactLoaderResult extends CursorWrapper {
-        public final Cursor suggestionCursor;
+  public JoinContactLoader(Context context) {
+    super(context, null, null, null, null, null);
+  }
 
-        public JoinContactLoaderResult(Cursor baseCursor, Cursor suggestionCursor) {
-            super(baseCursor);
-            this.suggestionCursor = suggestionCursor;
-        }
+  public void setSuggestionUri(Uri uri) {
+    this.mSuggestionUri = uri;
+  }
 
-        @Override
-        public void close() {
-            try {
-                if (suggestionCursor != null) {
-                    suggestionCursor.close();
-                }
-            } finally {
-                if (super.getWrappedCursor() != null) {
-                    super.close();
-                }
-            }
-        }
+  @Override
+  public void setProjection(String[] projection) {
+    super.setProjection(projection);
+    this.mProjection = projection;
+  }
+
+  @Override
+  public Cursor loadInBackground() {
+    // First execute the suggestions query, then call super.loadInBackground
+    // to load the entire list
+    final Cursor suggestionsCursor = getContext().getContentResolver()
+      .query(mSuggestionUri, mProjection, null, null, null);
+    if (suggestionsCursor == null) {
+      return null;
     }
-
-    public JoinContactLoader(Context context) {
-        super(context, null, null, null, null, null);
+    Cursor cursorToClose = suggestionsCursor;
+    try {
+      final Cursor baseCursor = super.loadInBackground();
+      if (baseCursor != null) {
+        final JoinContactLoaderResult result =
+          new JoinContactLoaderResult(baseCursor, suggestionsCursor);
+        cursorToClose = null;
+        return result;
+      }
+    } finally {
+      if (cursorToClose != null) {
+        cursorToClose.close();
+      }
     }
+    return null;
+  }
 
-    public void setSuggestionUri(Uri uri) {
-        this.mSuggestionUri = uri;
+  /**
+   * Actual returned class.  It's guaranteed that this loader always returns an instance of this
+   * class.  This class is needed to tie the lifecycle of the second cursor to that of the
+   * primary one.
+   * <p>
+   * Note we can't change the result type of this loader itself, because CursorLoader
+   * extends AsyncTaskLoader<Cursor>, not AsyncTaskLoader<? extends Cursor>
+   */
+  public static class JoinContactLoaderResult extends CursorWrapper {
+    public final Cursor suggestionCursor;
+
+    public JoinContactLoaderResult(Cursor baseCursor, Cursor suggestionCursor) {
+      super(baseCursor);
+      this.suggestionCursor = suggestionCursor;
     }
 
     @Override
-    public void setProjection(String[] projection) {
-        super.setProjection(projection);
-        this.mProjection = projection;
-    }
-
-    @Override
-    public Cursor loadInBackground() {
-        // First execute the suggestions query, then call super.loadInBackground
-        // to load the entire list
-        final Cursor suggestionsCursor = getContext().getContentResolver()
-                .query(mSuggestionUri, mProjection, null, null, null);
-        if (suggestionsCursor == null) {
-            return null;
+    public void close() {
+      try {
+        if (suggestionCursor != null) {
+          suggestionCursor.close();
         }
-        Cursor cursorToClose = suggestionsCursor;
-        try {
-            final Cursor baseCursor = super.loadInBackground();
-            if (baseCursor != null) {
-                final JoinContactLoaderResult result =
-                        new JoinContactLoaderResult(baseCursor, suggestionsCursor);
-                cursorToClose = null;
-                return result;
-            }
-        } finally {
-            if (cursorToClose != null) {
-                cursorToClose.close();
-            }
+      } finally {
+        if (super.getWrappedCursor() != null) {
+          super.close();
         }
-        return null;
+      }
     }
+  }
 }

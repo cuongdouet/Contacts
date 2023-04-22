@@ -26,15 +26,15 @@ import android.provider.ContactsContract.CommonDataKinds.Nickname;
  */
 public class NicknameDataItem extends DataItem {
 
-    public NicknameDataItem(ContentValues values) {
-        super(values);
-    }
+  public NicknameDataItem(ContentValues values) {
+    super(values);
+  }
 
-    public String getName() {
-        return getContentValues().getAsString(Nickname.NAME);
-    }
+  public String getName() {
+    return getContentValues().getAsString(Nickname.NAME);
+  }
 
-    public String getLabel() {
-        return getContentValues().getAsString(Nickname.LABEL);
-    }
+  public String getLabel() {
+    return getContentValues().getAsString(Nickname.LABEL);
+  }
 }

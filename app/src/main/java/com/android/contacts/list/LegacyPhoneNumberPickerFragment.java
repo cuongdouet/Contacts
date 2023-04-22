@@ -24,44 +24,44 @@ import android.util.Log;
  */
 public class LegacyPhoneNumberPickerFragment extends PhoneNumberPickerFragment {
 
-    private static final String TAG = "LegacyPhoneNumberPicker";
+  private static final String TAG = "LegacyPhoneNumberPicker";
 
-    @Override
-    protected boolean getVisibleScrollbarEnabled() {
-        return false;
-    }
+  @Override
+  protected boolean getVisibleScrollbarEnabled() {
+    return false;
+  }
 
-    @Override
-    protected Uri getPhoneUri(int position) {
-        final LegacyPhoneNumberListAdapter adapter = (LegacyPhoneNumberListAdapter) getAdapter();
-        return adapter.getPhoneUri(position);
-    }
+  @Override
+  protected Uri getPhoneUri(int position) {
+    final LegacyPhoneNumberListAdapter adapter = (LegacyPhoneNumberListAdapter) getAdapter();
+    return adapter.getPhoneUri(position);
+  }
 
-    @Override
-    protected String getLookupKey(int position) {
-        // There is no lookup key for the legacy adapter.
-        return null;
-    }
+  @Override
+  protected String getLookupKey(int position) {
+    // There is no lookup key for the legacy adapter.
+    return null;
+  }
 
-    @Override
-    protected ContactEntryListAdapter createListAdapter() {
-        LegacyPhoneNumberListAdapter adapter = new LegacyPhoneNumberListAdapter(getActivity());
-        adapter.setDisplayPhotos(true);
-        return adapter;
-    }
+  @Override
+  protected ContactEntryListAdapter createListAdapter() {
+    LegacyPhoneNumberListAdapter adapter = new LegacyPhoneNumberListAdapter(getActivity());
+    adapter.setDisplayPhotos(true);
+    return adapter;
+  }
 
-    @Override
-    protected void setPhotoPosition(ContactEntryListAdapter adapter) {
-        // no-op
-    }
+  @Override
+  protected void setPhotoPosition(ContactEntryListAdapter adapter) {
+    // no-op
+  }
 
-    @Override
-    protected void startPhoneNumberShortcutIntent(Uri uri, boolean isVideoCall) {
-        throw new UnsupportedOperationException();
-    }
+  @Override
+  protected void startPhoneNumberShortcutIntent(Uri uri, boolean isVideoCall) {
+    throw new UnsupportedOperationException();
+  }
 
-    @Override
-    public void setPhotoPosition(ContactListItemView.PhotoPosition photoPosition) {
-        Log.w(TAG, "setPhotoPosition() is ignored in legacy compatibility mode.");
-    }
+  @Override
+  public void setPhotoPosition(ContactListItemView.PhotoPosition photoPosition) {
+    Log.w(TAG, "setPhotoPosition() is ignored in legacy compatibility mode.");
+  }
 }

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (C) 2011 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,25 +16,25 @@
 
 <!-- "Delete field" button in the contact editor. -->
 
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="wrap_content"
+  android:layout_height="@dimen/editor_min_line_item_height"
+  android:layout_gravity="center_vertical">
+
+  <ImageView
+    android:id="@+id/delete_button"
     android:layout_width="wrap_content"
-    android:layout_height="@dimen/editor_min_line_item_height"
-    android:layout_gravity="center_vertical">
-    <ImageView
-        android:id="@+id/delete_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:duplicateParentState="true"
-        android:background="?android:attr/selectableItemBackground"
-        android:src="@drawable/quantum_ic_close_vd_theme_24"
-        android:tint="@color/quantum_black_hint_text"
-        android:paddingLeft="@dimen/editor_round_button_padding_left"
-        android:paddingRight="@dimen/editor_round_button_padding_right"
-        android:paddingStart="@dimen/editor_round_button_padding_left"
-        android:paddingEnd="@dimen/editor_round_button_padding_right"
-        android:paddingTop="@dimen/editor_round_button_padding_top"
-        android:paddingBottom="@dimen/editor_round_button_padding_bottom"
-        android:contentDescription="@string/description_minus_button" />
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:background="?android:attr/selectableItemBackground"
+    android:contentDescription="@string/description_minus_button"
+    android:duplicateParentState="true"
+    android:paddingStart="@dimen/editor_round_button_padding_left"
+    android:paddingLeft="@dimen/editor_round_button_padding_left"
+    android:paddingTop="@dimen/editor_round_button_padding_top"
+    android:paddingEnd="@dimen/editor_round_button_padding_right"
+    android:paddingRight="@dimen/editor_round_button_padding_right"
+    android:paddingBottom="@dimen/editor_round_button_padding_bottom"
+    android:src="@drawable/quantum_ic_close_vd_theme_24"
+    android:tint="@color/quantum_black_hint_text" />
 </FrameLayout>

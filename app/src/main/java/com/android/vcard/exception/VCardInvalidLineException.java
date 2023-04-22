@@ -21,11 +21,11 @@ package com.android.vcard.exception;
  * such lines.
  */
 public class VCardInvalidLineException extends VCardException {
-    public VCardInvalidLineException() {
-        super();
-    }
+  public VCardInvalidLineException() {
+    super();
+  }
 
-    public VCardInvalidLineException(final String message) {
-        super(message);
-    }
+  public VCardInvalidLineException(final String message) {
+    super(message);
+  }
 }

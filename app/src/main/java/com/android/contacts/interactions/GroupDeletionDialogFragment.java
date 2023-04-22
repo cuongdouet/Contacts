@@ -31,43 +31,43 @@ import com.android.contacts.activities.PeopleActivity;
  */
 public class GroupDeletionDialogFragment extends DialogFragment {
 
-    private static final String ARG_GROUP_ID = "groupId";
-    private static final String ARG_LABEL = "label";
+  private static final String ARG_GROUP_ID = "groupId";
+  private static final String ARG_LABEL = "label";
 
-    public static void show(FragmentManager fragmentManager, long groupId, String label) {
-        GroupDeletionDialogFragment dialog = new GroupDeletionDialogFragment();
-        Bundle args = new Bundle();
-        args.putLong(ARG_GROUP_ID, groupId);
-        args.putString(ARG_LABEL, label);
-        dialog.setArguments(args);
-        dialog.show(fragmentManager, "deleteGroup");
-    }
+  public static void show(FragmentManager fragmentManager, long groupId, String label) {
+    GroupDeletionDialogFragment dialog = new GroupDeletionDialogFragment();
+    Bundle args = new Bundle();
+    args.putLong(ARG_GROUP_ID, groupId);
+    args.putString(ARG_LABEL, label);
+    dialog.setArguments(args);
+    dialog.show(fragmentManager, "deleteGroup");
+  }
 
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        String label = getArguments().getString(ARG_LABEL);
-        String message = getActivity().getString(R.string.delete_group_dialog_message, label);
+  @Override
+  public Dialog onCreateDialog(Bundle savedInstanceState) {
+    String label = getArguments().getString(ARG_LABEL);
+    String message = getActivity().getString(R.string.delete_group_dialog_message, label);
 
-        return new AlertDialog.Builder(getActivity())
-                .setIconAttribute(android.R.attr.alertDialogIcon)
-                .setMessage(message)
-                .setPositiveButton(android.R.string.ok,
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            deleteGroup();
-                        }
-                    }
-                )
-                .setNegativeButton(android.R.string.cancel, null)
-                .create();
-    }
+    return new AlertDialog.Builder(getActivity())
+      .setIconAttribute(android.R.attr.alertDialogIcon)
+      .setMessage(message)
+      .setPositiveButton(android.R.string.ok,
+        new DialogInterface.OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int whichButton) {
+            deleteGroup();
+          }
+        }
+      )
+      .setNegativeButton(android.R.string.cancel, null)
+      .create();
+  }
 
-    protected void deleteGroup() {
-        final long groupId = getArguments().getLong(ARG_GROUP_ID);
-        final PeopleActivity activity = ((PeopleActivity) getActivity());
-        activity.startService(ContactSaveService.createGroupDeletionIntent(
-                getActivity(), groupId));
-        activity.switchToAllContacts();
-    }
+  protected void deleteGroup() {
+    final long groupId = getArguments().getLong(ARG_GROUP_ID);
+    final PeopleActivity activity = ((PeopleActivity) getActivity());
+    activity.startService(ContactSaveService.createGroupDeletionIntent(
+      getActivity(), groupId));
+    activity.switchToAllContacts();
+  }
 }

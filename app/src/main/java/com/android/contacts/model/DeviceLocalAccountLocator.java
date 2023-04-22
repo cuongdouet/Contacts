@@ -35,71 +35,70 @@ import java.util.Set;
  */
 public abstract class DeviceLocalAccountLocator {
 
-    /**
-     * Returns a list of device local accounts
-     */
-    public abstract List<AccountWithDataSet> getDeviceLocalAccounts();
+  // This works on Nexus and AOSP because the local device account is the null account but most
+  // OEMs have a special account name and type for their device account.
+  public static final DeviceLocalAccountLocator NULL_ONLY = new DeviceLocalAccountLocator() {
+    @Override
+    public List<AccountWithDataSet> getDeviceLocalAccounts() {
+      return Collections.singletonList(AccountWithDataSet.getNullAccount());
+    }
+  };
 
-    // This works on Nexus and AOSP because the local device account is the null account but most
-    // OEMs have a special account name and type for their device account.
-    public static final DeviceLocalAccountLocator NULL_ONLY = new DeviceLocalAccountLocator() {
-        @Override
-        public List<AccountWithDataSet> getDeviceLocalAccounts() {
-            return Collections.singletonList(AccountWithDataSet.getNullAccount());
-        }
-    };
+  public static DeviceLocalAccountLocator create(Context context,
+                                                 Set<String> knownAccountTypes) {
+    if (Flags.getInstance().getBoolean(Experiments.CP2_DEVICE_ACCOUNT_DETECTION_ENABLED)) {
+      return new Cp2DeviceLocalAccountLocator(context.getContentResolver(),
+        ObjectFactory.getDeviceLocalAccountTypeFactory(context), knownAccountTypes);
+    }
+    return NULL_ONLY;
+  }
 
-    public static DeviceLocalAccountLocator create(Context context,
-            Set<String> knownAccountTypes) {
-        if (Flags.getInstance().getBoolean(Experiments.CP2_DEVICE_ACCOUNT_DETECTION_ENABLED)) {
-            return new Cp2DeviceLocalAccountLocator(context.getContentResolver(),
-                    ObjectFactory.getDeviceLocalAccountTypeFactory(context), knownAccountTypes);
-        }
-        return NULL_ONLY;
+  public static DeviceLocalAccountLocator create(Context context) {
+    final AccountManager accountManager =
+      (AccountManager) context.getSystemService(Context.ACCOUNT_SERVICE);
+    final Set<String> knownTypes = new HashSet<>();
+    for (Account account : accountManager.getAccounts()) {
+      knownTypes.add(account.type);
+    }
+    if (Flags.getInstance().getBoolean(Experiments.CP2_DEVICE_ACCOUNT_DETECTION_ENABLED)) {
+      return new Cp2DeviceLocalAccountLocator(context.getContentResolver(),
+        ObjectFactory.getDeviceLocalAccountTypeFactory(context), knownTypes);
+    } else {
+      return new NexusDeviceAccountLocator(accountManager);
+    }
+  }
+
+  /**
+   * Returns a list of device local accounts
+   */
+  public abstract List<AccountWithDataSet> getDeviceLocalAccounts();
+
+  /**
+   * On Nexus the "device" account uses "null" values for the account name and type columns
+   *
+   * <p>However, the focus sync adapter automatically migrates contacts from this null
+   * account to a Google account if one exists. Hence, the device account should be returned
+   * only when there is no Google Account added
+   * </p>
+   */
+  public static class NexusDeviceAccountLocator extends DeviceLocalAccountLocator {
+
+    private final AccountManager mAccountManager;
+
+    public NexusDeviceAccountLocator(AccountManager accountManager) {
+      mAccountManager = accountManager;
     }
 
-    public static DeviceLocalAccountLocator create(Context context) {
-        final AccountManager accountManager =
-                (AccountManager) context.getSystemService(Context.ACCOUNT_SERVICE);
-        final Set<String> knownTypes = new HashSet<>();
-        for (Account account : accountManager.getAccounts()) {
-            knownTypes.add(account.type);
-        }
-        if (Flags.getInstance().getBoolean(Experiments.CP2_DEVICE_ACCOUNT_DETECTION_ENABLED)) {
-            return new Cp2DeviceLocalAccountLocator(context.getContentResolver(),
-                    ObjectFactory.getDeviceLocalAccountTypeFactory(context), knownTypes);
-        } else {
-            return new NexusDeviceAccountLocator(accountManager);
-        }
+    @Override
+    public List<AccountWithDataSet> getDeviceLocalAccounts() {
+      @SuppressWarnings("MissingPermission") final Account[] accounts = mAccountManager
+        .getAccountsByType(GoogleAccountType.ACCOUNT_TYPE);
+
+      if (accounts.length > 0) {
+        return Collections.emptyList();
+      } else {
+        return Collections.singletonList(AccountWithDataSet.getNullAccount());
+      }
     }
-
-    /**
-     * On Nexus the "device" account uses "null" values for the account name and type columns
-     *
-     * <p>However, the focus sync adapter automatically migrates contacts from this null
-     * account to a Google account if one exists. Hence, the device account should be returned
-     * only when there is no Google Account added
-     * </p>
-     */
-    public static class NexusDeviceAccountLocator extends DeviceLocalAccountLocator {
-
-        private final AccountManager mAccountManager;
-
-        public NexusDeviceAccountLocator(AccountManager accountManager) {
-            mAccountManager = accountManager;
-        }
-
-        @Override
-        public List<AccountWithDataSet> getDeviceLocalAccounts() {
-            @SuppressWarnings("MissingPermission")
-            final Account[] accounts = mAccountManager
-                    .getAccountsByType(GoogleAccountType.ACCOUNT_TYPE);
-
-            if (accounts.length > 0) {
-                return Collections.emptyList();
-            } else {
-                return Collections.singletonList(AccountWithDataSet.getNullAccount());
-            }
-        }
-    }
+  }
 }

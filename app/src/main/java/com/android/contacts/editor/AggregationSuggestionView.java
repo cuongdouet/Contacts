@@ -35,73 +35,72 @@ import com.android.contacts.editor.AggregationSuggestionEngine.Suggestion;
  */
 public class AggregationSuggestionView extends LinearLayout {
 
-    public interface Listener {
-        /**
-         * Callback that passes the contact URI and raw contact ID to edit instead of the
-         * current contact.
-         */
-        void onEditAction(Uri contactLookupUri, long rawContactId);
+  private Listener mListener;
+  private Suggestion mSuggestion;
+  public AggregationSuggestionView(Context context) {
+    super(context);
+  }
+
+  public AggregationSuggestionView(Context context, AttributeSet attrs) {
+    super(context, attrs);
+  }
+
+  public AggregationSuggestionView(Context context, AttributeSet attrs, int defStyle) {
+    super(context, attrs, defStyle);
+  }
+
+  public void bindSuggestion(Suggestion suggestion) {
+    mSuggestion = suggestion;
+    final ContactPhotoManager.DefaultImageRequest
+      request = new ContactPhotoManager.DefaultImageRequest(
+      suggestion.name, String.valueOf(suggestion.rawContactId), /* isCircular = */ false);
+    final ImageView photoView = (ImageView) findViewById(
+      R.id.aggregation_suggestion_photo);
+    ContactPhotoManager.getInstance(getContext()).loadThumbnail(photoView,
+      suggestion.photoId,
+      /* darkTheme = */ false,
+      /* isCircular = */ false,
+      request);
+
+    final TextView name = (TextView) findViewById(R.id.aggregation_suggestion_name);
+    name.setText(suggestion.name);
+
+    final TextView data = (TextView) findViewById(R.id.aggregation_suggestion_data);
+    String dataText = null;
+    if (suggestion.nickname != null) {
+      dataText = suggestion.nickname;
+    } else if (suggestion.emailAddress != null) {
+      dataText = suggestion.emailAddress;
+    } else if (suggestion.phoneNumber != null) {
+      dataText = suggestion.phoneNumber;
+      // Phone numbers should always be in LTR mode.
+      data.setTextDirection(View.TEXT_DIRECTION_LTR);
     }
+    data.setText(dataText);
+  }
 
-    private Listener mListener;
-    private Suggestion mSuggestion;
+  public void setListener(Listener listener) {
+    mListener = listener;
+  }
 
-    public AggregationSuggestionView(Context context) {
-        super(context);
-    }
-
-    public AggregationSuggestionView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    public AggregationSuggestionView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-    }
-
-    public void bindSuggestion(Suggestion suggestion) {
-        mSuggestion = suggestion;
-        final ContactPhotoManager.DefaultImageRequest
-                request = new ContactPhotoManager.DefaultImageRequest(
-                suggestion.name, String.valueOf(suggestion.rawContactId), /* isCircular = */ false);
-        final ImageView photoView = (ImageView) findViewById(
-                R.id.aggregation_suggestion_photo);
-        ContactPhotoManager.getInstance(getContext()).loadThumbnail(photoView,
-                suggestion.photoId,
-                /* darkTheme = */ false,
-                /* isCircular = */ false,
-                request);
-
-        final TextView name = (TextView) findViewById(R.id.aggregation_suggestion_name);
-        name.setText(suggestion.name);
-
-        final TextView data = (TextView) findViewById(R.id.aggregation_suggestion_data);
-        String dataText = null;
-        if (suggestion.nickname != null) {
-            dataText = suggestion.nickname;
-        } else if (suggestion.emailAddress != null) {
-            dataText = suggestion.emailAddress;
-        } else if (suggestion.phoneNumber != null) {
-            dataText = suggestion.phoneNumber;
-            // Phone numbers should always be in LTR mode.
-            data.setTextDirection(View.TEXT_DIRECTION_LTR);
-        }
-        data.setText(dataText);
-    }
-
-    public void setListener(Listener listener) {
-        mListener = listener;
-    }
-
-    public boolean handleItemClickEvent() {
-        if (mListener != null && isEnabled()) {
-            if (TextUtils.isEmpty(mSuggestion.contactLookupKey)) {
-                return false;
-            }
-            mListener.onEditAction(
-                    Contacts.getLookupUri(mSuggestion.contactId, mSuggestion.contactLookupKey),
-                    mSuggestion.rawContactId);
-            return true;
-        }
+  public boolean handleItemClickEvent() {
+    if (mListener != null && isEnabled()) {
+      if (TextUtils.isEmpty(mSuggestion.contactLookupKey)) {
         return false;
+      }
+      mListener.onEditAction(
+        Contacts.getLookupUri(mSuggestion.contactId, mSuggestion.contactLookupKey),
+        mSuggestion.rawContactId);
+      return true;
     }
+    return false;
+  }
+
+  public interface Listener {
+    /**
+     * Callback that passes the contact URI and raw contact ID to edit instead of the
+     * current contact.
+     */
+    void onEditAction(Uri contactLookupUri, long rawContactId);
+  }
 }

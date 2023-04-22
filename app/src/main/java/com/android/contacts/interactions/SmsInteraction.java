@@ -34,143 +34,143 @@ import com.android.contacts.util.ContactDisplayUtils;
  */
 public class SmsInteraction implements ContactInteraction {
 
-    private static final String URI_TARGET_PREFIX = "smsto:";
-    private static final int SMS_ICON_RES = R.drawable.quantum_ic_message_vd_theme_24;
-    private static BidiFormatter sBidiFormatter = BidiFormatter.getInstance();
+  private static final String URI_TARGET_PREFIX = "smsto:";
+  private static final int SMS_ICON_RES = R.drawable.quantum_ic_message_vd_theme_24;
+  private static BidiFormatter sBidiFormatter = BidiFormatter.getInstance();
 
-    private ContentValues mValues;
+  private ContentValues mValues;
 
-    public SmsInteraction(ContentValues values) {
-        mValues = values;
+  public SmsInteraction(ContentValues values) {
+    mValues = values;
+  }
+
+  @Override
+  public Intent getIntent() {
+    String address = getAddress();
+    return address == null ? null : new Intent(Intent.ACTION_VIEW).setData(
+      Uri.parse(URI_TARGET_PREFIX + address));
+  }
+
+  @Override
+  public long getInteractionDate() {
+    Long date = getDate();
+    return date == null ? -1 : date;
+  }
+
+  @Override
+  public String getViewHeader(Context context) {
+    String body = getBody();
+    if (getType() == Sms.MESSAGE_TYPE_SENT) {
+      body = context.getResources().getString(R.string.message_from_you_prefix, body);
     }
+    return body;
+  }
 
-    @Override
-    public Intent getIntent() {
-        String address = getAddress();
-        return address == null ? null : new Intent(Intent.ACTION_VIEW).setData(
-                Uri.parse(URI_TARGET_PREFIX + address));
-    }
+  @Override
+  public String getViewBody(Context context) {
+    return getAddress();
+  }
 
-    @Override
-    public long getInteractionDate() {
-        Long date = getDate();
-        return date == null ? -1 : date;
-    }
+  @Override
+  public String getViewFooter(Context context) {
+    Long date = getDate();
+    return date == null ? null : ContactInteractionUtil.formatDateStringFromTimestamp(
+      date, context);
+  }
 
-    @Override
-    public String getViewHeader(Context context) {
-        String body = getBody();
-        if (getType() == Sms.MESSAGE_TYPE_SENT) {
-            body = context.getResources().getString(R.string.message_from_you_prefix, body);
-        }
-        return body;
-    }
+  @Override
+  public Drawable getIcon(Context context) {
+    return context.getResources().getDrawable(SMS_ICON_RES);
+  }
 
-    @Override
-    public String getViewBody(Context context) {
-        return getAddress();
-    }
+  @Override
+  public Drawable getBodyIcon(Context context) {
+    return null;
+  }
 
-    @Override
-    public String getViewFooter(Context context) {
-        Long date = getDate();
-        return date == null ? null : ContactInteractionUtil.formatDateStringFromTimestamp(
-                date, context);
-    }
+  @Override
+  public Drawable getFooterIcon(Context context) {
+    return null;
+  }
 
-    @Override
-    public Drawable getIcon(Context context) {
-        return context.getResources().getDrawable(SMS_ICON_RES);
-    }
+  public String getAddress() {
+    final String address = mValues.getAsString(Sms.ADDRESS);
+    return address == null ? null :
+      sBidiFormatter.unicodeWrap(address, TextDirectionHeuristics.LTR);
+  }
 
-    @Override
-    public Drawable getBodyIcon(Context context) {
-        return null;
-    }
+  public String getBody() {
+    return mValues.getAsString(Sms.BODY);
+  }
 
-    @Override
-    public Drawable getFooterIcon(Context context) {
-        return null;
-    }
-
-    public String getAddress() {
-        final String address = mValues.getAsString(Sms.ADDRESS);
-        return address == null ? null :
-            sBidiFormatter.unicodeWrap(address, TextDirectionHeuristics.LTR);
-    }
-
-    public String getBody() {
-        return mValues.getAsString(Sms.BODY);
-    }
-
-    public Long getDate() {
-        return mValues.getAsLong(Sms.DATE);
-    }
+  public Long getDate() {
+    return mValues.getAsLong(Sms.DATE);
+  }
 
 
-    public Long getDateSent() {
-        return mValues.getAsLong(Sms.DATE_SENT);
-    }
+  public Long getDateSent() {
+    return mValues.getAsLong(Sms.DATE_SENT);
+  }
 
-    public Integer getErrorCode() {
-        return mValues.getAsInteger(Sms.ERROR_CODE);
-    }
+  public Integer getErrorCode() {
+    return mValues.getAsInteger(Sms.ERROR_CODE);
+  }
 
-    public Boolean getLocked() {
-        return mValues.getAsBoolean(Sms.LOCKED);
-    }
+  public Boolean getLocked() {
+    return mValues.getAsBoolean(Sms.LOCKED);
+  }
 
-    public Integer getPerson() {
-        return mValues.getAsInteger(Sms.PERSON);
-    }
+  public Integer getPerson() {
+    return mValues.getAsInteger(Sms.PERSON);
+  }
 
-    public Integer getProtocol() {
-        return mValues.getAsInteger(Sms.PROTOCOL);
-    }
+  public Integer getProtocol() {
+    return mValues.getAsInteger(Sms.PROTOCOL);
+  }
 
-    public Boolean getRead() {
-        return mValues.getAsBoolean(Sms.READ);
-    }
+  public Boolean getRead() {
+    return mValues.getAsBoolean(Sms.READ);
+  }
 
-    public Boolean getReplyPathPresent() {
-        return mValues.getAsBoolean(Sms.REPLY_PATH_PRESENT);
-    }
+  public Boolean getReplyPathPresent() {
+    return mValues.getAsBoolean(Sms.REPLY_PATH_PRESENT);
+  }
 
-    public Boolean getSeen() {
-        return mValues.getAsBoolean(Sms.SEEN);
-    }
+  public Boolean getSeen() {
+    return mValues.getAsBoolean(Sms.SEEN);
+  }
 
-    public String getServiceCenter() {
-        return mValues.getAsString(Sms.SERVICE_CENTER);
-    }
+  public String getServiceCenter() {
+    return mValues.getAsString(Sms.SERVICE_CENTER);
+  }
 
-    public Integer getStatus() {
-        return mValues.getAsInteger(Sms.STATUS);
-    }
+  public Integer getStatus() {
+    return mValues.getAsInteger(Sms.STATUS);
+  }
 
-    public String getSubject() {
-        return mValues.getAsString(Sms.SUBJECT);
-    }
+  public String getSubject() {
+    return mValues.getAsString(Sms.SUBJECT);
+  }
 
-    public Integer getThreadId() {
-        return mValues.getAsInteger(Sms.THREAD_ID);
-    }
+  public Integer getThreadId() {
+    return mValues.getAsInteger(Sms.THREAD_ID);
+  }
 
-    public Integer getType() {
-        return mValues.getAsInteger(Sms.TYPE);
-    }
+  public Integer getType() {
+    return mValues.getAsInteger(Sms.TYPE);
+  }
 
-    @Override
-    public Spannable getContentDescription(Context context) {
-        final String phoneNumber = getViewBody(context);
-        final String contentDescription = context.getResources().getString(
-                R.string.content_description_recent_sms,
-                getViewHeader(context), phoneNumber, getViewFooter(context));
-        return ContactDisplayUtils.getTelephoneTtsSpannable(contentDescription, phoneNumber);
-    }
+  @Override
+  public Spannable getContentDescription(Context context) {
+    final String phoneNumber = getViewBody(context);
+    final String contentDescription = context.getResources().getString(
+      R.string.content_description_recent_sms,
+      getViewHeader(context), phoneNumber, getViewFooter(context));
+    return ContactDisplayUtils.getTelephoneTtsSpannable(contentDescription, phoneNumber);
+  }
 
-    @Override
-    public int getIconResourceId() {
-        return SMS_ICON_RES;
-    }
+  @Override
+  public int getIconResourceId() {
+    return SMS_ICON_RES;
+  }
 }

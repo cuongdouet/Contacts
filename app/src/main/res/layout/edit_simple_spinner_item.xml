@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
      Copyright (C) 2014 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,13 +18,13 @@
     out the same as an EditText, we use the EditText's background and gravity=center_vertical. The
     EditText's background 9patch directly affects padding. -->
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@android:id/text1"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="?android:attr/editTextBackground"
-    android:gravity="center_vertical"
-    android:paddingStart="0dp"
-    android:paddingEnd="0dp"
-    android:maxLines="1"
-    android:textAlignment="viewStart"
-    android:ellipsize="end" />
+  android:id="@android:id/text1"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:background="?android:attr/editTextBackground"
+  android:ellipsize="end"
+  android:gravity="center_vertical"
+  android:maxLines="1"
+  android:paddingStart="0dp"
+  android:paddingEnd="0dp"
+  android:textAlignment="viewStart" />

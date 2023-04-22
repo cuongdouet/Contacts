@@ -24,19 +24,21 @@ import android.provider.ContactsContract.Data;
  */
 public class CustomDataItem extends DataItem {
 
-    /**
-     * MIME type for custom field data defined in Contact Provider.
-     */
-    public static final String MIMETYPE_CUSTOM_FIELD =
-            "vnd.com.google.cursor.item/contact_user_defined_field";
+  /**
+   * MIME type for custom field data defined in Contact Provider.
+   */
+  public static final String MIMETYPE_CUSTOM_FIELD =
+    "vnd.com.google.cursor.item/contact_user_defined_field";
 
-    CustomDataItem(ContentValues values) {super(values);}
+  CustomDataItem(ContentValues values) {
+    super(values);
+  }
 
-    public String getSummary() {
-        return getContentValues().getAsString(Data.DATA1);
-    }
+  public String getSummary() {
+    return getContentValues().getAsString(Data.DATA1);
+  }
 
-    public String getContent() {
-        return getContentValues().getAsString(Data.DATA2);
-    }
+  public String getContent() {
+    return getContentValues().getAsString(Data.DATA2);
+  }
 }

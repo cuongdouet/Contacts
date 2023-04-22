@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * Requests permissions that are not absolutely required by the calling Activity;
  * if permissions are denied, the calling Activity is still restarted.
- *
+ * <p>
  * Activities that have a set of permissions that must be granted in order for the Activity to
  * function propertly should call
  * {@link RequestPermissionsActivity#startPermissionActivity(Activity, String[], Class)}
@@ -36,53 +36,53 @@ import java.util.List;
  */
 public class RequestDesiredPermissionsActivity extends RequestPermissionsActivityBase {
 
-    private static String[] sDesiredPermissions;
+  private static String[] sDesiredPermissions;
 
-    @Override
-    protected String[] getPermissions() {
-        return getPermissions(getPackageManager());
+  /**
+   * If any desired permission that Contacts app needs are missing, open an Activity
+   * to prompt user for these permissions. After that calling activity is restarted
+   * and in the second run permission check is skipped.
+   * <p>
+   * This is designed to be called inside {@link android.app.Activity#onCreate}
+   */
+  public static boolean startPermissionActivity(Activity activity) {
+    final Bundle extras = activity.getIntent().getExtras();
+    if (extras != null && extras.getBoolean(EXTRA_STARTED_PERMISSIONS_ACTIVITY, false)) {
+      return false;
     }
+    return startPermissionActivity(activity,
+      getPermissions(activity.getPackageManager()),
+      RequestDesiredPermissionsActivity.class);
+  }
 
-    /**
-     * If any desired permission that Contacts app needs are missing, open an Activity
-     * to prompt user for these permissions. After that calling activity is restarted
-     * and in the second run permission check is skipped.
-     *
-     * This is designed to be called inside {@link android.app.Activity#onCreate}
-     */
-    public static boolean startPermissionActivity(Activity activity) {
-        final Bundle extras = activity.getIntent().getExtras();
-        if (extras != null && extras.getBoolean(EXTRA_STARTED_PERMISSIONS_ACTIVITY, false)) {
-            return false;
-        }
-        return startPermissionActivity(activity,
-                getPermissions(activity.getPackageManager()),
-                RequestDesiredPermissionsActivity.class);
+  private static String[] getPermissions(PackageManager packageManager) {
+    if (sDesiredPermissions == null) {
+      final List<String> permissions = new ArrayList<>();
+      // Calendar group
+      permissions.add(permission.READ_CALENDAR);
+
+      if (packageManager.hasSystemFeature(PackageManager.FEATURE_TELEPHONY)) {
+        // SMS group
+        permissions.add(permission.READ_SMS);
+      }
+      sDesiredPermissions = permissions.toArray(new String[0]);
     }
+    return sDesiredPermissions;
+  }
 
-    private static String[] getPermissions(PackageManager packageManager) {
-        if (sDesiredPermissions == null) {
-            final List<String> permissions = new ArrayList<>();
-            // Calendar group
-            permissions.add(permission.READ_CALENDAR);
+  @Override
+  protected String[] getPermissions() {
+    return getPermissions(getPackageManager());
+  }
 
-            if (packageManager.hasSystemFeature(PackageManager.FEATURE_TELEPHONY)) {
-                // SMS group
-                permissions.add(permission.READ_SMS);
-            }
-            sDesiredPermissions = permissions.toArray(new String[0]);
-        }
-        return sDesiredPermissions;
-    }
+  @Override
+  public void onRequestPermissionsResult(
+    int requestCode, String permissions[], int[] grantResults) {
+    mPreviousActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+    startActivity(mPreviousActivityIntent);
+    overridePendingTransition(0, 0);
 
-    @Override
-    public void onRequestPermissionsResult(
-            int requestCode, String permissions[], int[] grantResults) {
-        mPreviousActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        startActivity(mPreviousActivityIntent);
-        overridePendingTransition(0, 0);
-
-        finish();
-        overridePendingTransition(0, 0);
-    }
+    finish();
+    overridePendingTransition(0, 0);
+  }
 }

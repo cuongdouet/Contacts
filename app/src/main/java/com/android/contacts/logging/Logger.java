@@ -24,91 +24,95 @@ import com.android.contactsbind.ObjectFactory;
  * Logs analytics events.
  */
 public abstract class Logger {
-    public static final String TAG = "Logger";
+  public static final String TAG = "Logger";
 
-    private static Logger getInstance() {
-        return ObjectFactory.getLogger();
+  private static Logger getInstance() {
+    return ObjectFactory.getLogger();
+  }
+
+  /**
+   * Logs an event indicating that a screen was displayed.
+   *
+   * @param screenType integer identifier of the displayed screen
+   * @param activity   Parent activity of the displayed screen.
+   */
+  public static void logScreenView(Activity activity, int screenType) {
+    logScreenView(activity, screenType, ScreenType.UNKNOWN);
+  }
+
+  /**
+   * @param previousScreenType integer identifier of the displayed screen the user came from.
+   */
+  public static void logScreenView(Activity activity, int screenType, int previousScreenType) {
+    final Logger logger = getInstance();
+    if (logger != null) {
+      logger.logScreenViewImpl(screenType, previousScreenType);
     }
+  }
 
-    /**
-     * Logs an event indicating that a screen was displayed.
-     *
-     * @param screenType integer identifier of the displayed screen
-     * @param activity Parent activity of the displayed screen.
-     */
-    public static void logScreenView(Activity activity, int screenType) {
-        logScreenView(activity, screenType, ScreenType.UNKNOWN);
+  /**
+   * Logs the results of a user search for a particular contact.
+   */
+  public static void logSearchEvent(SearchState searchState) {
+    final Logger logger = getInstance();
+    if (logger != null) {
+      logger.logSearchEventImpl(searchState);
     }
+  }
 
-    /**
-     * @param previousScreenType integer identifier of the displayed screen the user came from.
-     */
-    public static void logScreenView(Activity activity, int screenType, int previousScreenType) {
-        final Logger logger = getInstance();
-        if (logger != null) {
-            logger.logScreenViewImpl(screenType, previousScreenType);
-        }
+  /**
+   * Logs how users view and use a contacts list. See {@link ListEvent} for definition of
+   * parameters.
+   */
+  public static void logListEvent(int actionType, int listType, int count, int clickedIndex,
+                                  int numSelected) {
+    final ListEvent event = new ListEvent();
+    event.actionType = actionType;
+    event.listType = listType;
+    event.count = count;
+    event.clickedIndex = clickedIndex;
+    event.numSelected = numSelected;
+
+    final Logger logger = getInstance();
+    if (logger != null) {
+      logger.logListEventImpl(event);
     }
+  }
 
-    /**
-     * Logs the results of a user search for a particular contact.
-     */
-    public static void logSearchEvent(SearchState searchState) {
-        final Logger logger = getInstance();
-        if (logger != null) {
-            logger.logSearchEventImpl(searchState);
-        }
+  /**
+   * Logs an event on QuickContact. See {@link QuickContactEvent} for definition of parameters.
+   */
+  public static void logQuickContactEvent(String referrer, int contactType, int cardType,
+                                          int actionType, String thirdPartyAction) {
+    final Logger logger = getInstance();
+    if (logger != null) {
+      final QuickContactEvent event = new QuickContactEvent();
+      event.referrer = referrer == null ? "Unknown" : referrer;
+      event.contactType = contactType;
+      event.cardType = cardType;
+      event.actionType = actionType;
+      event.thirdPartyAction = thirdPartyAction == null ? "" : thirdPartyAction;
+      logger.logQuickContactEventImpl(event);
     }
+  }
 
-    /**
-     * Logs how users view and use a contacts list. See {@link ListEvent} for definition of
-     * parameters.
-     */
-    public static void logListEvent(int actionType, int listType, int count, int clickedIndex,
-            int numSelected) {
-        final ListEvent event = new ListEvent();
-        event.actionType = actionType;
-        event.listType = listType;
-        event.count = count;
-        event.clickedIndex = clickedIndex;
-        event.numSelected = numSelected;
-
-        final Logger logger = getInstance();
-        if (logger != null) {
-            logger.logListEventImpl(event);
-        }
+  public static void logEditorEvent(int eventType, int numberRawContacts) {
+    final Logger logger = getInstance();
+    if (logger != null) {
+      final EditorEvent event = new EditorEvent();
+      event.eventType = eventType;
+      event.numberRawContacts = numberRawContacts;
+      logger.logEditorEventImpl(event);
     }
+  }
 
-    /**
-     * Logs an event on QuickContact. See {@link QuickContactEvent} for definition of parameters.
-     */
-    public static void logQuickContactEvent(String referrer, int contactType, int cardType,
-            int actionType, String thirdPartyAction) {
-        final Logger logger = getInstance();
-        if (logger != null) {
-            final QuickContactEvent event = new QuickContactEvent();
-            event.referrer = referrer == null ? "Unknown" : referrer;
-            event.contactType = contactType;
-            event.cardType = cardType;
-            event.actionType = actionType;
-            event.thirdPartyAction = thirdPartyAction == null ? "" : thirdPartyAction;
-            logger.logQuickContactEventImpl(event);
-        }
-    }
+  public abstract void logScreenViewImpl(int screenType, int previousScreenType);
 
-    public static void logEditorEvent(int eventType, int numberRawContacts) {
-        final Logger logger = getInstance();
-        if (logger != null) {
-            final EditorEvent event = new EditorEvent();
-            event.eventType = eventType;
-            event.numberRawContacts = numberRawContacts;
-            logger.logEditorEventImpl(event);
-        }
-    }
+  public abstract void logSearchEventImpl(SearchState searchState);
 
-    public abstract void logScreenViewImpl(int screenType, int previousScreenType);
-    public abstract void logSearchEventImpl(SearchState searchState);
-    public abstract void logListEventImpl(ListEvent event);
-    public abstract void logQuickContactEventImpl(QuickContactEvent event);
-    public abstract void logEditorEventImpl(EditorEvent event);
+  public abstract void logListEventImpl(ListEvent event);
+
+  public abstract void logQuickContactEventImpl(QuickContactEvent event);
+
+  public abstract void logEditorEventImpl(EditorEvent event);
 }

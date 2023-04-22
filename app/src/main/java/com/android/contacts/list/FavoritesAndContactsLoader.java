@@ -33,64 +33,66 @@ import java.util.List;
  */
 public class FavoritesAndContactsLoader extends CursorLoader {
 
-    private boolean mLoadFavorites;
+  private boolean mLoadFavorites;
 
-    private String[] mProjection;
+  private String[] mProjection;
 
 
-    public FavoritesAndContactsLoader(Context context) {
-        super(context);
+  public FavoritesAndContactsLoader(Context context) {
+    super(context);
+  }
+
+  /**
+   * Whether to load favorites and merge results in before any other results.
+   */
+  public void setLoadFavorites(boolean flag) {
+    mLoadFavorites = flag;
+  }
+
+  public void setProjection(String[] projection) {
+    super.setProjection(projection);
+    mProjection = projection;
+  }
+
+  @Override
+  public Cursor loadInBackground() {
+    List<Cursor> cursors = Lists.newArrayList();
+    if (mLoadFavorites) {
+      cursors.add(loadFavoritesContacts());
     }
+    final Cursor contactsCursor = loadContacts();
+    cursors.add(contactsCursor);
+    return new MergeCursor(cursors.toArray(new Cursor[cursors.size()])) {
+      @Override
+      public Bundle getExtras() {
+        // Need to get the extras from the contacts cursor.
+        return contactsCursor == null ? new Bundle() : contactsCursor.getExtras();
+      }
+    };
+  }
 
-    /** Whether to load favorites and merge results in before any other results. */
-    public void setLoadFavorites(boolean flag) {
-        mLoadFavorites = flag;
+  private Cursor loadContacts() {
+    // ContactsCursor.loadInBackground() can return null; MergeCursor
+    // correctly handles null cursors.
+    try {
+      return super.loadInBackground();
+
+    } catch (NullPointerException | SQLiteException | SecurityException e) {
+      // Ignore NPEs, SQLiteExceptions and SecurityExceptions thrown by providers
     }
+    return null;
+  }
 
-    public void setProjection(String[] projection) {
-        super.setProjection(projection);
-        mProjection = projection;
+  private Cursor loadFavoritesContacts() {
+    final StringBuilder selection = new StringBuilder();
+    selection.append(Contacts.STARRED + "=?");
+    final ContactListFilter filter =
+      ContactListFilterController.getInstance(getContext()).getFilter();
+    if (filter != null && filter.filterType == ContactListFilter.FILTER_TYPE_CUSTOM) {
+      selection.append(" AND ").append(Contacts.IN_VISIBLE_GROUP + "=1");
     }
-
-    @Override
-    public Cursor loadInBackground() {
-        List<Cursor> cursors = Lists.newArrayList();
-        if (mLoadFavorites) {
-            cursors.add(loadFavoritesContacts());
-        }
-        final Cursor contactsCursor = loadContacts();
-        cursors.add(contactsCursor);
-        return new MergeCursor(cursors.toArray(new Cursor[cursors.size()])) {
-            @Override
-            public Bundle getExtras() {
-                // Need to get the extras from the contacts cursor.
-                return contactsCursor == null ? new Bundle() : contactsCursor.getExtras();
-            }
-        };
-    }
-
-    private Cursor loadContacts() {
-        // ContactsCursor.loadInBackground() can return null; MergeCursor
-        // correctly handles null cursors.
-        try {
-            return super.loadInBackground();
-
-        } catch (NullPointerException | SQLiteException | SecurityException e) {
-            // Ignore NPEs, SQLiteExceptions and SecurityExceptions thrown by providers
-        }
-        return null;
-    }
-
-    private Cursor loadFavoritesContacts() {
-        final StringBuilder selection = new StringBuilder();
-        selection.append(Contacts.STARRED + "=?");
-        final ContactListFilter filter =
-                ContactListFilterController.getInstance(getContext()).getFilter();
-        if (filter != null && filter.filterType == ContactListFilter.FILTER_TYPE_CUSTOM) {
-            selection.append(" AND ").append(Contacts.IN_VISIBLE_GROUP + "=1");
-        }
-        return getContext().getContentResolver().query(
-                Contacts.CONTENT_URI, mProjection, selection.toString(), new String[]{"1"},
-                getSortOrder());
-    }
+    return getContext().getContentResolver().query(
+      Contacts.CONTENT_URI, mProjection, selection.toString(), new String[]{"1"},
+      getSortOrder());
+  }
 }

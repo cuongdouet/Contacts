@@ -18,8 +18,9 @@ import android.app.Application;
 
 public class AnalyticsUtil {
 
-    /**
-     * Initialize this class and setup automatic activity tracking.
-     */
-    public static void initialize(Application application) { }
+  /**
+   * Initialize this class and setup automatic activity tracking.
+   */
+  public static void initialize(Application application) {
+  }
 }

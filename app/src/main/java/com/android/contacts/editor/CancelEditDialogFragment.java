@@ -20,6 +20,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
+
 import androidx.appcompat.app.AlertDialog;
 
 import com.android.contacts.R;
@@ -29,44 +30,44 @@ import com.android.contacts.R;
  */
 public class CancelEditDialogFragment extends DialogFragment {
 
-    private static final String TAG = "cancelEditor";
+  private static final String TAG = "cancelEditor";
+
+  /**
+   * Shows a {@link CancelEditDialogFragment} after setting the given Fragment as the
+   * target of the dialog.
+   */
+  public static void show(ContactEditorFragment fragment) {
+    final CancelEditDialogFragment dialog = new CancelEditDialogFragment();
+    dialog.setTargetFragment(fragment, 0);
+    dialog.show(fragment.getFragmentManager(), TAG);
+  }
+
+  @Override
+  public Dialog onCreateDialog(Bundle savedInstanceState) {
+    return new AlertDialog.Builder(getActivity())
+      .setIconAttribute(android.R.attr.alertDialogIcon)
+      .setMessage(R.string.cancel_confirmation_dialog_message)
+      .setPositiveButton(R.string.cancel_confirmation_dialog_cancel_editing_button,
+        new DialogInterface.OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialogInterface, int which) {
+            final Listener targetListener = (Listener) getTargetFragment();
+            targetListener.onCancelEditConfirmed();
+          }
+        }
+      )
+      .setNegativeButton(R.string.cancel_confirmation_dialog_keep_editing_button, null)
+      .create();
+  }
+
+  /**
+   * Callbacks for {@link CancelEditDialogFragment} hosts.
+   */
+  public interface Listener {
 
     /**
-     * Shows a {@link CancelEditDialogFragment} after setting the given Fragment as the
-     * target of the dialog.
+     * Invoked when the user confirms that they want to cancel editing the contact.
      */
-    public static void show(ContactEditorFragment fragment) {
-        final CancelEditDialogFragment dialog = new CancelEditDialogFragment();
-        dialog.setTargetFragment(fragment, 0);
-        dialog.show(fragment.getFragmentManager(), TAG);
-    }
-
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        return new AlertDialog.Builder(getActivity())
-                .setIconAttribute(android.R.attr.alertDialogIcon)
-                .setMessage(R.string.cancel_confirmation_dialog_message)
-                .setPositiveButton(R.string.cancel_confirmation_dialog_cancel_editing_button,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int which) {
-                                final Listener targetListener = (Listener) getTargetFragment();
-                                targetListener.onCancelEditConfirmed();
-                            }
-                        }
-                )
-                .setNegativeButton(R.string.cancel_confirmation_dialog_keep_editing_button, null)
-                .create();
-    }
-
-    /**
-     * Callbacks for {@link CancelEditDialogFragment} hosts.
-     */
-    public interface Listener {
-
-        /**
-         * Invoked when the user confirms that they want to cancel editing the contact.
-         */
-        void onCancelEditConfirmed();
-    }
+    void onCancelEditConfirmed();
+  }
 }

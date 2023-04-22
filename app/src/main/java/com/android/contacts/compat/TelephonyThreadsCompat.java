@@ -39,130 +39,129 @@ import java.util.regex.Pattern;
  * it synced with Telephony and SqliteWrapper.
  */
 public class TelephonyThreadsCompat {
-    /**
-     * Not instantiable.
-     */
-    private TelephonyThreadsCompat() {}
+  private static final String TAG = "TelephonyThreadsCompat";
+  /**
+   * Private {@code content://} style URL for this table. Used by
+   * {@link #getOrCreateThreadId(Context, Set)}.
+   */
+  private static final Uri THREAD_ID_CONTENT_URI = Uri.parse("content://mms-sms/threadID");
+  private static final String[] ID_PROJECTION = {BaseColumns._ID};
 
-    private static final String TAG = "TelephonyThreadsCompat";
+  // Below is code copied from Telephony and SqliteWrapper
+  /**
+   * Regex pattern for names and email addresses.
+   * <ul>
+   *     <li><em>mailbox</em> = {@code name-addr}</li>
+   *     <li><em>name-addr</em> = {@code [display-name] angle-addr}</li>
+   *     <li><em>angle-addr</em> = {@code [CFWS] "<" addr-spec ">" [CFWS]}</li>
+   * </ul>
+   */
+  private static final Pattern NAME_ADDR_EMAIL_PATTERN =
+    Pattern.compile("\\s*(\"[^\"]*\"|[^<>\"]+)\\s*<([^<>]+)>\\s*");
 
-    public static long getOrCreateThreadId(Context context, String recipient) {
-        if (SdkVersionOverride.getSdkVersion(Build.VERSION_CODES.M) >= Build.VERSION_CODES.M) {
-            return Telephony.Threads.getOrCreateThreadId(context, recipient);
+  /**
+   * Not instantiable.
+   */
+  private TelephonyThreadsCompat() {
+  }
+
+  public static long getOrCreateThreadId(Context context, String recipient) {
+    if (SdkVersionOverride.getSdkVersion(Build.VERSION_CODES.M) >= Build.VERSION_CODES.M) {
+      return Telephony.Threads.getOrCreateThreadId(context, recipient);
+    } else {
+      return getOrCreateThreadIdInternal(context, recipient);
+    }
+  }
+
+  /**
+   * Copied from {@link Telephony.Threads#getOrCreateThreadId(Context, String)}
+   */
+  private static long getOrCreateThreadIdInternal(Context context, String recipient) {
+    Set<String> recipients = new HashSet<String>();
+
+    recipients.add(recipient);
+    return getOrCreateThreadIdInternal(context, recipients);
+  }
+
+  /**
+   * Given the recipients list and subject of an unsaved message,
+   * return its thread ID.  If the message starts a new thread,
+   * allocate a new thread ID.  Otherwise, use the appropriate
+   * existing thread ID.
+   *
+   * <p>Find the thread ID of the same set of recipients (in any order,
+   * without any additions). If one is found, return it. Otherwise,
+   * return a unique thread ID.</p>
+   */
+  private static long getOrCreateThreadIdInternal(Context context, Set<String> recipients) {
+    Uri.Builder uriBuilder = THREAD_ID_CONTENT_URI.buildUpon();
+
+    for (String recipient : recipients) {
+      if (isEmailAddress(recipient)) {
+        recipient = extractAddrSpec(recipient);
+      }
+
+      uriBuilder.appendQueryParameter("recipient", recipient);
+    }
+
+    Uri uri = uriBuilder.build();
+
+    Cursor cursor = query(
+      context.getContentResolver(), uri, ID_PROJECTION, null, null, null);
+    if (cursor != null) {
+      try {
+        if (cursor.moveToFirst()) {
+          return cursor.getLong(0);
         } else {
-            return getOrCreateThreadIdInternal(context, recipient);
+          Log.e(TAG, "getOrCreateThreadId returned no rows!");
         }
+      } finally {
+        cursor.close();
+      }
     }
 
-    // Below is code copied from Telephony and SqliteWrapper
-    /**
-     * Private {@code content://} style URL for this table. Used by
-     * {@link #getOrCreateThreadId(Context, Set)}.
-     */
-    private static final Uri THREAD_ID_CONTENT_URI = Uri.parse("content://mms-sms/threadID");
+    Log.e(TAG, "getOrCreateThreadId failed with uri " + uri.toString());
+    throw new IllegalArgumentException("Unable to find or allocate a thread ID.");
+  }
 
-    private static final String[] ID_PROJECTION = { BaseColumns._ID };
+  /**
+   * Copied from {@link SqliteWrapper#query}
+   */
+  private static Cursor query(ContentResolver resolver, Uri uri, String[] projection,
+                              String selection, String[] selectionArgs, String sortOrder) {
+    try {
+      return resolver.query(uri, projection, selection, selectionArgs, sortOrder);
+    } catch (Exception e) {
+      Log.e(TAG, "Catch an exception when query: ", e);
+      return null;
+    }
+  }
 
-    /**
-     * Regex pattern for names and email addresses.
-     * <ul>
-     *     <li><em>mailbox</em> = {@code name-addr}</li>
-     *     <li><em>name-addr</em> = {@code [display-name] angle-addr}</li>
-     *     <li><em>angle-addr</em> = {@code [CFWS] "<" addr-spec ">" [CFWS]}</li>
-     * </ul>
-     */
-    private static final Pattern NAME_ADDR_EMAIL_PATTERN =
-            Pattern.compile("\\s*(\"[^\"]*\"|[^<>\"]+)\\s*<([^<>]+)>\\s*");
-
-    /**
-     * Copied from {@link Telephony.Threads#getOrCreateThreadId(Context, String)}
-     */
-    private static long getOrCreateThreadIdInternal(Context context, String recipient) {
-        Set<String> recipients = new HashSet<String>();
-
-        recipients.add(recipient);
-        return getOrCreateThreadIdInternal(context, recipients);
+  /**
+   * Is the specified address an email address?
+   *
+   * @param address the input address to test
+   * @return true if address is an email address; false otherwise.
+   */
+  private static boolean isEmailAddress(String address) {
+    if (TextUtils.isEmpty(address)) {
+      return false;
     }
 
-    /**
-     * Given the recipients list and subject of an unsaved message,
-     * return its thread ID.  If the message starts a new thread,
-     * allocate a new thread ID.  Otherwise, use the appropriate
-     * existing thread ID.
-     *
-     * <p>Find the thread ID of the same set of recipients (in any order,
-     * without any additions). If one is found, return it. Otherwise,
-     * return a unique thread ID.</p>
-     */
-    private static long getOrCreateThreadIdInternal(Context context, Set<String> recipients) {
-        Uri.Builder uriBuilder = THREAD_ID_CONTENT_URI.buildUpon();
+    String s = extractAddrSpec(address);
+    Matcher match = Patterns.EMAIL_ADDRESS.matcher(s);
+    return match.matches();
+  }
 
-        for (String recipient : recipients) {
-            if (isEmailAddress(recipient)) {
-                recipient = extractAddrSpec(recipient);
-            }
+  /**
+   * Helper method to extract email address from address string.
+   */
+  private static String extractAddrSpec(String address) {
+    Matcher match = NAME_ADDR_EMAIL_PATTERN.matcher(address);
 
-            uriBuilder.appendQueryParameter("recipient", recipient);
-        }
-
-        Uri uri = uriBuilder.build();
-
-        Cursor cursor = query(
-                context.getContentResolver(), uri, ID_PROJECTION, null, null, null);
-        if (cursor != null) {
-            try {
-                if (cursor.moveToFirst()) {
-                    return cursor.getLong(0);
-                } else {
-                    Log.e(TAG, "getOrCreateThreadId returned no rows!");
-                }
-            } finally {
-                cursor.close();
-            }
-        }
-
-        Log.e(TAG, "getOrCreateThreadId failed with uri " + uri.toString());
-        throw new IllegalArgumentException("Unable to find or allocate a thread ID.");
+    if (match.matches()) {
+      return match.group(2);
     }
-
-    /**
-     * Copied from {@link SqliteWrapper#query}
-     */
-    private static Cursor query(ContentResolver resolver, Uri uri, String[] projection,
-            String selection, String[] selectionArgs, String sortOrder) {
-        try {
-            return resolver.query(uri, projection, selection, selectionArgs, sortOrder);
-        } catch (Exception e) {
-            Log.e(TAG, "Catch an exception when query: ", e);
-            return null;
-        }
-    }
-
-    /**
-     * Is the specified address an email address?
-     *
-     * @param address the input address to test
-     * @return true if address is an email address; false otherwise.
-     */
-    private static boolean isEmailAddress(String address) {
-        if (TextUtils.isEmpty(address)) {
-            return false;
-        }
-
-        String s = extractAddrSpec(address);
-        Matcher match = Patterns.EMAIL_ADDRESS.matcher(s);
-        return match.matches();
-    }
-
-    /**
-     * Helper method to extract email address from address string.
-     */
-    private static String extractAddrSpec(String address) {
-        Matcher match = NAME_ADDR_EMAIL_PATTERN.matcher(address);
-
-        if (match.matches()) {
-            return match.group(2);
-        }
-        return address;
-    }
+    return address;
+  }
 }

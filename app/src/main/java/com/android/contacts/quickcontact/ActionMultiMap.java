@@ -24,27 +24,27 @@ import java.util.HashMap;
  * under a MIME-type key.
  */
 public class ActionMultiMap extends HashMap<String, ArrayList<Action>> {
-    public void put(String mimeType, Action info) {
-       put(mimeType, info, false);
-    }
+  public void put(String mimeType, Action info) {
+    put(mimeType, info, false);
+  }
 
-    /**
-     * Puts the (mimeType,Action) tuple into the multimap at the front if
-     * the 'front' flag is set to true
-     */
-    public void put(String mimeType, Action info, boolean front) {
-        // Put the info first
-        ArrayList<Action> collectList = get(mimeType);
+  /**
+   * Puts the (mimeType,Action) tuple into the multimap at the front if
+   * the 'front' flag is set to true
+   */
+  public void put(String mimeType, Action info, boolean front) {
+    // Put the info first
+    ArrayList<Action> collectList = get(mimeType);
 
-        // Create list for this MIME-type if needed
-        if (collectList == null) {
-            collectList = new ArrayList<Action>();
-            put(mimeType, collectList);
-        }
-        if (front) {
-            collectList.add(0, info);
-        } else {
-            collectList.add(info);
-        }
+    // Create list for this MIME-type if needed
+    if (collectList == null) {
+      collectList = new ArrayList<Action>();
+      put(mimeType, collectList);
     }
+    if (front) {
+      collectList.add(0, info);
+    } else {
+      collectList.add(info);
+    }
+  }
 }

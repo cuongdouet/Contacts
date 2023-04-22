@@ -23,32 +23,31 @@ import android.graphics.drawable.ColorDrawable;
  * Copied from com.google.android.gms.people.accountswitcherview.ScrimDrawable;
  */
 public class ScrimDrawable extends ColorDrawable {
-    public static final int DEFAULT_COLOR = 0x33000000;
+  public static final int DEFAULT_COLOR = 0x33000000;
+  private int mIntrinsicHeight;
 
-    /**
-     * Default constructor. Uses default color.
-     */
-    public ScrimDrawable() {
-        this(DEFAULT_COLOR);
-    }
+  /**
+   * Default constructor. Uses default color.
+   */
+  public ScrimDrawable() {
+    this(DEFAULT_COLOR);
+  }
 
-    /**
-     * Set a color if necessary.
-     *
-     * @param color
-     */
-    public ScrimDrawable(int color) {
-        super(color);
-    }
+  /**
+   * Set a color if necessary.
+   *
+   * @param color
+   */
+  public ScrimDrawable(int color) {
+    super(color);
+  }
 
-    private int mIntrinsicHeight;
+  @Override
+  public int getIntrinsicHeight() {
+    return mIntrinsicHeight;
+  }
 
-    @Override
-    public int getIntrinsicHeight() {
-        return mIntrinsicHeight;
-    }
-
-    public void setIntrinsicHeight(int intrinsicHeight) {
-        mIntrinsicHeight = intrinsicHeight;
-    }
+  public void setIntrinsicHeight(int intrinsicHeight) {
+    mIntrinsicHeight = intrinsicHeight;
+  }
 }

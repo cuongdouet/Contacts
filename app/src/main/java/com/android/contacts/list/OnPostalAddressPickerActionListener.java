@@ -20,10 +20,10 @@ import android.net.Uri;
 /**
  * Action callbacks that can be sent by a postal address picker.
  */
-public interface OnPostalAddressPickerActionListener  {
+public interface OnPostalAddressPickerActionListener {
 
-    /**
-     * Returns the selected phone number to the requester.
-     */
-    void onPickPostalAddressAction(Uri dataUri);
+  /**
+   * Returns the selected phone number to the requester.
+   */
+  void onPickPostalAddressAction(Uri dataUri);
 }

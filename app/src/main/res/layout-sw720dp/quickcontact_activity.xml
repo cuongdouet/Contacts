@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
      Copyright (C) 2011 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,62 +13,62 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<com.android.contacts.widget.MultiShrinkScroller
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.android.contacts.widget.MultiShrinkScroller xmlns:android="http://schemas.android.com/apk/res/android"
+  android:id="@+id/multiscroller"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:descendantFocusability="afterDescendants"
+  android:focusable="true"
+  android:focusableInTouchMode="true"
+  android:orientation="vertical">
+
+  <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:id="@+id/multiscroller"
-    android:focusable="true"
-    android:focusableInTouchMode="true"
-    android:descendantFocusability="afterDescendants" >
+    android:orientation="horizontal">
+
+    <View
+      android:id="@+id/empty_start_column"
+      android:layout_width="0dp"
+      android:layout_height="match_parent"
+      android:layout_weight="@integer/contact_list_space_layout_weight"
+      android:contentDescription="@string/quickcontact_transparent_view_description" />
 
     <LinearLayout
+      android:layout_width="0dp"
+      android:layout_height="match_parent"
+      android:layout_weight="@integer/contact_list_card_layout_weight"
+      android:orientation="vertical">
+
+      <View
+        android:id="@+id/transparent_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:layout_height="@dimen/quickcontact_starting_empty_height"
+        android:contentDescription="@string/quickcontact_transparent_view_description" />
 
-        <View
-            android:id="@+id/empty_start_column"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="@integer/contact_list_space_layout_weight"
-            android:contentDescription="@string/quickcontact_transparent_view_description" />
+      <FrameLayout
+        android:id="@+id/toolbar_parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_weight="@integer/contact_list_card_layout_weight"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+        <include layout="@layout/quickcontact_header" />
+      </FrameLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/quickcontact_starting_empty_height"
-                android:contentDescription="@string/quickcontact_transparent_view_description"
-                android:id="@+id/transparent_view" />
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/toolbar_parent">
-                <include layout="@layout/quickcontact_header" />
-            </FrameLayout>
-
-            <include layout="@layout/quickcontact_content" />
-
-        </LinearLayout>
-
-        <View
-            android:id="@+id/empty_end_column"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="@integer/contact_list_space_layout_weight"
-            android:contentDescription="@string/quickcontact_transparent_view_description" />
+      <include layout="@layout/quickcontact_content" />
 
     </LinearLayout>
 
-    <!-- This title's maximum height must be less than the minimum size of its
-     parent ViewGroup because of an oddity in the way View#setScaleY() works. As a result,
-     this title can not be inside @style/quickcontact_header. -->
-    <include layout="@layout/quickcontact_title_and_phoneticname" />
+    <View
+      android:id="@+id/empty_end_column"
+      android:layout_width="0dp"
+      android:layout_height="match_parent"
+      android:layout_weight="@integer/contact_list_space_layout_weight"
+      android:contentDescription="@string/quickcontact_transparent_view_description" />
+
+  </LinearLayout>
+
+  <!-- This title's maximum height must be less than the minimum size of its
+   parent ViewGroup because of an oddity in the way View#setScaleY() works. As a result,
+   this title can not be inside @style/quickcontact_header. -->
+  <include layout="@layout/quickcontact_title_and_phoneticname" />
 </com.android.contacts.widget.MultiShrinkScroller>

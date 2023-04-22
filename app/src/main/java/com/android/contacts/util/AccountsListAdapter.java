@@ -25,7 +25,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.contacts.R;
-import com.android.contacts.model.AccountTypeManager;
 import com.android.contacts.model.account.AccountInfo;
 import com.android.contacts.model.account.AccountWithDataSet;
 
@@ -37,83 +36,83 @@ import java.util.List;
  * List-Adapter for Account selection
  */
 public final class AccountsListAdapter extends BaseAdapter {
-    private final LayoutInflater mInflater;
-    private List<AccountInfo> mAccounts;
-    private int mCustomLayout = -1;
+  private final LayoutInflater mInflater;
+  private List<AccountInfo> mAccounts;
+  private int mCustomLayout = -1;
 
-    public AccountsListAdapter(Context context) {
-        this(context, Collections.<AccountInfo>emptyList(), null);
+  public AccountsListAdapter(Context context) {
+    this(context, Collections.<AccountInfo>emptyList(), null);
+  }
+
+  public AccountsListAdapter(Context context, List<AccountInfo> accounts) {
+    this(context, accounts, null);
+  }
+
+  /**
+   * @param currentAccount the Account currently selected by the user, which should come
+   *                       first in the list. Can be null.
+   */
+  public AccountsListAdapter(Context context, List<AccountInfo> accounts,
+                             AccountWithDataSet currentAccount) {
+    mInflater = LayoutInflater.from(context);
+
+    mAccounts = new ArrayList<>(accounts.size());
+    setAccounts(accounts, currentAccount);
+  }
+
+  public void setAccounts(List<AccountInfo> accounts, AccountWithDataSet currentAccount) {
+    // If it's not empty use the previous "current" account (the first one in the list)
+    final AccountInfo currentInfo = mAccounts.isEmpty()
+      ? AccountInfo.getAccount(accounts, currentAccount)
+      : AccountInfo.getAccount(accounts, mAccounts.get(0).getAccount());
+
+    mAccounts.clear();
+    mAccounts.addAll(accounts);
+
+    if (currentInfo != null
+      && !mAccounts.isEmpty()
+      && !mAccounts.get(0).sameAccount(currentAccount)
+      && mAccounts.remove(currentInfo)) {
+      mAccounts.add(0, currentInfo);
     }
+    notifyDataSetChanged();
+  }
 
-    public AccountsListAdapter(Context context, List<AccountInfo> accounts) {
-        this(context, accounts, null);
-    }
+  public void setCustomLayout(int customLayout) {
+    mCustomLayout = customLayout;
+  }
 
-    /**
-     * @param currentAccount the Account currently selected by the user, which should come
-     * first in the list. Can be null.
-     */
-    public AccountsListAdapter(Context context, List<AccountInfo> accounts,
-            AccountWithDataSet currentAccount) {
-        mInflater = LayoutInflater.from(context);
+  @Override
+  public View getView(int position, View convertView, ViewGroup parent) {
+    final View resultView = convertView != null ? convertView :
+      mInflater.inflate(mCustomLayout > 0 ? mCustomLayout :
+        R.layout.account_selector_list_item_condensed, parent, false);
 
-        mAccounts = new ArrayList<>(accounts.size());
-        setAccounts(accounts, currentAccount);
-    }
+    final TextView text1 = (TextView) resultView.findViewById(android.R.id.text1);
+    final TextView text2 = (TextView) resultView.findViewById(android.R.id.text2);
+    final ImageView icon = (ImageView) resultView.findViewById(android.R.id.icon);
 
-    public void setAccounts(List<AccountInfo> accounts, AccountWithDataSet currentAccount) {
-        // If it's not empty use the previous "current" account (the first one in the list)
-        final AccountInfo currentInfo = mAccounts.isEmpty()
-                ? AccountInfo.getAccount(accounts, currentAccount)
-                : AccountInfo.getAccount(accounts, mAccounts.get(0).getAccount());
+    text1.setText(mAccounts.get(position).getTypeLabel());
+    text2.setText(mAccounts.get(position).getNameLabel());
 
-        mAccounts.clear();
-        mAccounts.addAll(accounts);
+    icon.setImageDrawable(mAccounts.get(position).getIcon());
 
-        if (currentInfo != null
-                && !mAccounts.isEmpty()
-                && !mAccounts.get(0).sameAccount(currentAccount)
-                && mAccounts.remove(currentInfo)) {
-            mAccounts.add(0, currentInfo);
-        }
-        notifyDataSetChanged();
-    }
+    return resultView;
+  }
 
-    public void setCustomLayout(int customLayout) {
-        mCustomLayout = customLayout;
-    }
+  @Override
+  public int getCount() {
+    return mAccounts.size();
+  }
 
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        final View resultView = convertView != null ? convertView :
-                mInflater.inflate(mCustomLayout > 0 ? mCustomLayout :
-                        R.layout.account_selector_list_item_condensed, parent, false);
+  @Override
+  public AccountWithDataSet getItem(int position) {
+    return mAccounts.get(position).getAccount();
+  }
 
-        final TextView text1 = (TextView) resultView.findViewById(android.R.id.text1);
-        final TextView text2 = (TextView) resultView.findViewById(android.R.id.text2);
-        final ImageView icon = (ImageView) resultView.findViewById(android.R.id.icon);
-
-        text1.setText(mAccounts.get(position).getTypeLabel());
-        text2.setText(mAccounts.get(position).getNameLabel());
-
-        icon.setImageDrawable(mAccounts.get(position).getIcon());
-
-        return resultView;
-    }
-
-    @Override
-    public int getCount() {
-        return mAccounts.size();
-    }
-
-    @Override
-    public AccountWithDataSet getItem(int position) {
-        return mAccounts.get(position).getAccount();
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
+  @Override
+  public long getItemId(int position) {
+    return position;
+  }
 }
 

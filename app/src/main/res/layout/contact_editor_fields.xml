@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
      Copyright (C) 2015 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,35 +16,35 @@
 
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <LinearLayout
-            android:id="@+id/kind_section_views"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" />
+  <LinearLayout
+    android:id="@+id/kind_section_views"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" />
 
-    <LinearLayout
-            style="@style/SelectableItem"
-            android:id="@+id/more_fields"
-            android:focusable="true"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+  <LinearLayout
+    android:id="@+id/more_fields"
+    style="@style/SelectableItem"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:focusable="true"
+    android:orientation="vertical">
 
-        <!-- See the comment for EditKindIconStyle in styles.xml, we use (16 + 24 + 32) dp of
-             padding (start margin + icon width + end margin) for this to line up with the start
-             of the edit fields. -->
-        <TextView
-                android:background="?android:attr/selectableItemBackground"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="@dimen/editor_min_line_item_height"
-                android:paddingStart="72dp"
-                android:gravity="center_vertical"
-                android:text="@string/editor_more_fields"
-                android:textAlignment="viewStart"
-                android:textColor="?android:attr/colorAccent"
-                android:textSize="@dimen/expanding_entry_card_title_text_size"/>
+    <!-- See the comment for EditKindIconStyle in styles.xml, we use (16 + 24 + 32) dp of
+         padding (start margin + icon width + end margin) for this to line up with the start
+         of the edit fields. -->
+    <TextView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:background="?android:attr/selectableItemBackground"
+      android:gravity="center_vertical"
+      android:minHeight="@dimen/editor_min_line_item_height"
+      android:paddingStart="72dp"
+      android:text="@string/editor_more_fields"
+      android:textAlignment="viewStart"
+      android:textColor="?android:attr/colorAccent"
+      android:textSize="@dimen/expanding_entry_card_title_text_size" />
 
-    </LinearLayout>
+  </LinearLayout>
 
 </merge>

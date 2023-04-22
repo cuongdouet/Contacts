@@ -27,51 +27,66 @@ import com.android.contacts.Collapser;
  * string description and icon.
  */
 public interface Action extends Collapser.Collapsible<Action> {
-    public CharSequence getBody();
-    public CharSequence getSubtitle();
+  public CharSequence getBody();
 
-    public String getMimeType();
+  public CharSequence getSubtitle();
 
-    /** Returns an icon that can be clicked for the alternate action. */
-    public Drawable getAlternateIcon();
+  public String getMimeType();
 
-    /** Returns the content description of the icon for the alternate action. */
-    public String getAlternateIconDescription();
+  /**
+   * Returns an icon that can be clicked for the alternate action.
+   */
+  public Drawable getAlternateIcon();
 
-    /** Build an {@link Intent} that will perform this action. */
-    public Intent getIntent();
+  /**
+   * Returns the content description of the icon for the alternate action.
+   */
+  public String getAlternateIconDescription();
 
-    /** Build an {@link Intent} that will perform the alternate action. */
-    public Intent getAlternateIntent();
+  /**
+   * Build an {@link Intent} that will perform this action.
+   */
+  public Intent getIntent();
 
-    /** Checks if the contact data for this action is primary. */
-    public boolean isPrimary();
+  /**
+   * Build an {@link Intent} that will perform the alternate action.
+   */
+  public Intent getAlternateIntent();
 
-    /** Checks if the contact data for this action is super primary. */
-    public boolean isSuperPrimary();
+  /**
+   * Checks if the contact data for this action is primary.
+   */
+  public boolean isPrimary();
 
-    /**
-     * Returns a lookup (@link Uri) for the contact data item or null if there is no data item
-     * corresponding to this row
-     */
-    public Uri getDataUri();
+  /**
+   * Checks if the contact data for this action is super primary.
+   */
+  public boolean isSuperPrimary();
 
-    /**
-     * Returns the id of the contact data item or -1 of there is no data item corresponding to this
-     * row
-     */
-    public long getDataId();
+  /**
+   * Returns a lookup (@link Uri) for the contact data item or null if there is no data item
+   * corresponding to this row
+   */
+  public Uri getDataUri();
 
-    /** Returns the presence of this item or -1 if it was never set */
-    public int getPresence();
+  /**
+   * Returns the id of the contact data item or -1 of there is no data item corresponding to this
+   * row
+   */
+  public long getDataId();
 
-    /**
-     * Returns the number of times this action has been used.
-     */
-    public Integer getTimesUsed();
+  /**
+   * Returns the presence of this item or -1 if it was never set
+   */
+  public int getPresence();
 
-    /**
-     * Returns the last time this action was used.
-     */
-    public Long getLastTimeUsed();
+  /**
+   * Returns the number of times this action has been used.
+   */
+  public Integer getTimesUsed();
+
+  /**
+   * Returns the last time this action was used.
+   */
+  public Long getLastTimeUsed();
 }

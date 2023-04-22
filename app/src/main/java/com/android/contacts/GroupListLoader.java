@@ -29,34 +29,32 @@ import com.android.contacts.group.GroupUtil;
  * groups.
  */
 public final class GroupListLoader extends CursorLoader {
-    private final static String[] COLUMNS = new String[] {
-        Groups.ACCOUNT_NAME,
-        Groups.ACCOUNT_TYPE,
-        Groups.DATA_SET,
-        Groups._ID,
-        Groups.TITLE,
-        Groups.SUMMARY_COUNT,
-        Groups.GROUP_IS_READ_ONLY,
-        Groups.SYSTEM_ID,
-    };
+  public final static int ACCOUNT_NAME = 0;
+  public final static int ACCOUNT_TYPE = 1;
+  public final static int DATA_SET = 2;
+  public final static int GROUP_ID = 3;
+  public final static int TITLE = 4;
+  public final static int MEMBER_COUNT = 5;
+  public final static int IS_READ_ONLY = 6;
+  public final static int SYSTEM_ID = 7;
+  private final static String[] COLUMNS = new String[]{
+    Groups.ACCOUNT_NAME,
+    Groups.ACCOUNT_TYPE,
+    Groups.DATA_SET,
+    Groups._ID,
+    Groups.TITLE,
+    Groups.SUMMARY_COUNT,
+    Groups.GROUP_IS_READ_ONLY,
+    Groups.SYSTEM_ID,
+  };
+  private static final Uri GROUP_LIST_URI = Groups.CONTENT_SUMMARY_URI;
 
-    public final static int ACCOUNT_NAME = 0;
-    public final static int ACCOUNT_TYPE = 1;
-    public final static int DATA_SET = 2;
-    public final static int GROUP_ID = 3;
-    public final static int TITLE = 4;
-    public final static int MEMBER_COUNT = 5;
-    public final static int IS_READ_ONLY = 6;
-    public final static int SYSTEM_ID = 7;
-
-    private static final Uri GROUP_LIST_URI = Groups.CONTENT_SUMMARY_URI;
-
-    public GroupListLoader(Context context) {
-        super(context,
-                GROUP_LIST_URI,
-                COLUMNS,
-                GroupUtil.DEFAULT_SELECTION,
-                null,
-                GroupUtil.getGroupsSortOrder());
-    }
+  public GroupListLoader(Context context) {
+    super(context,
+      GROUP_LIST_URI,
+      COLUMNS,
+      GroupUtil.DEFAULT_SELECTION,
+      null,
+      GroupUtil.getGroupsSortOrder());
+  }
 }

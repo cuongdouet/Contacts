@@ -15,112 +15,112 @@ import java.util.Locale;
  * <li>SIM's country</li>
  * <li>User's default locale</li>
  * </ul>
- *
+ * <p>
  * As far as possible this class tries to replicate the behavior of the system's country detector
  * service:
  * 1) Order in priority of sources of country location
  * 2) Mobile network information provided by CDMA phones is ignored
  */
 public class CountryDetector {
-    private static final String TAG = "CountryDetector";
+  private static final String TAG = "CountryDetector";
 
-    private static CountryDetector sInstance;
+  private static CountryDetector sInstance;
 
-    private final Context mContext;
-    private final LocaleProvider mLocaleProvider;
-    private final TelephonyManager mTelephonyManager;
+  private final Context mContext;
+  private final LocaleProvider mLocaleProvider;
+  private final TelephonyManager mTelephonyManager;
 
-    // Used as a default country code when all the sources of country data have failed in the
-    // exceedingly rare event that the device does not have a default locale set for some reason.
-    private final String DEFAULT_COUNTRY_ISO = "US";
+  // Used as a default country code when all the sources of country data have failed in the
+  // exceedingly rare event that the device does not have a default locale set for some reason.
+  private final String DEFAULT_COUNTRY_ISO = "US";
 
-    /**
-     * Class that can be used to return the user's default locale. This is in its own class so that
-     * it can be mocked out.
-     */
-    public static class LocaleProvider {
-        public Locale getDefaultLocale() {
-            return Locale.getDefault();
-        }
+  private CountryDetector(Context context) {
+    this(context, (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE),
+      new LocaleProvider());
+  }
+
+  private CountryDetector(Context context, TelephonyManager telephonyManager,
+                          LocaleProvider localeProvider) {
+    mTelephonyManager = telephonyManager;
+    mLocaleProvider = localeProvider;
+    mContext = context;
+  }
+
+  /**
+   * Returns the instance of the country detector. {@link #initialize(Context)} must have been
+   * called previously.
+   *
+   * @return the initialized country detector.
+   */
+  public synchronized static CountryDetector getInstance(Context context) {
+    if (sInstance == null) {
+      sInstance = new CountryDetector(context.getApplicationContext());
     }
+    return sInstance;
+  }
 
-    private CountryDetector(Context context) {
-        this (context, (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE),
-                new LocaleProvider());
-    }
+  /**
+   * Factory method for {@link CountryDetector} that allows the caller to provide mock objects.
+   */
+  public CountryDetector getInstanceForTest(Context context, TelephonyManager telephonyManager,
+                                            LocaleProvider localeProvider) {
+    return new CountryDetector(context, telephonyManager, localeProvider);
+  }
 
-    private CountryDetector(Context context, TelephonyManager telephonyManager,
-            LocaleProvider localeProvider) {
-        mTelephonyManager = telephonyManager;
-        mLocaleProvider = localeProvider;
-        mContext = context;
+  public String getCurrentCountryIso() {
+    String result = null;
+    if (isNetworkCountryCodeAvailable()) {
+      result = getNetworkBasedCountryIso();
     }
+    if (TextUtils.isEmpty(result)) {
+      result = getSimBasedCountryIso();
+    }
+    if (TextUtils.isEmpty(result)) {
+      result = getLocaleBasedCountryIso();
+    }
+    if (TextUtils.isEmpty(result)) {
+      result = DEFAULT_COUNTRY_ISO;
+    }
+    return result.toUpperCase(Locale.US);
+  }
 
-    /**
-     * Factory method for {@link CountryDetector} that allows the caller to provide mock objects.
-     */
-    public CountryDetector getInstanceForTest(Context context, TelephonyManager telephonyManager,
-            LocaleProvider localeProvider) {
-        return new CountryDetector(context, telephonyManager, localeProvider);
-    }
+  /**
+   * @return the country code of the current telephony network the user is connected to.
+   */
+  private String getNetworkBasedCountryIso() {
+    return mTelephonyManager.getNetworkCountryIso();
+  }
 
-    /**
-     * Returns the instance of the country detector. {@link #initialize(Context)} must have been
-     * called previously.
-     *
-     * @return the initialized country detector.
-     */
-    public synchronized static CountryDetector getInstance(Context context) {
-        if (sInstance == null) {
-            sInstance = new CountryDetector(context.getApplicationContext());
-        }
-        return sInstance;
-    }
+  /**
+   * @return the country code of the SIM card currently inserted in the device.
+   */
+  private String getSimBasedCountryIso() {
+    return mTelephonyManager.getSimCountryIso();
+  }
 
-    public String getCurrentCountryIso() {
-        String result = null;
-        if (isNetworkCountryCodeAvailable()) {
-            result = getNetworkBasedCountryIso();
-        }
-        if (TextUtils.isEmpty(result)) {
-            result = getSimBasedCountryIso();
-        }
-        if (TextUtils.isEmpty(result)) {
-            result = getLocaleBasedCountryIso();
-        }
-        if (TextUtils.isEmpty(result)) {
-            result = DEFAULT_COUNTRY_ISO;
-        }
-        return result.toUpperCase(Locale.US);
+  /**
+   * @return the country code of the user's currently selected locale.
+   */
+  private String getLocaleBasedCountryIso() {
+    Locale defaultLocale = mLocaleProvider.getDefaultLocale();
+    if (defaultLocale != null) {
+      return defaultLocale.getCountry();
     }
+    return null;
+  }
 
-    /**
-     * @return the country code of the current telephony network the user is connected to.
-     */
-    private String getNetworkBasedCountryIso() {
-        return mTelephonyManager.getNetworkCountryIso();
-    }
+  private boolean isNetworkCountryCodeAvailable() {
+    // On CDMA TelephonyManager.getNetworkCountryIso() just returns the SIM's country code.
+    return mTelephonyManager.getPhoneType() == TelephonyManager.PHONE_TYPE_GSM;
+  }
 
-    /**
-     * @return the country code of the SIM card currently inserted in the device.
-     */
-    private String getSimBasedCountryIso() {
-        return mTelephonyManager.getSimCountryIso();
+  /**
+   * Class that can be used to return the user's default locale. This is in its own class so that
+   * it can be mocked out.
+   */
+  public static class LocaleProvider {
+    public Locale getDefaultLocale() {
+      return Locale.getDefault();
     }
-
-    /**
-     * @return the country code of the user's currently selected locale.
-     */
-    private String getLocaleBasedCountryIso() {
-        Locale defaultLocale = mLocaleProvider.getDefaultLocale();
-        if (defaultLocale != null) {
-            return defaultLocale.getCountry();
-        }
-        return null;
-    }
-
-    private boolean isNetworkCountryCodeAvailable() {
-        // On CDMA TelephonyManager.getNetworkCountryIso() just returns the SIM's country code.
-        return mTelephonyManager.getPhoneType() == TelephonyManager.PHONE_TYPE_GSM;
-    }
+  }
 }

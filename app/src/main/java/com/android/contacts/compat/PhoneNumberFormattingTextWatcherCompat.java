@@ -18,10 +18,10 @@ package com.android.contacts.compat;
 import android.telephony.PhoneNumberFormattingTextWatcher;
 
 public class PhoneNumberFormattingTextWatcherCompat {
-    public static PhoneNumberFormattingTextWatcher newInstance(String countryCode) {
-        if (CompatUtils.isLollipopCompatible()) {
-            return new PhoneNumberFormattingTextWatcher(countryCode);
-        }
-        return new PhoneNumberFormattingTextWatcher();
+  public static PhoneNumberFormattingTextWatcher newInstance(String countryCode) {
+    if (CompatUtils.isLollipopCompatible()) {
+      return new PhoneNumberFormattingTextWatcher(countryCode);
     }
+    return new PhoneNumberFormattingTextWatcher();
+  }
 }

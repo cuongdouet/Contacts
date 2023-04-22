@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (C) 2011 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,10 +16,9 @@
 
 <!-- Layout to contain a list of fields in the contact editor. -->
 
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/editors"
-    android:layout_width="0dip"
-    android:layout_height="wrap_content"
-    android:layout_weight="1"
-    android:orientation="vertical" />
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:id="@+id/editors"
+  android:layout_width="0dip"
+  android:layout_height="wrap_content"
+  android:layout_weight="1"
+  android:orientation="vertical" />

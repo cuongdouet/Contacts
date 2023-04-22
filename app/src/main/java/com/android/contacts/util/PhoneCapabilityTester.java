@@ -37,69 +37,69 @@ import java.util.List;
  * members are not safe for threading
  */
 public final class PhoneCapabilityTester {
-    private static boolean sIsInitialized;
-    private static boolean sIsPhone;
-    private static boolean sIsSipPhone;
+  private static boolean sIsInitialized;
+  private static boolean sIsPhone;
+  private static boolean sIsSipPhone;
 
-    /**
-     * Tests whether the Intent has a receiver registered. This can be used to show/hide
-     * functionality (like Phone, SMS)
-     */
-    public static boolean isIntentRegistered(Context context, Intent intent) {
-        final PackageManager packageManager = context.getPackageManager();
-        final List<ResolveInfo> receiverList = packageManager.queryIntentActivities(intent,
-                PackageManager.MATCH_DEFAULT_ONLY);
-        return receiverList.size() > 0;
-    }
+  /**
+   * Tests whether the Intent has a receiver registered. This can be used to show/hide
+   * functionality (like Phone, SMS)
+   */
+  public static boolean isIntentRegistered(Context context, Intent intent) {
+    final PackageManager packageManager = context.getPackageManager();
+    final List<ResolveInfo> receiverList = packageManager.queryIntentActivities(intent,
+      PackageManager.MATCH_DEFAULT_ONLY);
+    return receiverList.size() > 0;
+  }
 
-    /**
-     * Returns true if this device can be used to make phone calls
-     */
-    public static boolean isPhone(Context context) {
-        if (!sIsInitialized) initialize(context);
-        // Is the device physically capabable of making phone calls?
-        return sIsPhone;
-    }
+  /**
+   * Returns true if this device can be used to make phone calls
+   */
+  public static boolean isPhone(Context context) {
+    if (!sIsInitialized) initialize(context);
+    // Is the device physically capabable of making phone calls?
+    return sIsPhone;
+  }
 
-    private static void initialize(Context context) {
-        sIsPhone = TelephonyManagerCompat.isVoiceCapable(
-                (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE));
-        sIsSipPhone = sIsPhone && SipManager.isVoipSupported(context);
-        sIsInitialized = true;
-    }
+  private static void initialize(Context context) {
+    sIsPhone = TelephonyManagerCompat.isVoiceCapable(
+      (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE));
+    sIsSipPhone = sIsPhone && SipManager.isVoipSupported(context);
+    sIsInitialized = true;
+  }
 
-    /**
-     * Returns true if this device can be used to make sip calls
-     */
-    public static boolean isSipPhone(Context context) {
-        if (!sIsInitialized) initialize(context);
-        return sIsSipPhone;
-    }
+  /**
+   * Returns true if this device can be used to make sip calls
+   */
+  public static boolean isSipPhone(Context context) {
+    if (!sIsInitialized) initialize(context);
+    return sIsSipPhone;
+  }
 
-    /**
-     * Returns the component name to use for sending to sms or null.
-     */
-    public static ComponentName getSmsComponent(Context context) {
-        String smsPackage = Telephony.Sms.getDefaultSmsPackage(context);
-        if (smsPackage != null) {
-            final PackageManager packageManager = context.getPackageManager();
-            final Intent intent = new Intent(Intent.ACTION_SENDTO,
-                    Uri.fromParts(ContactsUtils.SCHEME_SMSTO, "", null));
-            final List<ResolveInfo> resolveInfos = packageManager.queryIntentActivities(intent, 0);
-            for (ResolveInfo resolveInfo : resolveInfos) {
-                if (smsPackage.equals(resolveInfo.activityInfo.packageName)) {
-                    return new ComponentName(smsPackage, resolveInfo.activityInfo.name);
-                }
-            }
+  /**
+   * Returns the component name to use for sending to sms or null.
+   */
+  public static ComponentName getSmsComponent(Context context) {
+    String smsPackage = Telephony.Sms.getDefaultSmsPackage(context);
+    if (smsPackage != null) {
+      final PackageManager packageManager = context.getPackageManager();
+      final Intent intent = new Intent(Intent.ACTION_SENDTO,
+        Uri.fromParts(ContactsUtils.SCHEME_SMSTO, "", null));
+      final List<ResolveInfo> resolveInfos = packageManager.queryIntentActivities(intent, 0);
+      for (ResolveInfo resolveInfo : resolveInfos) {
+        if (smsPackage.equals(resolveInfo.activityInfo.packageName)) {
+          return new ComponentName(smsPackage, resolveInfo.activityInfo.name);
         }
-        return null;
+      }
     }
+    return null;
+  }
 
-    /**
-     * Returns true if there is a camera on the device
-     */
-    public static boolean isCameraIntentRegistered(Context context) {
-        final Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        return isIntentRegistered(context, intent);
-    }
+  /**
+   * Returns true if there is a camera on the device
+   */
+  public static boolean isCameraIntentRegistered(Context context) {
+    final Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+    return isIntentRegistered(context, intent);
+  }
 }

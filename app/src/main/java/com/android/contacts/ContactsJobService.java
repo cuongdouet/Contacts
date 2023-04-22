@@ -23,22 +23,22 @@ import android.app.job.JobService;
  */
 public class ContactsJobService extends JobService {
 
-    public static final int DYNAMIC_SHORTCUTS_JOB_ID = 1;
+  public static final int DYNAMIC_SHORTCUTS_JOB_ID = 1;
 
-    @Override
-    public boolean onStartJob(JobParameters jobParameters) {
-        switch (jobParameters.getJobId()) {
-            case DYNAMIC_SHORTCUTS_JOB_ID:
-                DynamicShortcuts.updateFromJob(this, jobParameters);
-                return true;
-            default:
-                break;
-        }
-        return false;
+  @Override
+  public boolean onStartJob(JobParameters jobParameters) {
+    switch (jobParameters.getJobId()) {
+      case DYNAMIC_SHORTCUTS_JOB_ID:
+        DynamicShortcuts.updateFromJob(this, jobParameters);
+        return true;
+      default:
+        break;
     }
+    return false;
+  }
 
-    @Override
-    public boolean onStopJob(JobParameters jobParameters) {
-        return false;
-    }
+  @Override
+  public boolean onStopJob(JobParameters jobParameters) {
+    return false;
+  }
 }

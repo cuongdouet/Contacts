@@ -24,12 +24,12 @@ import com.android.contacts.util.ContactsNotificationChannelsUtil;
 
 public class OnBootOrUpgradeReceiver extends BroadcastReceiver {
 
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        final String action = intent.getAction();
-        if (Intent.ACTION_BOOT_COMPLETED.equals(action)
-                || Intent.ACTION_MY_PACKAGE_REPLACED.equals(action)) {
-            ContactsNotificationChannelsUtil.createDefaultChannel(context);
-        }
+  @Override
+  public void onReceive(Context context, Intent intent) {
+    final String action = intent.getAction();
+    if (Intent.ACTION_BOOT_COMPLETED.equals(action)
+      || Intent.ACTION_MY_PACKAGE_REPLACED.equals(action)) {
+      ContactsNotificationChannelsUtil.createDefaultChannel(context);
     }
+  }
 }

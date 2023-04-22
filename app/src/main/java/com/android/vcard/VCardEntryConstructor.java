@@ -16,12 +16,8 @@
 package com.android.vcard;
 
 import android.accounts.Account;
-import android.text.TextUtils;
-import android.util.Base64;
-import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -42,91 +38,89 @@ import java.util.List;
  * </p>
  */
 public class VCardEntryConstructor implements VCardInterpreter {
-    private static String LOG_TAG = VCardConstants.LOG_TAG;
+  private static String LOG_TAG = VCardConstants.LOG_TAG;
 
-    /**
-     * Represents current stack of VCardEntry. Used to support nested vCard (vCard 2.1).
-     */
-    private final List<VCardEntry> mEntryStack = new ArrayList<VCardEntry>();
-    private VCardEntry mCurrentEntry;
+  /**
+   * Represents current stack of VCardEntry. Used to support nested vCard (vCard 2.1).
+   */
+  private final List<VCardEntry> mEntryStack = new ArrayList<VCardEntry>();
+  private final int mVCardType;
+  private final Account mAccount;
+  private final List<VCardEntryHandler> mEntryHandlers = new ArrayList<VCardEntryHandler>();
+  private VCardEntry mCurrentEntry;
 
-    private final int mVCardType;
-    private final Account mAccount;
+  public VCardEntryConstructor() {
+    this(VCardConfig.VCARD_TYPE_V21_GENERIC, null, null);
+  }
 
-    private final List<VCardEntryHandler> mEntryHandlers = new ArrayList<VCardEntryHandler>();
+  public VCardEntryConstructor(final int vcardType) {
+    this(vcardType, null, null);
+  }
 
-    public VCardEntryConstructor() {
-        this(VCardConfig.VCARD_TYPE_V21_GENERIC, null, null);
+  public VCardEntryConstructor(final int vcardType, final Account account) {
+    this(vcardType, account, null);
+  }
+
+  /**
+   * @deprecated targetCharset is not used anymore.
+   * Use {@link #VCardEntryConstructor(int, Account)}
+   */
+  @Deprecated
+  public VCardEntryConstructor(final int vcardType, final Account account,
+                               String targetCharset) {
+    mVCardType = vcardType;
+    mAccount = account;
+  }
+
+  public void addEntryHandler(VCardEntryHandler entryHandler) {
+    mEntryHandlers.add(entryHandler);
+  }
+
+  @Override
+  public void onVCardStarted() {
+    for (VCardEntryHandler entryHandler : mEntryHandlers) {
+      entryHandler.onStart();
+    }
+  }
+
+  @Override
+  public void onVCardEnded() {
+    for (VCardEntryHandler entryHandler : mEntryHandlers) {
+      entryHandler.onEnd();
+    }
+  }
+
+  public void clear() {
+    mCurrentEntry = null;
+    mEntryStack.clear();
+  }
+
+  @Override
+  public void onEntryStarted() {
+    mCurrentEntry = new VCardEntry(mVCardType, mAccount);
+    mEntryStack.add(mCurrentEntry);
+  }
+
+  @Override
+  public void onEntryEnded() {
+    mCurrentEntry.consolidateFields();
+    for (VCardEntryHandler entryHandler : mEntryHandlers) {
+      entryHandler.onEntryCreated(mCurrentEntry);
     }
 
-    public VCardEntryConstructor(final int vcardType) {
-        this(vcardType, null, null);
+    final int size = mEntryStack.size();
+    if (size > 1) {
+      VCardEntry parent = mEntryStack.get(size - 2);
+      parent.addChild(mCurrentEntry);
+      mCurrentEntry = parent;
+    } else {
+      mCurrentEntry = null;
     }
+    mEntryStack.remove(size - 1);
+  }
 
-    public VCardEntryConstructor(final int vcardType, final Account account) {
-        this(vcardType, account, null);
-    }
-
-    /**
-     * @deprecated targetCharset is not used anymore.
-     * Use {@link #VCardEntryConstructor(int, Account)}
-     */
-    @Deprecated
-    public VCardEntryConstructor(final int vcardType, final Account account,
-            String targetCharset) {
-        mVCardType = vcardType;
-        mAccount = account;
-    }
-
-    public void addEntryHandler(VCardEntryHandler entryHandler) {
-        mEntryHandlers.add(entryHandler);
-    }
-
-    @Override
-    public void onVCardStarted() {
-        for (VCardEntryHandler entryHandler : mEntryHandlers) {
-            entryHandler.onStart();
-        }
-    }
-
-    @Override
-    public void onVCardEnded() {
-        for (VCardEntryHandler entryHandler : mEntryHandlers) {
-            entryHandler.onEnd();
-        }
-    }
-
-    public void clear() {
-        mCurrentEntry = null;
-        mEntryStack.clear();
-    }
-
-    @Override
-    public void onEntryStarted() {
-        mCurrentEntry = new VCardEntry(mVCardType, mAccount);
-        mEntryStack.add(mCurrentEntry);
-    }
-
-    @Override
-    public void onEntryEnded() {
-        mCurrentEntry.consolidateFields();
-        for (VCardEntryHandler entryHandler : mEntryHandlers) {
-            entryHandler.onEntryCreated(mCurrentEntry);
-        }
-
-        final int size = mEntryStack.size();
-        if (size > 1) {
-            VCardEntry parent = mEntryStack.get(size - 2);
-            parent.addChild(mCurrentEntry);
-            mCurrentEntry = parent;
-        } else {
-            mCurrentEntry = null;
-        }
-        mEntryStack.remove(size - 1);
-    }
-
-    @Override
-    public void onPropertyCreated(VCardProperty property) {
-        mCurrentEntry.addProperty(property);
-    }
+  @Override
+  public void onPropertyCreated(VCardProperty property) {
+    mCurrentEntry.addProperty(property);
+  }
 }

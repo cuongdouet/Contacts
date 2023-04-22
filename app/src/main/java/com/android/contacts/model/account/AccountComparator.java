@@ -23,49 +23,49 @@ import java.util.Comparator;
  * Orders accounts for display such that the default account is first
  */
 public class AccountComparator implements Comparator<AccountWithDataSet> {
-    private AccountWithDataSet mDefaultAccount;
+  private AccountWithDataSet mDefaultAccount;
 
-    public AccountComparator(AccountWithDataSet defaultAccount) {
-        mDefaultAccount = defaultAccount;
+  public AccountComparator(AccountWithDataSet defaultAccount) {
+    mDefaultAccount = defaultAccount;
+  }
+
+  private static boolean isWritableGoogleAccount(AccountWithDataSet account) {
+    return GoogleAccountType.ACCOUNT_TYPE.equals(account.type) && account.dataSet == null;
+  }
+
+  @Override
+  public int compare(AccountWithDataSet a, AccountWithDataSet b) {
+    if (Objects.equal(a.name, b.name) && Objects.equal(a.type, b.type)
+      && Objects.equal(a.dataSet, b.dataSet)) {
+      return 0;
+    } else if (b.name == null || b.type == null) {
+      return -1;
+    } else if (a.name == null || a.type == null) {
+      return 1;
+    } else if (isWritableGoogleAccount(a) && a.equals(mDefaultAccount)) {
+      return -1;
+    } else if (isWritableGoogleAccount(b) && b.equals(mDefaultAccount)) {
+      return 1;
+    } else if (isWritableGoogleAccount(a) && !isWritableGoogleAccount(b)) {
+      return -1;
+    } else if (isWritableGoogleAccount(b) && !isWritableGoogleAccount(a)) {
+      return 1;
+    } else {
+      int diff = a.name.compareToIgnoreCase(b.name);
+      if (diff != 0) {
+        return diff;
+      }
+      diff = a.type.compareToIgnoreCase(b.type);
+      if (diff != 0) {
+        return diff;
+      }
+
+      // Accounts without data sets get sorted before those that have them.
+      if (a.dataSet != null) {
+        return b.dataSet == null ? 1 : a.dataSet.compareToIgnoreCase(b.dataSet);
+      } else {
+        return -1;
+      }
     }
-
-    @Override
-    public int compare(AccountWithDataSet a, AccountWithDataSet b) {
-        if (Objects.equal(a.name, b.name) && Objects.equal(a.type, b.type)
-                && Objects.equal(a.dataSet, b.dataSet)) {
-            return 0;
-        } else if (b.name == null || b.type == null) {
-            return -1;
-        } else if (a.name == null || a.type == null) {
-            return 1;
-        } else if (isWritableGoogleAccount(a) && a.equals(mDefaultAccount)) {
-            return -1;
-        } else if (isWritableGoogleAccount(b) && b.equals(mDefaultAccount)) {
-            return 1;
-        } else if (isWritableGoogleAccount(a) && !isWritableGoogleAccount(b)) {
-            return -1;
-        } else if (isWritableGoogleAccount(b) && !isWritableGoogleAccount(a)) {
-            return 1;
-        } else {
-            int diff = a.name.compareToIgnoreCase(b.name);
-            if (diff != 0) {
-                return diff;
-            }
-            diff = a.type.compareToIgnoreCase(b.type);
-            if (diff != 0) {
-                return diff;
-            }
-
-            // Accounts without data sets get sorted before those that have them.
-            if (a.dataSet != null) {
-                return b.dataSet == null ? 1 : a.dataSet.compareToIgnoreCase(b.dataSet);
-            } else {
-                return -1;
-            }
-        }
-    }
-
-    private static boolean isWritableGoogleAccount(AccountWithDataSet account) {
-        return GoogleAccountType.ACCOUNT_TYPE.equals(account.type) && account.dataSet == null;
-    }
+  }
 }

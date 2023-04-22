@@ -22,15 +22,20 @@ import android.net.Uri;
 import com.android.vcard.VCardEntry;
 
 interface VCardImportExportListener {
-    Notification onImportProcessed(ImportRequest request, int jobId, int sequence);
-    Notification onImportParsed(ImportRequest request, int jobId, VCardEntry entry, int currentCount,
-            int totalCount);
-    void onImportFinished(ImportRequest request, int jobId, Uri uri);
-    void onImportFailed(ImportRequest request);
-    void onImportCanceled(ImportRequest request, int jobId);
+  Notification onImportProcessed(ImportRequest request, int jobId, int sequence);
 
-    Notification onExportProcessed(ExportRequest request, int jobId);
-    void onExportFailed(ExportRequest request);
+  Notification onImportParsed(ImportRequest request, int jobId, VCardEntry entry, int currentCount,
+                              int totalCount);
 
-    void onCancelRequest(CancelRequest request, int type);
+  void onImportFinished(ImportRequest request, int jobId, Uri uri);
+
+  void onImportFailed(ImportRequest request);
+
+  void onImportCanceled(ImportRequest request, int jobId);
+
+  Notification onExportProcessed(ExportRequest request, int jobId);
+
+  void onExportFailed(ExportRequest request);
+
+  void onCancelRequest(CancelRequest request, int type);
 }

@@ -28,90 +28,88 @@ import com.android.contacts.model.dataitem.DataKind;
  */
 public interface Editor {
 
-    public interface EditorListener {
-        /**
-         * Called when the given {@link Editor} is requested to be deleted by the user.
-         */
-        public void onDeleteRequested(Editor editor);
+  /**
+   * Returns whether or not all the fields are empty in this {@link Editor}.
+   */
+  public boolean isEmpty();
 
-        /**
-         * Called when the given {@link Editor} has a request, for example it
-         * wants to select a photo.
-         */
-        public void onRequest(int request);
+  /**
+   * Prepares this editor for the given {@link ValuesDelta}, which
+   * builds any needed views. Any changes performed by the user will be
+   * written back to that same object.
+   */
+  public void setValues(DataKind kind, ValuesDelta values, RawContactDelta state, boolean readOnly,
+                        ViewIdGenerator vig);
 
-        public static final int REQUEST_PICK_PRIMARY_PHOTO = 0;
-        public static final int REQUEST_PICK_PHOTO = 1;
-        public static final int FIELD_CHANGED = 2;
-        public static final int FIELD_TURNED_EMPTY = 3;
-        public static final int FIELD_TURNED_NON_EMPTY = 4;
+  public void setDeletable(boolean deletable);
 
-        // The editor has switched between different representations of the same
-        // data, e.g. from full name to structured name
-        public static final int EDITOR_FORM_CHANGED = 5;
+  /**
+   * Add a specific {@link EditorListener} to this {@link Editor}.
+   */
+  public void setEditorListener(EditorListener listener);
 
-        // Focus has changed inside the editor.
-        public static final int EDITOR_FOCUS_CHANGED = 6;
-    }
+  /**
+   * Called internally when the contents of a specific field have changed,
+   * allowing advanced editors to persist data in a specific way.
+   */
+  public void onFieldChanged(String column, String value);
 
-    /**
-     * Returns whether or not all the fields are empty in this {@link Editor}.
-     */
-    public boolean isEmpty();
+  /**
+   * Update the phonetic field with the specified character string.
+   */
+  public void updatePhonetic(String column, String value);
 
-    /**
-     * Prepares this editor for the given {@link ValuesDelta}, which
-     * builds any needed views. Any changes performed by the user will be
-     * written back to that same object.
-     */
-    public void setValues(DataKind kind, ValuesDelta values, RawContactDelta state, boolean readOnly,
-            ViewIdGenerator vig);
+  /**
+   * Returns the phonetic field string of the specified column.
+   */
+  public String getPhonetic(String column);
 
-    public void setDeletable(boolean deletable);
+  /**
+   * Marks the underlying ValuesDelta as deleted, but does not update the view.
+   */
+  public void markDeleted();
 
-    /**
-     * Add a specific {@link EditorListener} to this {@link Editor}.
-     */
-    public void setEditorListener(EditorListener listener);
+  /**
+   * Performs the delete operation for this {@link Editor}, which involves both
+   * marking the underlying ValuesDelta as deleted and updating the view.
+   */
+  public void deleteEditor();
 
-    /**
-     * Called internally when the contents of a specific field have changed,
-     * allowing advanced editors to persist data in a specific way.
-     */
-    public void onFieldChanged(String column, String value);
+  /**
+   * Clears all fields in this {@link Editor}.
+   */
+  public void clearAllFields();
 
-    /**
-     * Update the phonetic field with the specified character string.
-     */
-    public void updatePhonetic(String column, String value);
+  /**
+   * Called internally when the user has added a new field.  This
+   * allows the appropriate editor UI to be presented immediately.
+   * For example, if a new "event" is added, a date-picker will
+   * immediately pop up.
+   */
+  public void editNewlyAddedField();
 
-    /**
-     * Returns the phonetic field string of the specified column.
-     */
-    public String getPhonetic(String column);
-
-    /**
-     * Marks the underlying ValuesDelta as deleted, but does not update the view.
-     */
-    public void markDeleted();
-
-    /**
-     * Performs the delete operation for this {@link Editor}, which involves both
-     * marking the underlying ValuesDelta as deleted and updating the view.
-     */
-    public void deleteEditor();
-
-    /**
-     * Clears all fields in this {@link Editor}.
-     */
-    public void clearAllFields();
+  public interface EditorListener {
+    public static final int REQUEST_PICK_PRIMARY_PHOTO = 0;
+    public static final int REQUEST_PICK_PHOTO = 1;
+    public static final int FIELD_CHANGED = 2;
+    public static final int FIELD_TURNED_EMPTY = 3;
+    public static final int FIELD_TURNED_NON_EMPTY = 4;
+    // The editor has switched between different representations of the same
+    // data, e.g. from full name to structured name
+    public static final int EDITOR_FORM_CHANGED = 5;
+    // Focus has changed inside the editor.
+    public static final int EDITOR_FOCUS_CHANGED = 6;
 
     /**
-     * Called internally when the user has added a new field.  This
-     * allows the appropriate editor UI to be presented immediately.
-     * For example, if a new "event" is added, a date-picker will
-     * immediately pop up.
+     * Called when the given {@link Editor} is requested to be deleted by the user.
      */
-    public void editNewlyAddedField();
+    public void onDeleteRequested(Editor editor);
+
+    /**
+     * Called when the given {@link Editor} has a request, for example it
+     * wants to select a photo.
+     */
+    public void onRequest(int request);
+  }
 
 }

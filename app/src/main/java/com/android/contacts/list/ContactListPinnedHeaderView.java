@@ -32,48 +32,48 @@ import com.android.contacts.R;
  */
 public class ContactListPinnedHeaderView extends TextView {
 
-    public ContactListPinnedHeaderView(Context context, AttributeSet attrs, View parent) {
-        super(context, attrs);
+  public ContactListPinnedHeaderView(Context context, AttributeSet attrs, View parent) {
+    super(context, attrs);
 
-        if (R.styleable.ContactListItemView == null) {
-            return;
-        }
-        TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.ContactListItemView);
-        int backgroundColor = a.getColor(
-                R.styleable.ContactListItemView_list_item_background_color, Color.WHITE);
-        int textOffsetTop = a.getDimensionPixelSize(
-                R.styleable.ContactListItemView_list_item_text_offset_top, 0);
-        int paddingStartOffset = a.getDimensionPixelSize(
-                R.styleable.ContactListItemView_list_item_padding_left, 0);
-        int textWidth = getResources().getDimensionPixelSize(
-                R.dimen.contact_list_section_header_width);
-        int widthIncludingPadding = paddingStartOffset + textWidth;
-        a.recycle();
-
-        setBackgroundColor(backgroundColor);
-        setTextAppearance(getContext(), R.style.SectionHeaderStyle);
-        setLayoutParams(new LayoutParams(widthIncludingPadding, LayoutParams.WRAP_CONTENT));
-        setLayoutDirection(parent.getLayoutDirection());
-        setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
-
-        // Apply text top offset. Multiply by two, because we are implementing this by padding for a
-        // vertically centered view, rather than adjusting the position directly via a layout.
-        setPaddingRelative(
-                getPaddingStart() + paddingStartOffset,
-                getPaddingTop() + (textOffsetTop * 2),
-                getPaddingEnd(),
-                getPaddingBottom());
+    if (R.styleable.ContactListItemView == null) {
+      return;
     }
+    TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.ContactListItemView);
+    int backgroundColor = a.getColor(
+      R.styleable.ContactListItemView_list_item_background_color, Color.WHITE);
+    int textOffsetTop = a.getDimensionPixelSize(
+      R.styleable.ContactListItemView_list_item_text_offset_top, 0);
+    int paddingStartOffset = a.getDimensionPixelSize(
+      R.styleable.ContactListItemView_list_item_padding_left, 0);
+    int textWidth = getResources().getDimensionPixelSize(
+      R.dimen.contact_list_section_header_width);
+    int widthIncludingPadding = paddingStartOffset + textWidth;
+    a.recycle();
 
-    /**
-     * Sets section header or makes it invisible if the title is null.
-     */
-    public void setSectionHeaderTitle(String title) {
-        if (title != null) {
-            setText(title);
-            setVisibility(View.VISIBLE);
-        } else {
-            setVisibility(View.GONE);
-        }
+    setBackgroundColor(backgroundColor);
+    setTextAppearance(getContext(), R.style.SectionHeaderStyle);
+    setLayoutParams(new LayoutParams(widthIncludingPadding, LayoutParams.WRAP_CONTENT));
+    setLayoutDirection(parent.getLayoutDirection());
+    setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+
+    // Apply text top offset. Multiply by two, because we are implementing this by padding for a
+    // vertically centered view, rather than adjusting the position directly via a layout.
+    setPaddingRelative(
+      getPaddingStart() + paddingStartOffset,
+      getPaddingTop() + (textOffsetTop * 2),
+      getPaddingEnd(),
+      getPaddingBottom());
+  }
+
+  /**
+   * Sets section header or makes it invisible if the title is null.
+   */
+  public void setSectionHeaderTitle(String title) {
+    if (title != null) {
+      setText(title);
+      setVisibility(View.VISIBLE);
+    } else {
+      setVisibility(View.GONE);
     }
+  }
 }

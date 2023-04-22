@@ -36,76 +36,75 @@ import java.util.List;
  * Loads the accounts from AccountTypeManager
  */
 public class AccountsLoader extends ListenableFutureLoader<List<AccountInfo>> {
-    private final AccountTypeManager mAccountTypeManager;
-    private final Predicate<AccountInfo> mFilter;
+  private final AccountTypeManager mAccountTypeManager;
+  private final Predicate<AccountInfo> mFilter;
 
-    public AccountsLoader(Context context) {
-        this(context, Predicates.<AccountInfo>alwaysTrue());
-    }
+  public AccountsLoader(Context context) {
+    this(context, Predicates.<AccountInfo>alwaysTrue());
+  }
 
-    public AccountsLoader(Context context, Predicate<AccountInfo> filter) {
-        super(context, new IntentFilter(AccountTypeManager.BROADCAST_ACCOUNTS_CHANGED));
-        mAccountTypeManager = AccountTypeManager.getInstance(context);
-        mFilter = filter;
-    }
+  public AccountsLoader(Context context, Predicate<AccountInfo> filter) {
+    super(context, new IntentFilter(AccountTypeManager.BROADCAST_ACCOUNTS_CHANGED));
+    mAccountTypeManager = AccountTypeManager.getInstance(context);
+    mFilter = filter;
+  }
 
-    @Override
-    protected ListenableFuture<List<AccountInfo>> loadData() {
-        return mAccountTypeManager.filterAccountsAsync(mFilter);
-    }
+  /**
+   * Loads the accounts into the target fragment using {@link LoaderManager}
+   *
+   * <p>This is a convenience method to reduce the
+   * boilerplate needed when implementing {@link android.app.LoaderManager.LoaderCallbacks}
+   * in the simple case that the fragment wants to just load the accounts directly</p>
+   * <p>Note that changing the filter between invocations in the same component will not work
+   * properly because the loader is cached.</p>
+   */
+  public static <FragmentType extends Fragment & AccountsListener> void loadAccounts(
+    final FragmentType fragment, int loaderId, final Predicate<AccountInfo> filter) {
+    loadAccounts(
+      fragment.getActivity(), fragment.getLoaderManager(), loaderId, filter, fragment);
+  }
 
-    @Override
-    protected boolean isSameData(List<AccountInfo> previous, List<AccountInfo> next) {
-        return Objects.equal(AccountInfo.extractAccounts(previous),
-                AccountInfo.extractAccounts(next));
-    }
+  /**
+   * Same as {@link #loadAccounts(Fragment, int, Predicate)} for an Activity
+   */
+  public static <ActivityType extends Activity & AccountsListener> void loadAccounts(
+    final ActivityType activity, int id, final Predicate<AccountInfo> filter) {
+    loadAccounts(activity, activity.getLoaderManager(), id, filter, activity);
+  }
 
+  private static void loadAccounts(final Context context, LoaderManager loaderManager, int id,
+                                   final Predicate<AccountInfo> filter, final AccountsListener listener) {
+    loaderManager.initLoader(id, null,
+      new LoaderManager.LoaderCallbacks<List<AccountInfo>>() {
+        @Override
+        public Loader<List<AccountInfo>> onCreateLoader(int id, Bundle args) {
+          return new AccountsLoader(context, filter);
+        }
 
-    public interface AccountsListener {
-        void onAccountsLoaded(List<AccountInfo> accounts);
-    }
+        @Override
+        public void onLoadFinished(
+          Loader<List<AccountInfo>> loader, List<AccountInfo> data) {
+          listener.onAccountsLoaded(data);
+        }
 
-    /**
-     * Loads the accounts into the target fragment using {@link LoaderManager}
-     *
-     * <p>This is a convenience method to reduce the
-     * boilerplate needed when implementing {@link android.app.LoaderManager.LoaderCallbacks}
-     * in the simple case that the fragment wants to just load the accounts directly</p>
-     * <p>Note that changing the filter between invocations in the same component will not work
-     * properly because the loader is cached.</p>
-     */
-    public static <FragmentType extends Fragment & AccountsListener> void loadAccounts(
-            final FragmentType fragment, int loaderId, final Predicate<AccountInfo> filter) {
-        loadAccounts(
-                fragment.getActivity(), fragment.getLoaderManager(), loaderId, filter, fragment);
-    }
+        @Override
+        public void onLoaderReset(Loader<List<AccountInfo>> loader) {
+        }
+      });
+  }
 
-    /**
-     * Same as {@link #loadAccounts(Fragment, int, Predicate)} for an Activity
-     */
-    public static <ActivityType extends Activity & AccountsListener> void loadAccounts(
-            final ActivityType activity, int id, final Predicate<AccountInfo> filter) {
-        loadAccounts(activity, activity.getLoaderManager(), id, filter, activity);
-    }
+  @Override
+  protected ListenableFuture<List<AccountInfo>> loadData() {
+    return mAccountTypeManager.filterAccountsAsync(mFilter);
+  }
 
-    private static void loadAccounts(final Context context, LoaderManager loaderManager, int id,
-            final Predicate<AccountInfo> filter, final AccountsListener listener) {
-        loaderManager.initLoader(id, null,
-                new LoaderManager.LoaderCallbacks<List<AccountInfo>>() {
-                    @Override
-                    public Loader<List<AccountInfo>> onCreateLoader(int id, Bundle args) {
-                        return new AccountsLoader(context, filter);
-                    }
+  @Override
+  protected boolean isSameData(List<AccountInfo> previous, List<AccountInfo> next) {
+    return Objects.equal(AccountInfo.extractAccounts(previous),
+      AccountInfo.extractAccounts(next));
+  }
 
-                    @Override
-                    public void onLoadFinished(
-                            Loader<List<AccountInfo>> loader, List<AccountInfo> data) {
-                        listener.onAccountsLoaded(data);
-                    }
-
-                    @Override
-                    public void onLoaderReset(Loader<List<AccountInfo>> loader) {
-                    }
-                });
-    }
+  public interface AccountsListener {
+    void onAccountsLoaded(List<AccountInfo> accounts);
+  }
 }

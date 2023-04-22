@@ -35,53 +35,53 @@ import java.util.Set;
  * </p>
  */
 public class VCardParser_V40 extends VCardParser {
-    /* package */ static final Set<String> sKnownPropertyNameSet =
-            Collections.unmodifiableSet(new HashSet<String>(Arrays.asList(
-                    "BEGIN", "END", "VERSION",
-                    "SOURCE", "KIND", "FN", "N", "NICKNAME",
-                    "PHOTO", "BDAY", "ANNIVERSARY", "GENDER", "ADR", "TEL",
-                    "EMAIL", "IMPP", "LANG", "TZ", "GEO", "TITLE", "ROLE",
-                    "LOGO", "ORG", "MEMBER", "RELATED", "CATEGORIES",
-                    "NOTE", "PRODID", "REV", "SOUND", "UID", "CLIENTPIDMAP",
-                    "URL", "KEY", "FBURL", "CALENDRURI", "CALURI", "XML")));
+  /* package */ static final Set<String> sKnownPropertyNameSet =
+    Collections.unmodifiableSet(new HashSet<String>(Arrays.asList(
+      "BEGIN", "END", "VERSION",
+      "SOURCE", "KIND", "FN", "N", "NICKNAME",
+      "PHOTO", "BDAY", "ANNIVERSARY", "GENDER", "ADR", "TEL",
+      "EMAIL", "IMPP", "LANG", "TZ", "GEO", "TITLE", "ROLE",
+      "LOGO", "ORG", "MEMBER", "RELATED", "CATEGORIES",
+      "NOTE", "PRODID", "REV", "SOUND", "UID", "CLIENTPIDMAP",
+      "URL", "KEY", "FBURL", "CALENDRURI", "CALURI", "XML")));
 
-    /**
-     * <p>
-     * A unmodifiable Set storing the values for the type "ENCODING", available in vCard 4.0.
-     * </p>
-     */
-    /* package */ static final Set<String> sAcceptableEncoding =
-            Collections.unmodifiableSet(new HashSet<String>(Arrays.asList(
-                    VCardConstants.PARAM_ENCODING_8BIT,
-                    VCardConstants.PARAM_ENCODING_B)));
+  /**
+   * <p>
+   * A unmodifiable Set storing the values for the type "ENCODING", available in vCard 4.0.
+   * </p>
+   */
+  /* package */ static final Set<String> sAcceptableEncoding =
+    Collections.unmodifiableSet(new HashSet<String>(Arrays.asList(
+      VCardConstants.PARAM_ENCODING_8BIT,
+      VCardConstants.PARAM_ENCODING_B)));
 
-    private final VCardParserImpl_V40 mVCardParserImpl;
+  private final VCardParserImpl_V40 mVCardParserImpl;
 
-    public VCardParser_V40() {
-        mVCardParserImpl = new VCardParserImpl_V40();
-    }
+  public VCardParser_V40() {
+    mVCardParserImpl = new VCardParserImpl_V40();
+  }
 
-    public VCardParser_V40(int vcardType) {
-        mVCardParserImpl = new VCardParserImpl_V40(vcardType);
-    }
+  public VCardParser_V40(int vcardType) {
+    mVCardParserImpl = new VCardParserImpl_V40(vcardType);
+  }
 
-    @Override
-    public void addInterpreter(VCardInterpreter interpreter) {
-        mVCardParserImpl.addInterpreter(interpreter);
-    }
+  @Override
+  public void addInterpreter(VCardInterpreter interpreter) {
+    mVCardParserImpl.addInterpreter(interpreter);
+  }
 
-    @Override
-    public void parse(InputStream is) throws IOException, VCardException {
-        mVCardParserImpl.parse(is);
-    }
+  @Override
+  public void parse(InputStream is) throws IOException, VCardException {
+    mVCardParserImpl.parse(is);
+  }
 
-    @Override
-    public void parseOne(InputStream is) throws IOException, VCardException {
-        mVCardParserImpl.parseOne(is);
-    }
+  @Override
+  public void parseOne(InputStream is) throws IOException, VCardException {
+    mVCardParserImpl.parseOne(is);
+  }
 
-    @Override
-    public void cancel() {
-        mVCardParserImpl.cancel();
-    }
+  @Override
+  public void cancel() {
+    mVCardParserImpl.cancel();
+  }
 }

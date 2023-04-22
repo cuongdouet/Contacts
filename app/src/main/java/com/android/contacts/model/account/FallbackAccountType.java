@@ -20,6 +20,7 @@ import android.accounts.AuthenticatorDescription;
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 
@@ -28,83 +29,83 @@ import com.android.contacts.model.dataitem.DataKind;
 import com.android.contactsbind.FeedbackHelper;
 
 public class FallbackAccountType extends BaseAccountType {
-    private static final String TAG = "FallbackAccountType";
+  private static final String TAG = "FallbackAccountType";
 
-    private FallbackAccountType(Context context, String resPackageName) {
-        this.accountType = null;
-        this.dataSet = null;
-        this.titleRes = R.string.account_phone;
-        this.iconRes = R.drawable.quantum_ic_smartphone_vd_theme_24;
+  private FallbackAccountType(Context context, String resPackageName) {
+    this.accountType = null;
+    this.dataSet = null;
+    this.titleRes = R.string.account_phone;
+    this.iconRes = R.drawable.quantum_ic_smartphone_vd_theme_24;
 
-        // Note those are only set for unit tests.
-        this.resourcePackageName = resPackageName;
-        this.syncAdapterPackageName = resPackageName;
+    // Note those are only set for unit tests.
+    this.resourcePackageName = resPackageName;
+    this.syncAdapterPackageName = resPackageName;
 
-        try {
-            addDataKindStructuredName(context);
-            addDataKindName(context);
-            addDataKindPhoneticName(context);
-            addDataKindNickname(context);
-            addDataKindPhone(context);
-            addDataKindEmail(context);
-            addDataKindStructuredPostal(context);
-            addDataKindIm(context);
-            addDataKindOrganization(context);
-            addDataKindPhoto(context);
-            addDataKindNote(context);
-            addDataKindWebsite(context);
-            addDataKindSipAddress(context);
-            addDataKindGroupMembership(context);
+    try {
+      addDataKindStructuredName(context);
+      addDataKindName(context);
+      addDataKindPhoneticName(context);
+      addDataKindNickname(context);
+      addDataKindPhone(context);
+      addDataKindEmail(context);
+      addDataKindStructuredPostal(context);
+      addDataKindIm(context);
+      addDataKindOrganization(context);
+      addDataKindPhoto(context);
+      addDataKindNote(context);
+      addDataKindWebsite(context);
+      addDataKindSipAddress(context);
+      addDataKindGroupMembership(context);
 
-            mIsInitialized = true;
-        } catch (DefinitionException e) {
-            FeedbackHelper.sendFeedback(context, TAG, "Failed to build fallback account type", e);
-        }
+      mIsInitialized = true;
+    } catch (DefinitionException e) {
+      FeedbackHelper.sendFeedback(context, TAG, "Failed to build fallback account type", e);
     }
+  }
 
-    @Override
-    public Drawable getDisplayIcon(Context context) {
-        final Drawable icon = ResourcesCompat.getDrawable(context.getResources(), iconRes, null);
-        icon.mutate().setColorFilter(ContextCompat.getColor(context,
-                R.color.actionbar_icon_color_grey), PorterDuff.Mode.SRC_ATOP);
-        return icon;
-    }
+  public FallbackAccountType(Context context) {
+    this(context, null);
+  }
 
-    public FallbackAccountType(Context context) {
-        this(context, null);
-    }
+  /**
+   * Used to compare with an {@link ExternalAccountType} built from a test contacts.xml.
+   * In order to build {@link DataKind}s with the same resource package name,
+   * {@code resPackageName} is injectable.
+   */
+  static AccountType createWithPackageNameForTest(Context context, String resPackageName) {
+    return new FallbackAccountType(context, resPackageName);
+  }
 
-    /**
-     * Used to compare with an {@link ExternalAccountType} built from a test contacts.xml.
-     * In order to build {@link DataKind}s with the same resource package name,
-     * {@code resPackageName} is injectable.
-     */
-    static AccountType createWithPackageNameForTest(Context context, String resPackageName) {
-        return new FallbackAccountType(context, resPackageName);
-    }
+  @Override
+  public Drawable getDisplayIcon(Context context) {
+    final Drawable icon = ResourcesCompat.getDrawable(context.getResources(), iconRes, null);
+    icon.mutate().setColorFilter(ContextCompat.getColor(context,
+      R.color.actionbar_icon_color_grey), PorterDuff.Mode.SRC_ATOP);
+    return icon;
+  }
 
-    @Override
-    public void initializeFieldsFromAuthenticator(AuthenticatorDescription authenticator) {
-        // Do nothing. For "Device" accounts we want to just display them using our own strings
-        // and icons.
-    }
+  @Override
+  public void initializeFieldsFromAuthenticator(AuthenticatorDescription authenticator) {
+    // Do nothing. For "Device" accounts we want to just display them using our own strings
+    // and icons.
+  }
 
-    @Override
-    public boolean areContactsWritable() {
-        return true;
-    }
+  @Override
+  public boolean areContactsWritable() {
+    return true;
+  }
 
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>This is overriden because the base class validates that the account.type matches
-     * {@link #accountType} but for the fallback case we want to be more permissive</p>
-     */
-    @Override
-    public AccountInfo wrapAccount(Context context, AccountWithDataSet account) {
-        return new AccountInfo(
-                new AccountDisplayInfo(account, account.name,
-                        getDisplayLabel(context), getDisplayIcon(context), false), this);
-    }
+  /**
+   * {@inheritDoc}
+   *
+   * <p>This is overriden because the base class validates that the account.type matches
+   * {@link #accountType} but for the fallback case we want to be more permissive</p>
+   */
+  @Override
+  public AccountInfo wrapAccount(Context context, AccountWithDataSet account) {
+    return new AccountInfo(
+      new AccountDisplayInfo(account, account.name,
+        getDisplayLabel(context), getDisplayIcon(context), false), this);
+  }
 }

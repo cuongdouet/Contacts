@@ -39,73 +39,73 @@ import com.android.contacts.util.ImplicitIntentsUtil;
  */
 public class NonPhoneActivity extends ContactsActivity {
 
-    private static final String PHONE_NUMBER_KEY = "PHONE_NUMBER";
+  private static final String PHONE_NUMBER_KEY = "PHONE_NUMBER";
+
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    RequestPermissionsActivity.startPermissionActivityIfNeeded(this);
+
+    final String phoneNumber = getPhoneNumber();
+    if (TextUtils.isEmpty(phoneNumber)) {
+      finish();
+      return;
+    }
+
+    final NonPhoneDialogFragment fragment = new NonPhoneDialogFragment();
+    Bundle bundle = new Bundle();
+    bundle.putString(PHONE_NUMBER_KEY, phoneNumber);
+    fragment.setArguments(bundle);
+    getFragmentManager().beginTransaction().add(fragment, "Fragment").commitAllowingStateLoss();
+  }
+
+  private String getPhoneNumber() {
+    if (getIntent() == null) return null;
+    final Uri data = getIntent().getData();
+    if (data == null) return null;
+    final String scheme = data.getScheme();
+    if (!PhoneAccount.SCHEME_TEL.equals(scheme)) return null;
+    return getIntent().getData().getSchemeSpecificPart();
+  }
+
+  public static final class NonPhoneDialogFragment extends DialogFragment
+    implements OnClickListener {
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+      final AlertDialog alertDialog;
+      alertDialog = new AlertDialog.Builder(getActivity(), R.style.NonPhoneDialogTheme)
+        .create();
+      alertDialog.setTitle(R.string.non_phone_caption);
+      alertDialog.setMessage(getArgumentPhoneNumber());
+      alertDialog.setButton(DialogInterface.BUTTON_POSITIVE,
+        getActivity().getString(R.string.non_phone_add_to_contacts), this);
+      alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE,
+        getActivity().getString(R.string.non_phone_close), this);
+      return alertDialog;
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        RequestPermissionsActivity.startPermissionActivityIfNeeded(this);
-
-        final String phoneNumber = getPhoneNumber();
-        if (TextUtils.isEmpty(phoneNumber)) {
-            finish();
-            return;
-        }
-
-        final NonPhoneDialogFragment fragment = new NonPhoneDialogFragment();
-        Bundle bundle = new Bundle();
-        bundle.putString(PHONE_NUMBER_KEY, phoneNumber);
-        fragment.setArguments(bundle);
-        getFragmentManager().beginTransaction().add(fragment, "Fragment").commitAllowingStateLoss();
+    public void onClick(DialogInterface dialog, int which) {
+      if (which == DialogInterface.BUTTON_POSITIVE) {
+        final Intent intent = new Intent(Intent.ACTION_INSERT_OR_EDIT);
+        intent.setType(Contacts.CONTENT_ITEM_TYPE);
+        intent.putExtra(Insert.PHONE, getArgumentPhoneNumber());
+        ImplicitIntentsUtil.startActivityInApp(getActivity(), intent);
+      }
+      dismiss();
     }
 
-    private String getPhoneNumber() {
-        if (getIntent() == null) return null;
-        final Uri data = getIntent().getData();
-        if (data == null) return null;
-        final String scheme = data.getScheme();
-        if (!PhoneAccount.SCHEME_TEL.equals(scheme)) return null;
-        return getIntent().getData().getSchemeSpecificPart();
+    private String getArgumentPhoneNumber() {
+      return getArguments().getString(PHONE_NUMBER_KEY);
     }
 
-    public static final class NonPhoneDialogFragment extends DialogFragment
-            implements OnClickListener {
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            final AlertDialog alertDialog;
-            alertDialog = new AlertDialog.Builder(getActivity(), R.style.NonPhoneDialogTheme)
-                    .create();
-            alertDialog.setTitle(R.string.non_phone_caption);
-            alertDialog.setMessage(getArgumentPhoneNumber());
-            alertDialog.setButton(DialogInterface.BUTTON_POSITIVE,
-                    getActivity().getString(R.string.non_phone_add_to_contacts), this);
-            alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE,
-                    getActivity().getString(R.string.non_phone_close), this);
-            return alertDialog;
-        }
-
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-            if (which == DialogInterface.BUTTON_POSITIVE) {
-                final Intent intent = new Intent(Intent.ACTION_INSERT_OR_EDIT);
-                intent.setType(Contacts.CONTENT_ITEM_TYPE);
-                intent.putExtra(Insert.PHONE, getArgumentPhoneNumber());
-                ImplicitIntentsUtil.startActivityInApp(getActivity(), intent);
-            }
-            dismiss();
-        }
-
-        private String getArgumentPhoneNumber() {
-            return getArguments().getString(PHONE_NUMBER_KEY);
-        }
-
-        @Override
-        public void onDismiss(DialogInterface dialog) {
-            super.onDismiss(dialog);
-            // During screen rotation, getActivity returns null. In this case we do not
-            // want to close the Activity anyway
-            final Activity activity = getActivity();
-            if (activity != null) activity.finish();
-        }
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+      super.onDismiss(dialog);
+      // During screen rotation, getActivity returns null. In this case we do not
+      // want to close the Activity anyway
+      final Activity activity = getActivity();
+      if (activity != null) activity.finish();
     }
+  }
 }

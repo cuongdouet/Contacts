@@ -24,31 +24,31 @@ import android.provider.ContactsContract.PinnedPositions;
  * Compatibility class for {@link android.provider.ContactsContract.PinnedPositions}
  */
 public class PinnedPositionsCompat {
-    /**
-     * Not instantiable.
-     */
-    private PinnedPositionsCompat() {
-    }
+  /**
+   * copied from android.provider.ContactsContract.PinnedPositions#UNDEMOTE_METHOD
+   */
+  private static final String UNDEMOTE_METHOD = "undemote";
 
-    /**
-     * copied from android.provider.ContactsContract.PinnedPositions#UNDEMOTE_METHOD
-     */
-    private static final String UNDEMOTE_METHOD = "undemote";
+  /**
+   * Not instantiable.
+   */
+  private PinnedPositionsCompat() {
+  }
 
-    /**
-     * Compatibility method for {@link android.provider.ContactsContract.PinnedPositions#undemote}
-     */
-    public static void undemote(ContentResolver contentResolver, long contactId) {
-        if (contentResolver == null) {
-            return;
-        }
-        if (CompatUtils.isLollipopCompatible()) {
-            PinnedPositions.undemote(contentResolver, contactId);
-        } else {
-            // copied from android.provider.ContactsContract.PinnedPositions.undemote()
-            contentResolver.call(ContactsContract.AUTHORITY_URI, UNDEMOTE_METHOD,
-                    String.valueOf(contactId), null);
-        }
+  /**
+   * Compatibility method for {@link android.provider.ContactsContract.PinnedPositions#undemote}
+   */
+  public static void undemote(ContentResolver contentResolver, long contactId) {
+    if (contentResolver == null) {
+      return;
     }
+    if (CompatUtils.isLollipopCompatible()) {
+      PinnedPositions.undemote(contentResolver, contactId);
+    } else {
+      // copied from android.provider.ContactsContract.PinnedPositions.undemote()
+      contentResolver.call(ContactsContract.AUTHORITY_URI, UNDEMOTE_METHOD,
+        String.valueOf(contactId), null);
+    }
+  }
 
 }

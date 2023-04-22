@@ -27,72 +27,72 @@ import java.util.ArrayList;
  */
 public class AggregationSuggestionsCompat {
 
-    /**
-     * Used to specify what kind of data is supplied for the suggestion query.
-     */
-    public static final String PARAMETER_MATCH_NAME = "name";
+  /**
+   * Used to specify what kind of data is supplied for the suggestion query.
+   */
+  public static final String PARAMETER_MATCH_NAME = "name";
+
+  /**
+   * A convenience builder for aggregation suggestion content URIs.
+   */
+  public static final class Builder {
+    private final ArrayList<String> mValues = new ArrayList<String>();
+    private long mContactId;
+    private int mLimit;
 
     /**
-     * A convenience builder for aggregation suggestion content URIs.
+     * Optional existing contact ID.  If it is not provided, the search
+     * will be based exclusively on the values supplied with {@link #addNameParameter}.
+     *
+     * @param contactId contact to find aggregation suggestions for
+     * @return This Builder object to allow for chaining of calls to builder methods
      */
-    public static final class Builder {
-        private long mContactId;
-        private final ArrayList<String> mValues = new ArrayList<String>();
-        private int mLimit;
-
-        /**
-         * Optional existing contact ID.  If it is not provided, the search
-         * will be based exclusively on the values supplied with {@link #addNameParameter}.
-         *
-         * @param contactId contact to find aggregation suggestions for
-         * @return This Builder object to allow for chaining of calls to builder methods
-         */
-        public Builder setContactId(long contactId) {
-            this.mContactId = contactId;
-            return this;
-        }
-
-        /**
-         * Add a name to be used when searching for aggregation suggestions.
-         *
-         * @param name name to find aggregation suggestions for
-         * @return This Builder object to allow for chaining of calls to builder methods
-         */
-        public Builder addNameParameter(String name) {
-            mValues.add(name);
-            return this;
-        }
-
-        /**
-         * Sets the Maximum number of suggested aggregations that should be returned.
-         * @param limit The maximum number of suggested aggregations
-         *
-         * @return This Builder object to allow for chaining of calls to builder methods
-         */
-        public Builder setLimit(int limit) {
-            mLimit = limit;
-            return this;
-        }
-
-        /**
-         * Combine all of the options that have been set and return a new {@link Uri}
-         * object for fetching aggregation suggestions.
-         */
-        public Uri build() {
-            android.net.Uri.Builder builder = ContactsContract.Contacts.CONTENT_URI.buildUpon();
-            builder.appendEncodedPath(String.valueOf(mContactId));
-            builder.appendPath(ContactsContract.Contacts.AggregationSuggestions.CONTENT_DIRECTORY);
-            if (mLimit != 0) {
-                builder.appendQueryParameter("limit", String.valueOf(mLimit));
-            }
-
-            int count = mValues.size();
-            for (int i = 0; i < count; i++) {
-                builder.appendQueryParameter("query", PARAMETER_MATCH_NAME
-                        + ":" + mValues.get(i));
-            }
-
-            return builder.build();
-        }
+    public Builder setContactId(long contactId) {
+      this.mContactId = contactId;
+      return this;
     }
+
+    /**
+     * Add a name to be used when searching for aggregation suggestions.
+     *
+     * @param name name to find aggregation suggestions for
+     * @return This Builder object to allow for chaining of calls to builder methods
+     */
+    public Builder addNameParameter(String name) {
+      mValues.add(name);
+      return this;
+    }
+
+    /**
+     * Sets the Maximum number of suggested aggregations that should be returned.
+     *
+     * @param limit The maximum number of suggested aggregations
+     * @return This Builder object to allow for chaining of calls to builder methods
+     */
+    public Builder setLimit(int limit) {
+      mLimit = limit;
+      return this;
+    }
+
+    /**
+     * Combine all of the options that have been set and return a new {@link Uri}
+     * object for fetching aggregation suggestions.
+     */
+    public Uri build() {
+      android.net.Uri.Builder builder = ContactsContract.Contacts.CONTENT_URI.buildUpon();
+      builder.appendEncodedPath(String.valueOf(mContactId));
+      builder.appendPath(ContactsContract.Contacts.AggregationSuggestions.CONTENT_DIRECTORY);
+      if (mLimit != 0) {
+        builder.appendQueryParameter("limit", String.valueOf(mLimit));
+      }
+
+      int count = mValues.size();
+      for (int i = 0; i < count; i++) {
+        builder.appendQueryParameter("query", PARAMETER_MATCH_NAME
+          + ":" + mValues.get(i));
+      }
+
+      return builder.build();
+    }
+  }
 }

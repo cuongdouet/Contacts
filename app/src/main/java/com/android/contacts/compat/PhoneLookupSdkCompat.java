@@ -19,5 +19,5 @@ package com.android.contacts.compat;
 import android.provider.ContactsContract;
 
 public class PhoneLookupSdkCompat {
-    public static final String CONTACT_ID = ContactsContract.PhoneLookup.CONTACT_ID;
+  public static final String CONTACT_ID = ContactsContract.PhoneLookup.CONTACT_ID;
 }

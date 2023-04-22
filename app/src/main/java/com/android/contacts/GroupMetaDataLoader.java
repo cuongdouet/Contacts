@@ -28,50 +28,50 @@ import com.android.contacts.group.GroupUtil;
  */
 public final class GroupMetaDataLoader extends CursorLoader {
 
-    public final static String[] COLUMNS = new String[] {
-        Groups.ACCOUNT_NAME,
-        Groups.ACCOUNT_TYPE,
-        Groups.DATA_SET,
-        Groups._ID,
-        Groups.TITLE,
-        Groups.AUTO_ADD,
-        Groups.FAVORITES,
-        Groups.GROUP_IS_READ_ONLY,
-        Groups.DELETED,
-    };
+  public final static String[] COLUMNS = new String[]{
+    Groups.ACCOUNT_NAME,
+    Groups.ACCOUNT_TYPE,
+    Groups.DATA_SET,
+    Groups._ID,
+    Groups.TITLE,
+    Groups.AUTO_ADD,
+    Groups.FAVORITES,
+    Groups.GROUP_IS_READ_ONLY,
+    Groups.DELETED,
+  };
 
-    public final static int ACCOUNT_NAME = 0;
-    public final static int ACCOUNT_TYPE = 1;
-    public final static int DATA_SET = 2;
-    public final static int GROUP_ID = 3;
-    public final static int TITLE = 4;
-    public final static int AUTO_ADD = 5;
-    public final static int FAVORITES = 6;
-    public final static int IS_READ_ONLY = 7;
-    public final static int DELETED = 8;
+  public final static int ACCOUNT_NAME = 0;
+  public final static int ACCOUNT_TYPE = 1;
+  public final static int DATA_SET = 2;
+  public final static int GROUP_ID = 3;
+  public final static int TITLE = 4;
+  public final static int AUTO_ADD = 5;
+  public final static int FAVORITES = 6;
+  public final static int IS_READ_ONLY = 7;
+  public final static int DELETED = 8;
 
-    public GroupMetaDataLoader(Context context, Uri groupUri) {
-        super(context, ensureIsGroupUri(groupUri), COLUMNS, GroupUtil.DEFAULT_SELECTION, null,
-                GroupUtil.getGroupsSortOrder());
+  public GroupMetaDataLoader(Context context, Uri groupUri) {
+    super(context, ensureIsGroupUri(groupUri), COLUMNS, GroupUtil.DEFAULT_SELECTION, null,
+      GroupUtil.getGroupsSortOrder());
+  }
+
+  public GroupMetaDataLoader(Context context, Uri groupUri, String selection) {
+    super(context, ensureIsGroupUri(groupUri), COLUMNS, selection, null,
+      GroupUtil.getGroupsSortOrder());
+  }
+
+  /**
+   * Ensures that this is a valid group URI. If invalid, then an exception is
+   * thrown. Otherwise, the original URI is returned.
+   */
+  private static Uri ensureIsGroupUri(final Uri groupUri) {
+    // TODO: Fix ContactsProvider2 getType method to resolve the group Uris
+    if (groupUri == null) {
+      throw new IllegalArgumentException("Uri must not be null");
     }
-
-    public GroupMetaDataLoader(Context context, Uri groupUri, String selection) {
-        super(context, ensureIsGroupUri(groupUri), COLUMNS, selection, null,
-                GroupUtil.getGroupsSortOrder());
+    if (!GroupUtil.isGroupUri(groupUri)) {
+      throw new IllegalArgumentException("Invalid group Uri: " + groupUri);
     }
-
-    /**
-     * Ensures that this is a valid group URI. If invalid, then an exception is
-     * thrown. Otherwise, the original URI is returned.
-     */
-    private static Uri ensureIsGroupUri(final Uri groupUri) {
-        // TODO: Fix ContactsProvider2 getType method to resolve the group Uris
-        if (groupUri == null) {
-            throw new IllegalArgumentException("Uri must not be null");
-        }
-        if (!GroupUtil.isGroupUri(groupUri)) {
-            throw new IllegalArgumentException("Invalid group Uri: " + groupUri);
-        }
-        return groupUri;
-    }
+    return groupUri;
+  }
 }

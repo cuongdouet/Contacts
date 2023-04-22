@@ -27,66 +27,66 @@ import android.widget.FrameLayout;
  * faded in and out.  Currently, the masking view is solid color white.
  */
 public class TransitionAnimationView extends FrameLayout {
-    private View mMaskingView;
-    private ObjectAnimator mAnimator;
+  private View mMaskingView;
+  private ObjectAnimator mAnimator;
 
-    public TransitionAnimationView(Context context) {
-        this(context, null, 0);
-    }
+  public TransitionAnimationView(Context context) {
+    this(context, null, 0);
+  }
 
-    public TransitionAnimationView(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
-    }
+  public TransitionAnimationView(Context context, AttributeSet attrs) {
+    this(context, attrs, 0);
+  }
 
-    public TransitionAnimationView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-    }
+  public TransitionAnimationView(Context context, AttributeSet attrs, int defStyle) {
+    super(context, attrs, defStyle);
+  }
 
-    @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
-        mMaskingView = new View(getContext());
-        mMaskingView.setVisibility(View.INVISIBLE);
-        mMaskingView.setLayoutParams(new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT,
-                LayoutParams.MATCH_PARENT));
-        mMaskingView.setBackgroundColor(Color.WHITE);
-        addView(mMaskingView);
-    }
+  @Override
+  protected void onFinishInflate() {
+    super.onFinishInflate();
+    mMaskingView = new View(getContext());
+    mMaskingView.setVisibility(View.INVISIBLE);
+    mMaskingView.setLayoutParams(new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT,
+      LayoutParams.MATCH_PARENT));
+    mMaskingView.setBackgroundColor(Color.WHITE);
+    addView(mMaskingView);
+  }
 
-    public void setMaskVisibility(boolean flag) {
-        if (flag) {
-            mMaskingView.setAlpha(1.0f);
-            mMaskingView.setVisibility(View.VISIBLE);
-        } else {
-            mMaskingView.setVisibility(View.INVISIBLE);
-        }
+  public void setMaskVisibility(boolean flag) {
+    if (flag) {
+      mMaskingView.setAlpha(1.0f);
+      mMaskingView.setVisibility(View.VISIBLE);
+    } else {
+      mMaskingView.setVisibility(View.INVISIBLE);
     }
+  }
 
-    /**
-     * Starts the transition of showing or hiding the mask. To the user, the view will appear to
-     * either fade in or out of view.
-     *
-     * @param showMask If true, the mask the mask will be set to be invisible then fade into hide
-     * the other views in this container. If false, the the mask will be set to be hide other
-     * views initially.  Then, the other views in this container will be revealed.
-     * @param duration The duration the animation should last for. If -1, the system default(300)
-     * is used.
-     */
-    public void startMaskTransition(boolean showMask, int duration) {
-        // Stop any animation that may still be running.
-        if (mAnimator != null && mAnimator.isRunning()) {
-            mAnimator.end();
-        }
-        mMaskingView.setVisibility(View.VISIBLE);
-        if (showMask) {
-            mAnimator = ObjectAnimator.ofFloat(mMaskingView, View.ALPHA, 0.0f, 1.0f);
-        } else {
-            // asked to hide the view
-            mAnimator = ObjectAnimator.ofFloat(mMaskingView, View.ALPHA, 1.0f, 0.0f);
-        }
-        if (duration != -1) {
-            mAnimator.setDuration(duration);
-        }
-        mAnimator.start();
+  /**
+   * Starts the transition of showing or hiding the mask. To the user, the view will appear to
+   * either fade in or out of view.
+   *
+   * @param showMask If true, the mask the mask will be set to be invisible then fade into hide
+   *                 the other views in this container. If false, the the mask will be set to be hide other
+   *                 views initially.  Then, the other views in this container will be revealed.
+   * @param duration The duration the animation should last for. If -1, the system default(300)
+   *                 is used.
+   */
+  public void startMaskTransition(boolean showMask, int duration) {
+    // Stop any animation that may still be running.
+    if (mAnimator != null && mAnimator.isRunning()) {
+      mAnimator.end();
     }
+    mMaskingView.setVisibility(View.VISIBLE);
+    if (showMask) {
+      mAnimator = ObjectAnimator.ofFloat(mMaskingView, View.ALPHA, 0.0f, 1.0f);
+    } else {
+      // asked to hide the view
+      mAnimator = ObjectAnimator.ofFloat(mMaskingView, View.ALPHA, 1.0f, 0.0f);
+    }
+    if (duration != -1) {
+      mAnimator.setDuration(duration);
+    }
+    mAnimator.start();
+  }
 }

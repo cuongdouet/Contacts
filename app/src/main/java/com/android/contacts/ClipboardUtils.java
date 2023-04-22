@@ -23,30 +23,31 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 public class ClipboardUtils {
-    private static final String TAG = "ClipboardUtils";
+  private static final String TAG = "ClipboardUtils";
 
-    private ClipboardUtils() { }
+  private ClipboardUtils() {
+  }
 
-    /**
-     * Copy a text to clipboard.
-     *
-     * @param context Context
-     * @param label Label to show to the user describing this clip.
-     * @param text Text to copy.
-     * @param showToast If {@code true}, a toast is shown to the user.
-     */
-    public static void copyText(Context context, CharSequence label, CharSequence text,
-            boolean showToast) {
-        if (TextUtils.isEmpty(text)) return;
+  /**
+   * Copy a text to clipboard.
+   *
+   * @param context   Context
+   * @param label     Label to show to the user describing this clip.
+   * @param text      Text to copy.
+   * @param showToast If {@code true}, a toast is shown to the user.
+   */
+  public static void copyText(Context context, CharSequence label, CharSequence text,
+                              boolean showToast) {
+    if (TextUtils.isEmpty(text)) return;
 
-        ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(
-                Context.CLIPBOARD_SERVICE);
-        ClipData clipData = ClipData.newPlainText(label == null ? "" : label, text);
-        clipboardManager.setPrimaryClip(clipData);
+    ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(
+      Context.CLIPBOARD_SERVICE);
+    ClipData clipData = ClipData.newPlainText(label == null ? "" : label, text);
+    clipboardManager.setPrimaryClip(clipData);
 
-        if (showToast) {
-            String toastText = context.getString(R.string.toast_text_copied);
-            Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show();
-        }
+    if (showToast) {
+      String toastText = context.getString(R.string.toast_text_copied);
+      Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show();
     }
+  }
 }

@@ -20,10 +20,10 @@ import android.net.Uri;
 /**
  * Action callbacks that can be sent by a email address picker.
  */
-public interface OnEmailAddressPickerActionListener  {
+public interface OnEmailAddressPickerActionListener {
 
-    /**
-     * Returns the selected phone number to the requester.
-     */
-    void onPickEmailAddressAction(Uri dataUri);
+  /**
+   * Returns the selected phone number to the requester.
+   */
+  void onPickEmailAddressAction(Uri dataUri);
 }

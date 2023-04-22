@@ -24,15 +24,26 @@ import android.text.Spannable;
  * Represents a default interaction between the phone's owner and a contact
  */
 public interface ContactInteraction {
-    Intent getIntent();
-    long getInteractionDate();
-    String getViewHeader(Context context);
-    String getViewBody(Context context);
-    String getViewFooter(Context context);
-    Drawable getIcon(Context context);
-    Drawable getBodyIcon(Context context);
-    Drawable getFooterIcon(Context context);
-    Spannable getContentDescription(Context context);
-    /** The resource id for the icon, if available. May be 0 if one is not available. */
-    int getIconResourceId();
+  Intent getIntent();
+
+  long getInteractionDate();
+
+  String getViewHeader(Context context);
+
+  String getViewBody(Context context);
+
+  String getViewFooter(Context context);
+
+  Drawable getIcon(Context context);
+
+  Drawable getBodyIcon(Context context);
+
+  Drawable getFooterIcon(Context context);
+
+  Spannable getContentDescription(Context context);
+
+  /**
+   * The resource id for the icon, if available. May be 0 if one is not available.
+   */
+  int getIconResourceId();
 }

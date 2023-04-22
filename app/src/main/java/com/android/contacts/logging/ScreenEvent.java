@@ -21,18 +21,18 @@ package com.android.contacts.logging;
  */
 public class ScreenEvent {
 
-    // Should match ContactsExtension.ScreenEvent.ScreenType values in
-    // http://cs/google3/logs/proto/wireless/android/contacts/contacts_extensions.proto
-    public static class ScreenType {
-        public static final int UNKNOWN = 0;
-        public static final int SEARCH = 1;
-        public static final int SEARCH_EXIT = 2;
-        public static final int FAVORITES = 3;
-        public static final int ALL_CONTACTS = 4;
-        public static final int QUICK_CONTACT = 5;
-        public static final int EDITOR = 6;
-        public static final int LIST_ACCOUNT = 8;
-        public static final int LIST_GROUP = 9;
-        public static final int ME_CONTACT = 10;
-    }
+  // Should match ContactsExtension.ScreenEvent.ScreenType values in
+  // http://cs/google3/logs/proto/wireless/android/contacts/contacts_extensions.proto
+  public static class ScreenType {
+    public static final int UNKNOWN = 0;
+    public static final int SEARCH = 1;
+    public static final int SEARCH_EXIT = 2;
+    public static final int FAVORITES = 3;
+    public static final int ALL_CONTACTS = 4;
+    public static final int QUICK_CONTACT = 5;
+    public static final int EDITOR = 6;
+    public static final int LIST_ACCOUNT = 8;
+    public static final int LIST_GROUP = 9;
+    public static final int ME_CONTACT = 10;
+  }
 }

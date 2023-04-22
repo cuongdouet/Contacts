@@ -20,34 +20,34 @@ import android.net.Uri;
 /**
  * Action callbacks that can be sent by a contact list.
  */
-public interface OnContactBrowserActionListener  {
+public interface OnContactBrowserActionListener {
 
-    /**
-     * Notification of selection change, invoked when the selection of activated
-     * item(s) is change by either a user action or some other event, e.g. sync.
-     */
-    void onSelectionChange();
+  /**
+   * Notification of selection change, invoked when the selection of activated
+   * item(s) is change by either a user action or some other event, e.g. sync.
+   */
+  void onSelectionChange();
 
-    /**
-     * Opens the specified contact for viewing.
-     *
-     * @param position The index of the contact that should be opened
-     * @param contactLookupUri The lookup-uri of the contact that should be opened
-     */
-    void onViewContactAction(int position, Uri contactLookupUri, boolean isEnterpriseContact);
+  /**
+   * Opens the specified contact for viewing.
+   *
+   * @param position         The index of the contact that should be opened
+   * @param contactLookupUri The lookup-uri of the contact that should be opened
+   */
+  void onViewContactAction(int position, Uri contactLookupUri, boolean isEnterpriseContact);
 
-    /**
-     * Initiates the contact deletion process.
-     */
-    void onDeleteContactAction(Uri contactUri);
+  /**
+   * Initiates the contact deletion process.
+   */
+  void onDeleteContactAction(Uri contactUri);
 
-    /**
-     * Closes the contact browser.
-     */
-    void onFinishAction();
+  /**
+   * Closes the contact browser.
+   */
+  void onFinishAction();
 
-    /**
-     * Invoked if the requested selected contact is not found in the list.
-     */
-    void onInvalidSelection();
+  /**
+   * Invoked if the requested selected contact is not found in the list.
+   */
+  void onInvalidSelection();
 }

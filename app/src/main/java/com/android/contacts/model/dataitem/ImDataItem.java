@@ -29,85 +29,85 @@ import android.text.TextUtils;
  */
 public class ImDataItem extends DataItem {
 
-    private final boolean mCreatedFromEmail;
+  private final boolean mCreatedFromEmail;
 
-    /* package */ ImDataItem(ContentValues values) {
-        super(values);
-        mCreatedFromEmail = false;
-    }
+  /* package */ ImDataItem(ContentValues values) {
+    super(values);
+    mCreatedFromEmail = false;
+  }
 
-    private ImDataItem(ContentValues values, boolean createdFromEmail) {
-        super(values);
-        mCreatedFromEmail = createdFromEmail;
-    }
+  private ImDataItem(ContentValues values, boolean createdFromEmail) {
+    super(values);
+    mCreatedFromEmail = createdFromEmail;
+  }
 
-    public static ImDataItem createFromEmail(EmailDataItem item) {
-        final ImDataItem im = new ImDataItem(new ContentValues(item.getContentValues()), true);
-        im.setMimeType(Im.CONTENT_ITEM_TYPE);
-        return im;
-    }
+  public static ImDataItem createFromEmail(EmailDataItem item) {
+    final ImDataItem im = new ImDataItem(new ContentValues(item.getContentValues()), true);
+    im.setMimeType(Im.CONTENT_ITEM_TYPE);
+    return im;
+  }
 
-    public String getData() {
-        if (mCreatedFromEmail) {
-            return getContentValues().getAsString(Email.DATA);
-        } else {
-            return getContentValues().getAsString(Im.DATA);
-        }
+  public String getData() {
+    if (mCreatedFromEmail) {
+      return getContentValues().getAsString(Email.DATA);
+    } else {
+      return getContentValues().getAsString(Im.DATA);
     }
+  }
 
-    public String getLabel() {
-        return getContentValues().getAsString(Im.LABEL);
-    }
+  public String getLabel() {
+    return getContentValues().getAsString(Im.LABEL);
+  }
 
-    /**
-     * Values are one of Im.PROTOCOL_
-     */
-    public Integer getProtocol() {
-        return getContentValues().getAsInteger(Im.PROTOCOL);
-    }
+  /**
+   * Values are one of Im.PROTOCOL_
+   */
+  public Integer getProtocol() {
+    return getContentValues().getAsInteger(Im.PROTOCOL);
+  }
 
-    public boolean isProtocolValid() {
-        return getProtocol() != null;
-    }
+  public boolean isProtocolValid() {
+    return getProtocol() != null;
+  }
 
-    public String getCustomProtocol() {
-        return getContentValues().getAsString(Im.CUSTOM_PROTOCOL);
-    }
+  public String getCustomProtocol() {
+    return getContentValues().getAsString(Im.CUSTOM_PROTOCOL);
+  }
 
-    public int getChatCapability() {
-        Integer result = getContentValues().getAsInteger(Im.CHAT_CAPABILITY);
-        return result == null ? 0 : result;
-    }
+  public int getChatCapability() {
+    Integer result = getContentValues().getAsInteger(Im.CHAT_CAPABILITY);
+    return result == null ? 0 : result;
+  }
 
-    public boolean isCreatedFromEmail() {
-        return mCreatedFromEmail;
-    }
+  public boolean isCreatedFromEmail() {
+    return mCreatedFromEmail;
+  }
 
-    @Override
-    public boolean shouldCollapseWith(DataItem t, Context context) {
-        if (!(t instanceof ImDataItem) || mKind == null || t.getDataKind() == null) {
-            return false;
-        }
-        final ImDataItem that = (ImDataItem) t;
-        // IM can have the same data put different protocol. These should not collapse.
-        if (!getData().equals(that.getData())) {
-            return false;
-        } else if (!isProtocolValid() || !that.isProtocolValid()) {
-            // Deal with invalid protocol as if it was custom. If either has a non valid
-            // protocol, check to see if the other has a valid that is not custom
-            if (isProtocolValid()) {
-                return getProtocol() == Im.PROTOCOL_CUSTOM;
-            } else if (that.isProtocolValid()) {
-                return that.getProtocol() == Im.PROTOCOL_CUSTOM;
-            }
-            return true;
-        } else if (getProtocol() != that.getProtocol()) {
-            return false;
-        } else if (getProtocol() == Im.PROTOCOL_CUSTOM &&
-                !TextUtils.equals(getCustomProtocol(), that.getCustomProtocol())) {
-            // Check if custom protocols are not the same
-            return false;
-        }
-        return true;
+  @Override
+  public boolean shouldCollapseWith(DataItem t, Context context) {
+    if (!(t instanceof ImDataItem) || mKind == null || t.getDataKind() == null) {
+      return false;
     }
+    final ImDataItem that = (ImDataItem) t;
+    // IM can have the same data put different protocol. These should not collapse.
+    if (!getData().equals(that.getData())) {
+      return false;
+    } else if (!isProtocolValid() || !that.isProtocolValid()) {
+      // Deal with invalid protocol as if it was custom. If either has a non valid
+      // protocol, check to see if the other has a valid that is not custom
+      if (isProtocolValid()) {
+        return getProtocol() == Im.PROTOCOL_CUSTOM;
+      } else if (that.isProtocolValid()) {
+        return that.getProtocol() == Im.PROTOCOL_CUSTOM;
+      }
+      return true;
+    } else if (getProtocol() != that.getProtocol()) {
+      return false;
+    } else if (getProtocol() == Im.PROTOCOL_CUSTOM &&
+      !TextUtils.equals(getCustomProtocol(), that.getCustomProtocol())) {
+      // Check if custom protocols are not the same
+      return false;
+    }
+    return true;
+  }
 }
